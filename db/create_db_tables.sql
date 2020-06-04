@@ -49,7 +49,7 @@ CREATE TABLE modelVersions (
   datasetID INT NOT NULL, -- dataset the model was trained on
   location VARCHAR(500), -- path to model file and prediction script TODO: is this something that is appropriate to be stored in the database (perhaps an evironment script too)
   command VARCHAR(500), -- to run the model prediction script
-  uploadTime TIMESTAMP,
+  modelTrainTime TIMESTAMP,
   active BOOLEAN, -- submission of a new model should turn this off, default on
   PRIMARY KEY (modelID, modelVersion),
   FOREIGN KEY (modelID) REFERENCES models (modelID)
