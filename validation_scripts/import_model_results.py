@@ -8,6 +8,32 @@ cnxn = get_connection()
 cursor = cnxn.cursor()
 
 ########################
+### File arguments #####
+########################
+
+parser = argparse.ArgumentParser(
+    description="Save model run data to db."
+)
+
+parser.add_argument(
+    "-t", help="Model training metadata JSON"
+)
+
+parser.add_argument(
+    "-r", help="Model run metadata JSON"
+)
+
+args = parser.parse_args()
+if args.t:
+    model_training_metadata = args.t
+else:
+    raise RuntimeError("You must supply model training data with -t")
+if args.r:
+    model_run_metadata = args.r
+else:
+    raise RuntimeError("You must supply model run data with -r")
+
+########################
 ### Create variables ###
 ########################
 
@@ -15,14 +41,14 @@ model = "simple sklearn model" # TODO: should these be part of the metadata JSON
 model_version = "1.0.0"
 
 # Metrics and metadata from model run
-model_run_metadata = '../analyst_scripts/prediction-model-metadata.json'
+# model_run_metadata = '../analyst_scripts/prediction-model-metadata.json'
 with open(model_run_metadata) as json_file:
     prediction_model_metadata = json.load(json_file)
 metrics = prediction_model_metadata["metrics"]
 model_run_datetime = datetime.fromisoformat(prediction_model_metadata["model_run_datetime"])
 
 # Metrics and metadata from model training
-model_training_metadata = '../analyst_scripts/prediction-model-training-metadata.json'
+# model_training_metadata = '../analyst_scripts/prediction-model-training-metadata.json'
 with open(model_training_metadata) as json_file:
     prediction_model_training_metadata = json.load(json_file)
 training_metrics = prediction_model_training_metadata["metrics"]
@@ -40,31 +66,6 @@ location = 'models/sklearn_basic/analyst_scripts/finalized_model.sav' # TODO: is
 command = 'python prediction-metrics.py'
 current_time = datetime.now()
 model_is_active = True
-
-#TODO: split this into a script that runs before and after?
-
-########################
-### Arguments idea #####
-########################
-
-# parser = argparse.ArgumentParser(
-#     description="Save model data to db."
-# )
-#
-# parser.add_argument(
-#     "-n", help="Model name"
-# )
-#
-# parser.add_argument(
-#     "-v", help="Model version"
-# )
-#
-# args = parser.parse_args()
-# if args.n:
-#     model = args.n
-# if args.v:
-#     model_version = args.v
-
 
 #######################
 ### Save data to db ###

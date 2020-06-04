@@ -1,9 +1,40 @@
 # Run this script once, the first time an analyst submits a model
+import argparse
 from db_connect import get_connection
 import json
 
 cnxn = get_connection()
 cursor = cnxn.cursor()
+
+########################
+### File arguments #####
+########################
+
+parser = argparse.ArgumentParser(
+    description="Save model run data to db."
+)
+
+parser.add_argument(
+    "-t", help="Model training metadata JSON"
+)
+
+parser.add_argument(
+    "-r", help="Model run metadata JSON"
+)
+
+args = parser.parse_args()
+if args.t:
+    model_training_metadata = args.t
+else:
+    raise RuntimeError("You must supply model training data with -t")
+if args.r:
+    model_run_metadata = args.r
+else:
+    raise RuntimeError("You must supply model run data with -r")
+
+########################
+### Create variables ###
+########################
 
 team = 'REG'
 contact = 'Ed Chalstrey'
@@ -12,6 +43,10 @@ team_description = 'A team from The Alan Turing Institute'
 research_question = 'Investigate wine quality dataset'
 model = 'WineQuality1'
 model_description = 'Model to assess wine quality'
+
+#######################
+### Save data to db ###
+#######################
 
 # Team:
 cursor.execute('''
@@ -37,12 +72,12 @@ VALUES
 # Metrics:
 # Either enter metrics these manually and provide a description or use the
 # analyst's output JSONs as here
-model_run_metadata = '../analyst_scripts/prediction-model-metadata.json'
+# model_run_metadata = '../analyst_scripts/prediction-model-metadata.json'
 with open(model_run_metadata) as json_file:
     prediction_model_metadata = json.load(json_file)
 metrics = prediction_model_metadata["metrics"]
 
-model_training_metadata = '../analyst_scripts/prediction-model-training-metadata.json'
+# model_training_metadata = '../analyst_scripts/prediction-model-training-metadata.json'
 with open(model_training_metadata) as json_file:
     prediction_model_training_metadata = json.load(json_file)
 training_metrics = prediction_model_training_metadata["metrics"]
