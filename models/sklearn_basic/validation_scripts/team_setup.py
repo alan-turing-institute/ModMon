@@ -21,11 +21,18 @@ VALUES
 ''', team, contact, contact_email, team_description)
 
 # Research Questions:
+cursor.execute("select max(questionID) from researchQuestions")
+max_question_id = cursor.fetchone()[0]
+if max_question_id: # Generate and ID INT for the question
+    qid = max_question_id + 1
+else:
+    qid = 1
+
 cursor.execute('''
 INSERT INTO researchQuestions (questionID, description)
 VALUES
-(1, ?);
-''', research_question)
+(?, ?);
+''', qid, research_question)
 
 # Metrics:
 # Either enter metrics these manually and provide a description or use the
