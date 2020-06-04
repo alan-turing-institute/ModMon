@@ -58,11 +58,17 @@ for metric in metrics:
     ''', metric)
 
 # Models:
+cursor.execute("select max(modelID) from models")
+max_model_id = cursor.fetchone()[0]
+if max_model_id: # Generate and ID INT for the question
+    mid = max_model_id + 1
+else:
+    mid = 1
 cursor.execute('''
 INSERT INTO models (modelID, teamName, questionID, name, description)
 VALUES
-(1, ?, 1, ?, ?);
-''', team, model, model_description)
+(?, ?, 1, ?, ?);
+''', mid, team, model, model_description)
 
 cnxn.commit()
 cnxn.close()
