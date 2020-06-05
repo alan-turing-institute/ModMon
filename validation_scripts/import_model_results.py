@@ -54,10 +54,6 @@ with open(model_training_metadata) as json_file:
 training_metrics = prediction_model_training_metadata["metrics"]
 
 model_train_datetime = datetime.fromisoformat(prediction_model_training_metadata["model_train_datetime"])
-db_name = prediction_model_training_metadata["db_name"]
-database_version_snapshot_time = datetime.fromisoformat(prediction_model_training_metadata["database_version_snapshot_time"])
-data_window_start = datetime.fromisoformat(prediction_model_training_metadata["data_window_start"])
-data_window_end = datetime.fromisoformat(prediction_model_training_metadata["data_window_end"])
 
 # Create a single metrics dictionary
 metrics.update(training_metrics)
@@ -77,13 +73,6 @@ INSERT INTO modelVersions (modelID, modelVersion, datasetID, location, command, 
 VALUES
 (1, ?, 1, ?, ?, ?, ?);
 ''', model_version, location, command, model_train_datetime, model_is_active)
-
-# Dataset
-cursor.execute('''
-INSERT INTO datasets (datasetID, dataBaseName, dataBaseVersionTime, start_date, end_date)
-VALUES
-(1, ?, ?, ?, ?);
-''', db_name, database_version_snapshot_time, data_window_start, data_window_end)
 
 # Result
 for metric, value in metrics.items():

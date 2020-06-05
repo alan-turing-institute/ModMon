@@ -1,5 +1,6 @@
 # Run this script once, the first time an analyst submits a model
 import argparse
+from datetime import datetime
 from db_connect import get_connection
 import json
 
@@ -82,6 +83,11 @@ with open(model_training_metadata) as json_file:
     prediction_model_training_metadata = json.load(json_file)
 training_metrics = prediction_model_training_metadata["metrics"]
 
+db_name = prediction_model_training_metadata["db_name"]
+database_version_snapshot_time = datetime.fromisoformat(prediction_model_training_metadata["database_version_snapshot_time"])
+data_window_start = datetime.fromisoformat(prediction_model_training_metadata["data_window_start"])
+data_window_end = datetime.fromisoformat(prediction_model_training_metadata["data_window_end"])
+
 # Create a single metrics dictionary
 metrics.update(training_metrics)
 
@@ -104,6 +110,13 @@ INSERT INTO models (modelID, teamName, questionID, name, description)
 VALUES
 (?, ?, 1, ?, ?);
 ''', mid, team, model, model_description)
+
+# Datasets:
+cursor.execute('''
+INSERT INTO datasets (datasetID, dataBaseName, dataBaseVersionTime, start_date, end_date)
+VALUES
+(1, ?, ?, ?, ?);
+''', db_name, database_version_snapshot_time, data_window_start, data_window_end)
 
 cnxn.commit()
 cnxn.close()
