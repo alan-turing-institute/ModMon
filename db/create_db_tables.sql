@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS results;
-DROP TABLE IF EXISTS datasets;
 DROP TABLE IF EXISTS modelVersions;
+DROP TABLE IF EXISTS datasets;
 DROP TABLE IF EXISTS models;
 DROP TABLE IF EXISTS metrics;
 DROP TABLE IF EXISTS researchQuestions;
@@ -40,6 +40,16 @@ CREATE TABLE models (
   FOREIGN KEY (questionID) REFERENCES researchQuestions (questionID)
 );
 
+CREATE TABLE datasets (
+  datasetID INT NOT NULL,
+  dataBaseName VARCHAR(20) NOT NULL,
+  dataBaseVersionTime TIMESTAMP NOT NULL, -- either current TIMESTAMP or a TIMESTAMP in the past before an update was pushed to the db
+  description VARCHAR(500), -- Must provide some info on how the analysts database query was modified, if it has been. Possibly entire query (save this for version 2?)
+  start_date TIMESTAMP,
+  end_date TIMESTAMP,
+  PRIMARY KEY (datasetID)
+);
+
 -- The second set of tables are populated by the model validator
 -- each time they run a model and get some output data
 
@@ -52,17 +62,8 @@ CREATE TABLE modelVersions (
   modelTrainTime TIMESTAMP,
   active BOOLEAN, -- submission of a new model should turn this off, default on
   PRIMARY KEY (modelID, modelVersion),
-  FOREIGN KEY (modelID) REFERENCES models (modelID)
-);
-
-CREATE TABLE datasets (
-  datasetID INT NOT NULL,
-  dataBaseName VARCHAR(20) NOT NULL,
-  dataBaseVersionTime TIMESTAMP NOT NULL, -- either current TIMESTAMP or a TIMESTAMP in the past before an update was pushed to the db
-  description VARCHAR(500), -- Must provide some info on how the analysts database query was modified, if it has been. Possibly entire query (save this for version 2?)
-  start_date TIMESTAMP,
-  end_date TIMESTAMP,
-  PRIMARY KEY (datasetID)
+  FOREIGN KEY (modelID) REFERENCES models (modelID),
+  FOREIGN KEY (datasetID) REFERENCES datasets (datasetID)
 );
 
 -- DROP TABLE IF EXISTS modelMetrics; -- TODO: do we need this? I think covered by results table
