@@ -39,6 +39,10 @@ else:
 
 model = "WineQuality1" # TODO: should these be part of the metadata JSON or decided by the validator?
 model_version = "1.0.0"
+location = 'models/sklearn_basic/analyst_scripts/finalized_model.sav' # TODO: is it possible to extract this from the argument?
+command = 'python prediction-metrics.py'
+current_time = datetime.now()
+model_is_active = True
 
 # Metrics and metadata from model run
 # model_run_metadata = '../analyst_scripts/prediction-model-metadata.json'
@@ -57,11 +61,6 @@ model_train_datetime = datetime.fromisoformat(prediction_model_training_metadata
 
 # Create a single metrics dictionary
 metrics.update(training_metrics)
-
-location = 'models/sklearn_basic/analyst_scripts/finalized_model.sav' # TODO: is it possible to extract this from the argument?
-command = 'python prediction-metrics.py'
-current_time = datetime.now()
-model_is_active = True
 
 #######################
 ### Save data to db ###
