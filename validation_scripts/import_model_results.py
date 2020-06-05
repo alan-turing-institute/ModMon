@@ -37,7 +37,7 @@ else:
 ### Create variables ###
 ########################
 
-model = "simple sklearn model" # TODO: should these be part of the metadata JSON or decided by the validator?
+model = "WineQuality1" # TODO: should these be part of the metadata JSON or decided by the validator?
 model_version = "1.0.0"
 
 # Metrics and metadata from model run
