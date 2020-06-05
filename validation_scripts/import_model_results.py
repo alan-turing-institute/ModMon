@@ -69,7 +69,7 @@ model_is_active = True
 
 # Model Version
 cursor.execute('''
-INSERT INTO modelVersions (modelID, modelVersion, datasetID, location, command, modelTrainTime, active)
+INSERT INTO modelVersions (modelID, modelVersion, trainingDatasetID, location, command, modelTrainTime, active)
 VALUES
 (1, ?, 1, ?, ?, ?, ?);
 ''', model_version, location, command, model_train_datetime, model_is_active)

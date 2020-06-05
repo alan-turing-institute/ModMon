@@ -101,22 +101,28 @@ for metric in metrics:
 # Models:
 cursor.execute("select max(modelID) from models")
 max_model_id = cursor.fetchone()[0]
-if max_model_id: # Generate and ID INT for the question
+if max_model_id: # Generate and ID INT for the model
     mid = max_model_id + 1
 else:
     mid = 1
 cursor.execute('''
 INSERT INTO models (modelID, teamName, questionID, name, description)
 VALUES
-(?, ?, 1, ?, ?);
-''', mid, team, model, model_description)
+(?, ?, ?, ?, ?);
+''', mid, team, qid, model, model_description)
 
 # Datasets:
+cursor.execute("select max(datasetID) from datasets")
+max_dataset_id = cursor.fetchone()[0]
+if max_dataset_id: # Generate and ID INT for the training dataset
+    tdid = max_model_id + 1
+else:
+    tdid = 1
 cursor.execute('''
 INSERT INTO datasets (datasetID, dataBaseName, dataBaseVersionTime, start_date, end_date)
 VALUES
-(1, ?, ?, ?, ?);
-''', db_name, database_version_snapshot_time, data_window_start, data_window_end)
+(?, ?, ?, ?, ?);
+''', tdid, db_name, database_version_snapshot_time, data_window_start, data_window_end)
 
 cnxn.commit()
 cnxn.close()

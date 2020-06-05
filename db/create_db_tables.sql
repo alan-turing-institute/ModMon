@@ -56,14 +56,14 @@ CREATE TABLE datasets (
 CREATE TABLE modelVersions (
   modelID INT NOT NULL,
   modelVersion VARCHAR(10) NOT NULL,
-  datasetID INT NOT NULL, -- dataset the model was trained on
+  trainingDatasetID INT NOT NULL, -- dataset the model was trained on
   location VARCHAR(500), -- path to model file and prediction script TODO: is this something that is appropriate to be stored in the database (perhaps an evironment script too)
   command VARCHAR(500), -- to run the model prediction script
   modelTrainTime TIMESTAMP,
   active BOOLEAN, -- submission of a new model should turn this off, default on
   PRIMARY KEY (modelID, modelVersion),
   FOREIGN KEY (modelID) REFERENCES models (modelID),
-  FOREIGN KEY (datasetID) REFERENCES datasets (datasetID)
+  FOREIGN KEY (trainingDatasetID) REFERENCES datasets (datasetID)
 );
 
 -- DROP TABLE IF EXISTS modelMetrics; -- TODO: do we need this? I think covered by results table
