@@ -84,7 +84,7 @@ with open(model_training_metadata) as json_file:
 training_metrics = prediction_model_training_metadata["metrics"]
 
 db_name = prediction_model_training_metadata["db_name"]
-database_version_snapshot_time = datetime.fromisoformat(prediction_model_training_metadata["database_version_snapshot_time"])
+database_access_time = datetime.fromisoformat(prediction_model_training_metadata["database_access_time"])
 data_window_start = datetime.fromisoformat(prediction_model_training_metadata["data_window_start"])
 data_window_end = datetime.fromisoformat(prediction_model_training_metadata["data_window_end"])
 
@@ -115,14 +115,14 @@ VALUES
 cursor.execute("select max(datasetID) from datasets")
 max_dataset_id = cursor.fetchone()[0]
 if max_dataset_id: # Generate and ID INT for the training dataset
-    tdid = max_model_id + 1
+    tdid = max_dataset_id + 1
 else:
     tdid = 1
 cursor.execute('''
-INSERT INTO datasets (datasetID, dataBaseName, dataBaseVersionTime, start_date, end_date)
+INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, start_date, end_date)
 VALUES
 (?, ?, ?, ?, ?);
-''', tdid, db_name, database_version_snapshot_time, data_window_start, data_window_end)
+''', tdid, db_name, database_access_time, data_window_start, data_window_end)
 
 cnxn.commit()
 cnxn.close()

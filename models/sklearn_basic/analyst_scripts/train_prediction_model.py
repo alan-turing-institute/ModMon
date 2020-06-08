@@ -11,7 +11,7 @@ X_train, y_train = get_data()
 
 # Imagine these variables were also part of a database query
 db_name = 'dummyDB'
-database_version_snapshot_time ='2020-06-03'
+database_access_time ='2020-06-03'
 data_window_start = '2020-03-03'
 data_window_end = '2020-06-03'
 
@@ -39,7 +39,7 @@ metrics = {"training_time": training_time}
 output = {"metrics": metrics,
           "model_train_datetime": model_train_datetime,
           "db_name": db_name,
-          "database_version_snapshot_time": database_version_snapshot_time,
+          "database_access_time": database_access_time,
           "data_window_start": data_window_start,
           "data_window_end": data_window_end
           }

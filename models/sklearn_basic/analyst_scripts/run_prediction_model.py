@@ -38,11 +38,11 @@ metrics = {"r2": r2_score(y_test, predicted_qualities),
            }
 
 # Record the time at which the model was run
-model_run_datetime = datetime.now().isoformat() # this can also be considered the database_version_snapshot_time
+database_access_time = datetime.now().isoformat() # this can also be considered the database_version_snapshot_time
 
 # Output as JSON
 output = {"metrics": metrics,
-          "model_run_datetime": model_run_datetime,
+          "database_access_time": database_access_time,
           "db_name": db_name,
           "data_window_start": data_window_start,
           "data_window_end": data_window_end

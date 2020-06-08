@@ -43,7 +43,7 @@ CREATE TABLE models (
 CREATE TABLE datasets (
   datasetID INT NOT NULL,
   dataBaseName VARCHAR(20) NOT NULL,
-  dataBaseVersionTime TIMESTAMP NOT NULL, -- TODO: possibly not needed - either current TIMESTAMP or a TIMESTAMP in the past before an update was pushed to the db
+  dataBaseAccessTime TIMESTAMP NOT NULL,
   description VARCHAR(500), -- Must provide some info on how the analysts database query was modified, if it has been. Possibly entire query (save this for version 2?)
   start_date TIMESTAMP,
   end_date TIMESTAMP,

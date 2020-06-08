@@ -49,7 +49,13 @@ model_is_active = True
 with open(model_run_metadata) as json_file:
     prediction_model_metadata = json.load(json_file)
 metrics = prediction_model_metadata["metrics"]
-model_run_datetime = datetime.fromisoformat(prediction_model_metadata["model_run_datetime"])
+database_access_time = datetime.fromisoformat(prediction_model_metadata["database_access_time"])
+
+# Get test dataset info
+db_name = prediction_model_metadata["db_name"]
+database_access_time = datetime.fromisoformat(prediction_model_metadata["database_access_time"])
+data_window_start = datetime.fromisoformat(prediction_model_metadata["data_window_start"])
+data_window_end = datetime.fromisoformat(prediction_model_metadata["data_window_end"])
 
 # Metrics and metadata from model training
 # model_training_metadata = '../analyst_scripts/prediction-model-training-metadata.json'
@@ -66,6 +72,16 @@ metrics.update(training_metrics)
 ### Save data to db ###
 #######################
 
+# Dataset:
+cursor.execute("select max(datasetID) from datasets")
+max_dataset_id = cursor.fetchone()[0]
+tdid = max_dataset_id + 1
+cursor.execute('''
+INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, start_date, end_date)
+VALUES
+(?, ?, ?, ?, ?);
+''', tdid, db_name, database_access_time, data_window_start, data_window_end)
+
 # Model Version
 cursor.execute('''
 INSERT INTO modelVersions (modelID, modelVersion, trainingDatasetID, location, command, modelTrainTime, active)
@@ -79,7 +95,7 @@ for metric, value in metrics.items():
     INSERT INTO results (modelID, modelVersion, datasetID, runTime, metric, value)
     VALUES
     (1, ?, 1, ?, ?, ?);
-    ''', model_version, model_run_datetime, metric, value)
+    ''', model_version, database_access_time, metric, value)
 
 cnxn.commit()
 cnxn.close()
