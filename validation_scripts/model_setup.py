@@ -1,7 +1,7 @@
 # Run this script once, the first time an analyst submits a model
 import argparse
 from datetime import datetime
-from db_connect import get_connection
+from db_connect import get_connection, get_unique_id
 import json
 
 cnxn = get_connection()
@@ -57,13 +57,7 @@ VALUES
 ''', team, contact, contact_email, team_description)
 
 # Research Questions:
-cursor.execute("select max(questionID) from researchQuestions")
-max_question_id = cursor.fetchone()[0]
-if max_question_id: # Generate and ID INT for the question
-    qid = max_question_id + 1
-else:
-    qid = 1
-
+qid = get_unique_id(cursor, "researchQuestions", "questionID")
 cursor.execute('''
 INSERT INTO researchQuestions (questionID, description)
 VALUES
@@ -99,12 +93,7 @@ for metric in metrics:
     ''', metric)
 
 # Models:
-cursor.execute("select max(modelID) from models")
-max_model_id = cursor.fetchone()[0]
-if max_model_id: # Generate and ID INT for the model
-    mid = max_model_id + 1
-else:
-    mid = 1
+mid = get_unique_id(cursor, "models", "modelID")
 cursor.execute('''
 INSERT INTO models (modelID, teamName, questionID, name, description)
 VALUES
@@ -112,12 +101,7 @@ VALUES
 ''', mid, team, qid, model, model_description)
 
 # Training Dataset:
-cursor.execute("select max(datasetID) from datasets")
-max_dataset_id = cursor.fetchone()[0]
-if max_dataset_id: # Generate and ID INT for the training dataset
-    tdid = max_dataset_id + 1
-else:
-    tdid = 1
+tdid = get_unique_id(cursor, "datasets", "datasetID")
 cursor.execute('''
 INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, start_date, end_date)
 VALUES

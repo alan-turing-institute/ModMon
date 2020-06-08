@@ -1,7 +1,7 @@
 # Run this script each time an analyst submits a model
 import argparse
 from datetime import datetime
-from db_connect import get_connection
+from db_connect import get_connection, get_unique_id
 import json
 
 cnxn = get_connection()
@@ -73,14 +73,12 @@ metrics.update(training_metrics)
 #######################
 
 # Test Dataset:
-cursor.execute("select max(datasetID) from datasets")
-max_dataset_id = cursor.fetchone()[0]
-tdid = max_dataset_id + 1
+tstdid = get_unique_id(cursor, "datasets", "datasetID")
 cursor.execute('''
 INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, start_date, end_date)
 VALUES
 (?, ?, ?, ?, ?);
-''', tdid, db_name, database_access_time, data_window_start, data_window_end)
+''', tstdid, db_name, database_access_time, data_window_start, data_window_end)
 
 # Model Version
 cursor.execute('''
@@ -94,8 +92,8 @@ for metric, value in metrics.items():
     cursor.execute('''
     INSERT INTO results (modelID, modelVersion, testDatasetID, runTime, metric, value)
     VALUES
-    (1, ?, 1, ?, ?, ?);
-    ''', model_version, database_access_time, metric, value)
+    (1, ?, ?, ?, ?, ?);
+    ''', model_version, tstdid, database_access_time, metric, value)
 
 cnxn.commit()
 cnxn.close()
