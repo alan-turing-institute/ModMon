@@ -66,26 +66,17 @@ CREATE TABLE modelVersions (
   FOREIGN KEY (trainingDatasetID) REFERENCES datasets (datasetID)
 );
 
--- DROP TABLE IF EXISTS modelMetrics; -- TODO: do we need this? I think covered by results table
--- CREATE TABLE modelMetrics (
---   modelID INT,
---   metric INT,
---   model INT,
---   active bool
--- );
-
 CREATE TABLE results (
-  -- id INT, TODO: Do we need a result id?
   modelID INT NOT NULL,
   modelVersion VARCHAR(10) NOT NULL,
-  datasetID INT NOT NULL,
+  testDatasetID INT NOT NULL,
   runTime TIMESTAMP NOT NULL,
   metric VARCHAR(20) NOT NULL,
   value FLOAT NOT NULL, -- TODO will this be a float for every metric?
   valueError FLOAT,
   resultMessage VARCHAR(500),
-  PRIMARY KEY (modelID, modelVersion, datasetID, runTime, metric),
+  PRIMARY KEY (modelID, modelVersion, testDatasetID, runTime, metric),
   FOREIGN KEY (modelID, modelVersion) REFERENCES modelVersions (modelID, modelVersion),
-  FOREIGN KEY (datasetID) REFERENCES datasets (datasetID),
+  FOREIGN KEY (testDatasetID) REFERENCES datasets (datasetID),
   FOREIGN KEY (metric) REFERENCES metrics (metric)
 );

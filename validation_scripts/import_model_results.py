@@ -92,7 +92,7 @@ VALUES
 # Result
 for metric, value in metrics.items():
     cursor.execute('''
-    INSERT INTO results (modelID, modelVersion, datasetID, runTime, metric, value)
+    INSERT INTO results (modelID, modelVersion, testDatasetID, runTime, metric, value)
     VALUES
     (1, ?, 1, ?, ?, ?);
     ''', model_version, database_access_time, metric, value)
