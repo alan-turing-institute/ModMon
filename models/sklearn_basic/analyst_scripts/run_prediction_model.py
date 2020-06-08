@@ -1,3 +1,4 @@
+import argparse
 from datetime import datetime
 from get_data import get_data
 import json
@@ -5,8 +6,19 @@ import pickle
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 # Load the model from disk
-filename = "finalized_model.sav" # TODO: make this an arg for this script
-model = pickle.load(open(filename, 'rb'))
+parser = argparse.ArgumentParser(
+    description="Load the model from disk"
+)
+
+parser.add_argument(
+    "-f", help="Load the model from disk"
+)
+args = parser.parse_args()
+if args.f:
+    filename = args.f
+    model = pickle.load(open(filename, 'rb'))
+else:
+    raise RuntimeError("You must supply model file with -f")
 
 # Pull the test data into dataframes (imagine this was a database query)
 X_test, y_test = get_data(test=True)
