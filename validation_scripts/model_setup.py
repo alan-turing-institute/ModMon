@@ -111,7 +111,7 @@ VALUES
 (?, ?, ?, ?, ?);
 ''', mid, team, qid, model, model_description)
 
-# Datasets:
+# Training Dataset:
 cursor.execute("select max(datasetID) from datasets")
 max_dataset_id = cursor.fetchone()[0]
 if max_dataset_id: # Generate and ID INT for the training dataset

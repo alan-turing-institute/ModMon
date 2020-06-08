@@ -72,7 +72,7 @@ metrics.update(training_metrics)
 ### Save data to db ###
 #######################
 
-# Dataset:
+# Test Dataset:
 cursor.execute("select max(datasetID) from datasets")
 max_dataset_id = cursor.fetchone()[0]
 tdid = max_dataset_id + 1
