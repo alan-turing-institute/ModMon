@@ -15,7 +15,6 @@ cursor = cnxn.cursor()
 model = "WineQuality1" # TODO: should these be part of the metadata JSON or decided by the validator?
 model_version = "1.0.0"
 tstdid = 1
-mid = 1
 
 ########################
 ### File arguments #####
@@ -65,7 +64,11 @@ metrics.update(training_metrics)
 ### Save data to db ###
 #######################
 
-# Result
+# Get model ID
+cursor.execute("SELECT modelID FROM models WHERE name='" + model + "'")
+mid = cursor.fetchone()[0]
+
+# Save result
 for metric, value in metrics.items():
     cursor.execute('''
     INSERT INTO results (modelID, modelVersion, testDatasetID, runTime, metric, value)
