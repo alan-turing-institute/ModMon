@@ -22,7 +22,6 @@ model_description = 'Model to assess wine quality'
 model_version = "1.0.0"
 location = 'models/sklearn_basic/analyst_scripts/finalized_model.sav' # TODO: is it possible to extract this from the argument?
 command = 'python prediction-metrics.py'
-current_time = datetime.now()
 model_is_active = True
 
 ########################
