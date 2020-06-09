@@ -1,4 +1,4 @@
-# Run this script once, the first time an analyst submits a model
+# Run this script once, the first time an analyst submits a model file (including for a new version of a model)
 import argparse
 from datetime import datetime
 from db_connect import get_connection, get_unique_id
@@ -44,6 +44,11 @@ team_description = 'A team from The Alan Turing Institute'
 research_question = 'Investigate wine quality dataset'
 model = 'WineQuality1'
 model_description = 'Model to assess wine quality'
+model_version = "1.0.0"
+location = 'models/sklearn_basic/analyst_scripts/finalized_model.sav' # TODO: is it possible to extract this from the argument?
+command = 'python prediction-metrics.py'
+current_time = datetime.now()
+model_is_active = True
 
 #######################
 ### Save data to db ###
@@ -64,27 +69,31 @@ VALUES
 (?, ?);
 ''', qid, research_question)
 
-# Metrics:
-# Either enter metrics these manually and provide a description or use the
-# analyst's output JSONs as here
-# model_run_metadata = '../analyst_scripts/prediction-model-metadata.json'
-with open(model_run_metadata) as json_file:
-    prediction_model_metadata = json.load(json_file)
-metrics = prediction_model_metadata["metrics"]
-
-# model_training_metadata = '../analyst_scripts/prediction-model-training-metadata.json'
+# Load model train metadata and metrics
 with open(model_training_metadata) as json_file:
     prediction_model_training_metadata = json.load(json_file)
 training_metrics = prediction_model_training_metadata["metrics"]
 
-db_name = prediction_model_training_metadata["db_name"]
-database_access_time = datetime.fromisoformat(prediction_model_training_metadata["database_access_time"])
-data_window_start = datetime.fromisoformat(prediction_model_training_metadata["data_window_start"])
-data_window_end = datetime.fromisoformat(prediction_model_training_metadata["data_window_end"])
+# Get training dataset info
+db_name_training = prediction_model_training_metadata["db_name"]
+database_access_time_training = datetime.fromisoformat(prediction_model_training_metadata["database_access_time"])
+data_window_start_training = datetime.fromisoformat(prediction_model_training_metadata["data_window_start"])
+data_window_end_training = datetime.fromisoformat(prediction_model_training_metadata["data_window_end"])
+model_train_datetime = datetime.fromisoformat(prediction_model_training_metadata["model_train_datetime"])
 
-# Create a single metrics dictionary
+# Load model run metadata and metrics
+with open(model_run_metadata) as json_file:
+    prediction_model_metadata = json.load(json_file)
+metrics = prediction_model_metadata["metrics"]
+
+# Get test dataset info
+db_name = prediction_model_metadata["db_name"]
+database_access_time = datetime.fromisoformat(prediction_model_metadata["database_access_time"])
+data_window_start = datetime.fromisoformat(prediction_model_metadata["data_window_start"])
+data_window_end = datetime.fromisoformat(prediction_model_metadata["data_window_end"])
+
+# Create a single metrics dictionary and add to metrics table
 metrics.update(training_metrics)
-
 for metric in metrics:
     cursor.execute('''
     INSERT INTO metrics (metric)
@@ -106,7 +115,22 @@ cursor.execute('''
 INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, start_date, end_date)
 VALUES
 (?, ?, ?, ?, ?);
-''', tdid, db_name, database_access_time, data_window_start, data_window_end)
+''', tdid, db_name_training, database_access_time_training, data_window_start_training, data_window_end_training)
+
+# Test Dataset:
+tstdid = get_unique_id(cursor, "datasets", "datasetID")
+cursor.execute('''
+INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, start_date, end_date)
+VALUES
+(?, ?, ?, ?, ?);
+''', tstdid, db_name, database_access_time, data_window_start, data_window_end)
+
+# Model Version
+cursor.execute('''
+INSERT INTO modelVersions (modelID, modelVersion, trainingDatasetID, location, command, modelTrainTime, active)
+VALUES
+(?, ?, ?, ?, ?, ?, ?);
+''', mid, model_version, tdid, location, command, model_train_datetime, model_is_active)
 
 cnxn.commit()
 cnxn.close()
