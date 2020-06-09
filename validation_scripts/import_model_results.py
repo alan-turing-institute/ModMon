@@ -76,12 +76,13 @@ cursor.execute("SELECT modelID FROM models WHERE name='" + model + "'")
 mid = cursor.fetchone()[0]
 
 # Save result
+rid = get_unique_id(cursor, "results", "runID")
 for metric, value in metrics.items():
     cursor.execute('''
-    INSERT INTO results (modelID, modelVersion, testDatasetID, isReferenceResult, runTime, metric, value)
+    INSERT INTO results (modelID, modelVersion, testDatasetID, isReferenceResult, runTime, runID, metric, value)
     VALUES
-    (?, ?, ?, ?, ?, ?, ?);
-    ''', mid, model_version, tstdid, reference_result, database_access_time, metric, value)
+    (?, ?, ?, ?, ?, ?, ?, ?);
+    ''', mid, model_version, tstdid, reference_result, database_access_time, rid, metric, value)
 
 cnxn.commit()
 cnxn.close()

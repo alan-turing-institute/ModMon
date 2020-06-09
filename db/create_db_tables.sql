@@ -70,13 +70,14 @@ CREATE TABLE results (
   modelID INT NOT NULL,
   modelVersion VARCHAR(10) NOT NULL,
   testDatasetID INT NOT NULL,
-  isReferenceResult BOOLEAN NOT NULL, -- TODO: add this so that the output file generated from the model training is True here, but otherwise False
+  isReferenceResult BOOLEAN NOT NULL,
   runTime TIMESTAMP NOT NULL,
+  runID INT NOT NULL, -- rows that share this ID are from the same run of a model on a particular dataset
   metric VARCHAR(20) NOT NULL,
   value FLOAT NOT NULL,
   valueError FLOAT,
   resultMessage VARCHAR(500),
-  PRIMARY KEY (modelID, modelVersion, testDatasetID, runTime, metric),
+  PRIMARY KEY (modelID, modelVersion, testDatasetID, runID, metric),
   FOREIGN KEY (modelID, modelVersion) REFERENCES modelVersions (modelID, modelVersion),
   FOREIGN KEY (testDatasetID) REFERENCES datasets (datasetID),
   FOREIGN KEY (metric) REFERENCES metrics (metric)
