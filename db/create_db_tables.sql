@@ -70,9 +70,10 @@ CREATE TABLE results (
   modelID INT NOT NULL,
   modelVersion VARCHAR(10) NOT NULL,
   testDatasetID INT NOT NULL,
+  isReferenceResult BOOLEAN NOT NULL, -- TODO: add this so that the output file generated from the model training is True here, but otherwise False
   runTime TIMESTAMP NOT NULL,
   metric VARCHAR(20) NOT NULL,
-  value FLOAT NOT NULL, -- TODO will this be a float for every metric?
+  value FLOAT NOT NULL,
   valueError FLOAT,
   resultMessage VARCHAR(500),
   PRIMARY KEY (modelID, modelVersion, testDatasetID, runTime, metric),
