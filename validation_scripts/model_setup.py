@@ -4,8 +4,26 @@ from datetime import datetime
 from db_connect import get_connection, get_unique_id
 import json
 
+# Set up db connection
 cnxn = get_connection()
 cursor = cnxn.cursor()
+
+########################
+### Create variables ###
+########################
+
+team = 'REG'
+contact = 'Ed Chalstrey'
+contact_email = 'echalstrey@turing.ac.uk'
+team_description = 'A team from The Alan Turing Institute'
+research_question = 'Investigate wine quality dataset'
+model = 'WineQuality1'
+model_description = 'Model to assess wine quality'
+model_version = "1.0.0"
+location = 'models/sklearn_basic/analyst_scripts/finalized_model.sav' # TODO: is it possible to extract this from the argument?
+command = 'python prediction-metrics.py'
+current_time = datetime.now()
+model_is_active = True
 
 ########################
 ### File arguments #####
@@ -33,41 +51,9 @@ if args.r:
 else:
     raise RuntimeError("You must supply model run data with -r")
 
-########################
-### Create variables ###
-########################
-
-team = 'REG'
-contact = 'Ed Chalstrey'
-contact_email = 'echalstrey@turing.ac.uk'
-team_description = 'A team from The Alan Turing Institute'
-research_question = 'Investigate wine quality dataset'
-model = 'WineQuality1'
-model_description = 'Model to assess wine quality'
-model_version = "1.0.0"
-location = 'models/sklearn_basic/analyst_scripts/finalized_model.sav' # TODO: is it possible to extract this from the argument?
-command = 'python prediction-metrics.py'
-current_time = datetime.now()
-model_is_active = True
-
-#######################
-### Save data to db ###
-#######################
-
-# Team:
-cursor.execute('''
-INSERT INTO teams (teamName, contactName, contactEmail, description)
-VALUES
-(?, ?, ?, ?);
-''', team, contact, contact_email, team_description)
-
-# Research Questions:
-qid = get_unique_id(cursor, "researchQuestions", "questionID")
-cursor.execute('''
-INSERT INTO researchQuestions (questionID, description)
-VALUES
-(?, ?);
-''', qid, research_question)
+####################################
+### Load data from analyst files ###
+####################################
 
 # Load model train metadata and metrics
 with open(model_training_metadata) as json_file:
@@ -92,8 +78,29 @@ database_access_time = datetime.fromisoformat(prediction_model_metadata["databas
 data_window_start = datetime.fromisoformat(prediction_model_metadata["data_window_start"])
 data_window_end = datetime.fromisoformat(prediction_model_metadata["data_window_end"])
 
-# Create a single metrics dictionary and add to metrics table
+# Create a single metrics dictionary (training and prediction metrics)
 metrics.update(training_metrics)
+
+#######################
+### Save data to db ###
+#######################
+
+# Team:
+cursor.execute('''
+INSERT INTO teams (teamName, contactName, contactEmail, description)
+VALUES
+(?, ?, ?, ?);
+''', team, contact, contact_email, team_description)
+
+# Research Questions:
+qid = get_unique_id(cursor, "researchQuestions", "questionID")
+cursor.execute('''
+INSERT INTO researchQuestions (questionID, description)
+VALUES
+(?, ?);
+''', qid, research_question)
+
+# Metrics:
 for metric in metrics:
     cursor.execute('''
     INSERT INTO metrics (metric)

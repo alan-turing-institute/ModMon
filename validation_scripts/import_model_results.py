@@ -4,8 +4,18 @@ from datetime import datetime
 from db_connect import get_connection, get_unique_id
 import json
 
+# Set up db connection
 cnxn = get_connection()
 cursor = cnxn.cursor()
+
+########################
+### Create variables ###
+########################
+
+model = "WineQuality1" # TODO: should these be part of the metadata JSON or decided by the validator?
+model_version = "1.0.0"
+tstdid = 1
+mid = 1
 
 ########################
 ### File arguments #####
@@ -33,12 +43,9 @@ if args.r:
 else:
     raise RuntimeError("You must supply model run data with -r")
 
-########################
-### Create variables ###
-########################
-
-model = "WineQuality1" # TODO: should these be part of the metadata JSON or decided by the validator?
-model_version = "1.0.0"
+####################################
+### Load data from analyst files ###
+####################################
 
 # Metrics and metadata from model run
 with open(model_run_metadata) as json_file:
@@ -57,9 +64,6 @@ metrics.update(training_metrics)
 #######################
 ### Save data to db ###
 #######################
-
-tstdid = 1
-mid = 1
 
 # Result
 for metric, value in metrics.items():
