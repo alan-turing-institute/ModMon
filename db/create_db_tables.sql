@@ -33,7 +33,7 @@ CREATE TABLE models (
   modelID INT NOT NULL,
   teamName VARCHAR(50) NOT NULL,
   questionID INT NOT NULL,
-  name VARCHAR(20),
+  name VARCHAR(20) NOT NULL,
   description VARCHAR(500),
   PRIMARY KEY (modelID),
   FOREIGN KEY (teamName) REFERENCES teams (teamName),
