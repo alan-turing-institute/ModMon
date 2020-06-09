@@ -12,7 +12,7 @@ cursor = cnxn.cursor()
 ### Create variables ###
 ########################
 
-team = 'REG'
+team = 'REG' # TODO: these variables can all be in the training metadata JSON (perhaps rename to "model metadata")
 contact = 'Ed Chalstrey'
 contact_email = 'echalstrey@turing.ac.uk'
 team_description = 'A team from The Alan Turing Institute'

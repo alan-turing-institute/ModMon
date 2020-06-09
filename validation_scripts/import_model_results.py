@@ -14,7 +14,7 @@ cursor = cnxn.cursor()
 
 model = "WineQuality1" # TODO: should these be part of the metadata JSON or decided by the validator?
 model_version = "1.0.0"
-tstdid = 1
+tstdid = 1 # TODO: the test data dataset ID will need to be selected as a row already in the datasets table OR a new  row needs to be added
 
 ########################
 ### File arguments #####
