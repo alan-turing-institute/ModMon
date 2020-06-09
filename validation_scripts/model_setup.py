@@ -23,6 +23,8 @@ model_version = "1.0.0"
 location = 'models/sklearn_basic/analyst_scripts/finalized_model.sav' # TODO: is it possible to extract this from the argument?
 command = 'python prediction-metrics.py'
 model_is_active = True
+training_data_description  = "This is 50% of the wine quality dataset"
+test_data_description  = "This is the 50% of the wine quality dataset that was not used for training the model"
 
 ########################
 ### File arguments #####
@@ -118,18 +120,18 @@ VALUES
 # Training Dataset:
 tdid = get_unique_id(cursor, "datasets", "datasetID")
 cursor.execute('''
-INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, start_date, end_date)
+INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, description, start_date, end_date)
 VALUES
-(?, ?, ?, ?, ?);
-''', tdid, db_name_training, database_access_time_training, data_window_start_training, data_window_end_training)
+(?, ?, ?, ?, ?, ?);
+''', tdid, db_name_training, database_access_time_training, training_data_description, data_window_start_training, data_window_end_training)
 
 # Test Dataset:
 tstdid = get_unique_id(cursor, "datasets", "datasetID")
 cursor.execute('''
-INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, start_date, end_date)
+INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, description, start_date, end_date)
 VALUES
-(?, ?, ?, ?, ?);
-''', tstdid, db_name, database_access_time, data_window_start, data_window_end)
+(?, ?, ?, ?, ?, ?);
+''', tstdid, db_name, database_access_time, test_data_description, data_window_start, data_window_end)
 
 # Model Version
 cursor.execute('''
