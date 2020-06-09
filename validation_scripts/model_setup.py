@@ -3,23 +3,29 @@ import argparse
 from datetime import datetime
 from db_connect import get_connection, get_unique_id
 import json
+import pandas as pd
 
 # Set up db connection
 cnxn = get_connection()
 cursor = cnxn.cursor()
 
-########################
-### Create variables ###
-########################
+#########################
+### Extract variables ###
+#########################
 
-team = 'REG' # TODO: these variables can all be in the training metadata JSON (perhaps rename to "model metadata")
-contact = 'Ed Chalstrey'
-contact_email = 'echalstrey@turing.ac.uk'
-team_description = 'A team from The Alan Turing Institute'
-research_question = 'Investigate wine quality dataset'
-model = 'WineQuality1'
-model_description = 'Model to assess wine quality'
-model_version = "1.0.0"
+metadata = pd.read_csv("../models/sklearn_basic/analyst_scripts/metadata.csv") # TODO: sort out file structure so the path isn't hard coded
+def get_value(var):
+    return list(metadata.loc[metadata['Field'] == var]['Value'])[0]
+
+team = get_value('team')
+contact = get_value('contact')
+contact_email = get_value('contact_email')
+team_description = get_value('team_description')
+research_question = get_value('research_question')
+model = get_value('model_name')
+model_description = get_value('model_description')
+model_version = get_value('model_version')
+
 location = 'models/sklearn_basic/analyst_scripts/finalized_model.sav' # TODO: is it possible to extract this from the argument?
 command = 'python prediction-metrics.py'
 model_is_active = True
