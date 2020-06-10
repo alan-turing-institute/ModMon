@@ -13,6 +13,7 @@ cursor = cnxn.cursor()
 ### Extract variables ###
 #########################
 
+# TODO: this csv loading is messy, I think we should use a yaml instead (or neatly formatted JSON template)
 metadata = pd.read_csv("../models/sklearn_basic/analyst_scripts/metadata.csv") # TODO: sort out file structure so the path isn't hard coded
 def get_value(var):
     return list(metadata.loc[metadata['Field'] == var]['Value'])[0]
@@ -26,7 +27,7 @@ model = get_value('model_name')
 model_description = get_value('model_description')
 model_version = get_value('model_version')
 
-location = 'models/sklearn_basic/analyst_scripts/finalized_model.sav' # TODO: is it possible to extract this from the argument?
+# location = 'models/sklearn_basic/analyst_scripts/finalized_model.sav'
 command = 'python prediction-metrics.py'
 model_is_active = True
 training_data_description  = "This is 50% of the wine quality dataset"
@@ -141,10 +142,10 @@ VALUES
 
 # Model Version
 cursor.execute('''
-INSERT INTO modelVersions (modelID, modelVersion, trainingDatasetID, location, command, modelTrainTime, active)
+INSERT INTO modelVersions (modelID, modelVersion, trainingDatasetID, command, modelTrainTime, active)
 VALUES
-(?, ?, ?, ?, ?, ?, ?);
-''', mid, model_version, tdid, location, command, model_train_datetime, model_is_active)
+(?, ?, ?, ?, ?, ?);
+''', mid, model_version, tdid, command, model_train_datetime, model_is_active)
 
 cnxn.commit()
 cnxn.close()

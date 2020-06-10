@@ -57,7 +57,7 @@ CREATE TABLE modelVersions (
   modelID INT NOT NULL,
   modelVersion VARCHAR(10) NOT NULL,
   trainingDatasetID INT NOT NULL, -- TODO: move to models table
-  location VARCHAR(500), -- path to model file and prediction script TODO: is this something that is appropriate to be stored in the database (perhaps an evironment script too)
+  -- location VARCHAR(500), 
   command VARCHAR(500), -- to run the model prediction script
   modelTrainTime TIMESTAMP,
   active BOOLEAN, -- submission of a new model should turn this off, default on
