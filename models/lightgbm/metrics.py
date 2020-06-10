@@ -1,7 +1,7 @@
 
 import pandas as pd
 import numpy as np
-
+import json
 
 def get_labels(idx):
     df = pd.read_csv("winequality-white.csv", sep=";")
@@ -25,15 +25,21 @@ def mean_log_loss(predictions, true_values):
         is_this_label = true_values == label
         probabilities = probabilities[is_this_label]
         scores.append(-np.log(probabilities).mean())
-    return scores
-    
-    
+    return np.nanmean(scores)
+
+
 if __name__ == "__main__":
     preds = pd.read_csv("predictions.csv", index_col="idx")
     preds.columns = preds.columns.astype(int)
     labels = get_labels(preds.index)
-    
-    score = correct_class(preds, labels)
-    print("correct_class", score)
-    score = mean_log_loss(preds, labels)
-    print("log loss", score)
+
+    cc_score = correct_class(preds, labels)
+    print("correct_class", cc_score)
+    ll_score = mean_log_loss(preds, labels)
+    print("log loss", ll_score)
+
+    metrics = {"correct_class": cc_score,
+               "mean_log_loss": ll_score}
+
+    with open("metrics.json", "w") as f:
+        json.dump(metrics, f)
