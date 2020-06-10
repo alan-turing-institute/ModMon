@@ -28,8 +28,8 @@ model_description = get_value('model_description')
 model_version = get_value('model_version')
 
 # location = 'models/sklearn_basic/analyst_scripts/finalized_model.sav'
+# command = 'python prediction-metrics.py'
 active_model_version = True # TODO - set older versions of the same model to False
-command = 'python prediction-metrics.py'
 
 ########################
 ### File arguments #####
@@ -142,10 +142,10 @@ VALUES
 
 # Model Version
 cursor.execute('''
-INSERT INTO modelVersions (modelID, modelVersion, trainingDatasetID, command, modelTrainTime, active)
+INSERT INTO modelVersions (modelID, modelVersion, trainingDatasetID, modelTrainTime, active)
 VALUES
-(?, ?, ?, ?, ?, ?);
-''', mid, model_version, tdid, command, model_train_datetime, active_model_version)
+(?, ?, ?, ?, ?);
+''', mid, model_version, tdid, model_train_datetime, active_model_version)
 
 cnxn.commit()
 cnxn.close()
