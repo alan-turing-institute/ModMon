@@ -29,7 +29,6 @@ model_version = get_value('model_version')
 
 # location = 'models/sklearn_basic/analyst_scripts/finalized_model.sav'
 # command = 'python prediction-metrics.py'
-active_model_version = True # TODO - set older versions of the same model to False
 
 ########################
 ### File arguments #####
@@ -145,7 +144,10 @@ cursor.execute('''
 INSERT INTO modelVersions (modelID, modelVersion, trainingDatasetID, referenceTestDatasetID, modelTrainTime, active)
 VALUES
 (?, ?, ?, ?, ?, ?);
-''', mid, model_version, tdid, tstdid, model_train_datetime, active_model_version)
+''', mid, model_version, tdid, tstdid, model_train_datetime, True)
+
+# Set any older versions of the same model as inactive
+cursor.execute("UPDATE modelVersions SET active=FALSE WHERE modelID=" + str(mid) + " AND modelVersion!='" + model_version + "'")
 
 cnxn.commit()
 cnxn.close()
