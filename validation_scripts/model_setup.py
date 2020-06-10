@@ -28,10 +28,8 @@ model_description = get_value('model_description')
 model_version = get_value('model_version')
 
 # location = 'models/sklearn_basic/analyst_scripts/finalized_model.sav'
+active_model_version = True # TODO - set older versions of the same model to False
 command = 'python prediction-metrics.py'
-model_is_active = True
-training_data_description  = "This is 50% of the wine quality dataset"
-test_data_description  = "This is the 50% of the wine quality dataset that was not used for training the model"
 
 ########################
 ### File arguments #####
@@ -74,6 +72,7 @@ database_access_time_training = datetime.fromisoformat(prediction_model_training
 data_window_start_training = datetime.fromisoformat(prediction_model_training_metadata["data_window_start"])
 data_window_end_training = datetime.fromisoformat(prediction_model_training_metadata["data_window_end"])
 model_train_datetime = datetime.fromisoformat(prediction_model_training_metadata["model_train_datetime"])
+training_data_description = prediction_model_training_metadata["training_data_description"]
 
 # Load model run metadata and metrics
 with open(model_run_metadata) as json_file:
@@ -85,6 +84,7 @@ db_name = prediction_model_metadata["db_name"]
 database_access_time = datetime.fromisoformat(prediction_model_metadata["database_access_time"])
 data_window_start = datetime.fromisoformat(prediction_model_metadata["data_window_start"])
 data_window_end = datetime.fromisoformat(prediction_model_metadata["data_window_end"])
+test_data_description = prediction_model_metadata["test_data_description"]
 
 # Create a single metrics dictionary (training and prediction metrics)
 metrics.update(training_metrics)
@@ -145,7 +145,7 @@ cursor.execute('''
 INSERT INTO modelVersions (modelID, modelVersion, trainingDatasetID, command, modelTrainTime, active)
 VALUES
 (?, ?, ?, ?, ?, ?);
-''', mid, model_version, tdid, command, model_train_datetime, model_is_active)
+''', mid, model_version, tdid, command, model_train_datetime, active_model_version)
 
 cnxn.commit()
 cnxn.close()

@@ -27,6 +27,7 @@ X_test, y_test = get_data(test=True)
 db_name = 'dummyDB'
 data_window_start = '2020-03-03'
 data_window_end = '2020-06-03'
+test_data_description  = "This is the 50% of the wine quality dataset that was not used for training the model"
 
 # Predict with model
 predicted_qualities = model.predict(X_test)
@@ -45,7 +46,8 @@ output = {"metrics": metrics,
           "database_access_time": database_access_time,
           "db_name": db_name,
           "data_window_start": data_window_start,
-          "data_window_end": data_window_end
+          "data_window_end": data_window_end,
+          "test_data_description": test_data_description
           }
 with open('prediction-model-metadata.json', 'w') as outfile:
     json.dump(output, outfile)

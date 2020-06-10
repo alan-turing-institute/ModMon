@@ -14,6 +14,7 @@ db_name = 'dummyDB'
 database_access_time ='2020-06-03'
 data_window_start = '2020-03-03'
 data_window_end = '2020-06-03'
+training_data_description  = "This is 50% of the wine quality dataset"
 
 # Set model parameters
 alpha_1=1e-06
@@ -41,7 +42,8 @@ output = {"metrics": metrics,
           "db_name": db_name,
           "database_access_time": database_access_time,
           "data_window_start": data_window_start,
-          "data_window_end": data_window_end
+          "data_window_end": data_window_end,
+          "training_data_description": training_data_description
           }
 with open('prediction-model-training-metadata.json', 'w') as outfile:
     json.dump(output, outfile)
