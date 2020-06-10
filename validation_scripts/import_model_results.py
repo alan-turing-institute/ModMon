@@ -21,15 +21,6 @@ def get_value(var):
 model = get_value('model_name')
 model_version = get_value('model_version')
 
-tstdid = 1 # TODO: the test data dataset ID will need to be selected as a row already in the datasets table OR a new  row needs to be added
-
-print('Is the model run datafile specified with -r a set of reference results created by the analyst? (y/n)')
-response = input()
-if response == 'y' or response  == 'Y':
-    reference_result = True
-else:
-    reference_result = False
-
 ########################
 ### File arguments #####
 ########################
@@ -81,6 +72,28 @@ metrics.update(training_metrics)
 # Get model ID
 cursor.execute("SELECT modelID FROM models WHERE name='" + model + "'")
 mid = cursor.fetchone()[0]
+
+print('Is the model run datafile specified with -r a set of reference results created by the analyst? (y/n)')
+response = input()
+if response == 'y' or response  == 'Y':
+    reference_result = True
+    # Get test dataset ID
+    cursor.execute("SELECT referenceTestDatasetID FROM modelVersions WHERE modelID=" + str(mid) + " AND modelVersion='" + model_version + "'")
+    tstdid = cursor.fetchone()[0]
+else:
+    reference_result = False
+    # New test Dataset:
+    tstdid = get_unique_id(cursor, "datasets", "datasetID")
+    # Get additional test dataset info
+    db_name = prediction_model_metadata["db_name"]
+    data_window_start = datetime.fromisoformat(prediction_model_metadata["data_window_start"])
+    data_window_end = datetime.fromisoformat(prediction_model_metadata["data_window_end"])
+    test_data_description = prediction_model_metadata["test_data_description"]
+    cursor.execute('''
+    INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, description, start_date, end_date)
+    VALUES
+    (?, ?, ?, ?, ?, ?);
+    ''', tstdid, db_name, database_access_time, test_data_description, data_window_start, data_window_end)
 
 # Save result
 rid = get_unique_id(cursor, "results", "runID")

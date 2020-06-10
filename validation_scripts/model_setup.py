@@ -142,10 +142,10 @@ VALUES
 
 # Model Version
 cursor.execute('''
-INSERT INTO modelVersions (modelID, modelVersion, trainingDatasetID, modelTrainTime, active)
+INSERT INTO modelVersions (modelID, modelVersion, trainingDatasetID, referenceTestDatasetID, modelTrainTime, active)
 VALUES
-(?, ?, ?, ?, ?);
-''', mid, model_version, tdid, model_train_datetime, active_model_version)
+(?, ?, ?, ?, ?, ?);
+''', mid, model_version, tdid, tstdid, model_train_datetime, active_model_version)
 
 cnxn.commit()
 cnxn.close()
