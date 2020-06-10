@@ -92,62 +92,87 @@ metrics.update(training_metrics)
 ### Save data to db ###
 #######################
 
+def get_list(cursor):
+    try:
+        fetched = list(cursor.fetchall())
+        return [item for sublist in fetched for item in sublist]
+    except TypeError:
+        return []
+
 # Team:
-cursor.execute('''
-INSERT INTO teams (teamName, contactName, contactEmail, description)
-VALUES
-(?, ?, ?, ?);
-''', team, contact, contact_email, team_description)
+cursor.execute("SELECT teamName FROM teams")
+teams = get_list(cursor)
+if team not in teams:
+    cursor.execute('''
+    INSERT INTO teams (teamName, contactName, contactEmail, description)
+    VALUES
+    (?, ?, ?, ?);
+    ''', team, contact, contact_email, team_description)
 
 # Research Questions:
-qid = get_unique_id(cursor, "researchQuestions", "questionID")
-cursor.execute('''
-INSERT INTO researchQuestions (questionID, description)
-VALUES
-(?, ?);
-''', qid, research_question)
+cursor.execute("SELECT description FROM researchQuestions")
+research_questions = get_list(cursor)
+if research_question not in research_questions:
+    qid = get_unique_id(cursor, "researchQuestions", "questionID")
+    cursor.execute('''
+    INSERT INTO researchQuestions (questionID, description)
+    VALUES
+    (?, ?);
+    ''', qid, research_question)
 
 # Metrics:
+cursor.execute("SELECT metric FROM metrics")
+metrics_table = get_list(cursor)
 for metric in metrics:
-    cursor.execute('''
-    INSERT INTO metrics (metric)
-    VALUES
-    (?)
-    ''', metric)
+    if metric not in metrics_table:
+        cursor.execute('''
+        INSERT INTO metrics (metric)
+        VALUES
+        (?)
+        ''', metric)
 
 # Models:
-mid = get_unique_id(cursor, "models", "modelID")
-cursor.execute('''
-INSERT INTO models (modelID, teamName, questionID, name, description)
-VALUES
-(?, ?, ?, ?, ?);
-''', mid, team, qid, model, model_description)
+cursor.execute("SELECT name FROM models")
+models = get_list(cursor)
+if model not in models:
+    mid = get_unique_id(cursor, "models", "modelID")
+    cursor.execute('''
+    INSERT INTO models (modelID, teamName, questionID, name, description)
+    VALUES
+    (?, ?, ?, ?, ?);
+    ''', mid, team, qid, model, model_description)
 
-# Training Dataset:
-tdid = get_unique_id(cursor, "datasets", "datasetID")
-cursor.execute('''
-INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, description, start_date, end_date)
-VALUES
-(?, ?, ?, ?, ?, ?);
-''', tdid, db_name_training, database_access_time_training, training_data_description, data_window_start_training, data_window_end_training)
+# Model version, training and testing datasets
+cursor.execute("SELECT modelID FROM models WHERE name='" + model + "'")
+mid = cursor.fetchone()[0]
+cursor.execute("SELECT modelVersion FROM modelVersions WHERE modelID=" + str(mid))
+model_versions = get_list(cursor)
+if model_version not in model_versions:
+    # Training Dataset:
+    tdid = get_unique_id(cursor, "datasets", "datasetID")
+    cursor.execute('''
+    INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, description, start_date, end_date)
+    VALUES
+    (?, ?, ?, ?, ?, ?);
+    ''', tdid, db_name_training, database_access_time_training, training_data_description, data_window_start_training, data_window_end_training)
 
-# Test Dataset:
-tstdid = get_unique_id(cursor, "datasets", "datasetID")
-cursor.execute('''
-INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, description, start_date, end_date)
-VALUES
-(?, ?, ?, ?, ?, ?);
-''', tstdid, db_name, database_access_time, test_data_description, data_window_start, data_window_end)
+    # Test Dataset:
+    tstdid = get_unique_id(cursor, "datasets", "datasetID")
+    cursor.execute('''
+    INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, description, start_date, end_date)
+    VALUES
+    (?, ?, ?, ?, ?, ?);
+    ''', tstdid, db_name, database_access_time, test_data_description, data_window_start, data_window_end)
 
-# Model Version
-cursor.execute('''
-INSERT INTO modelVersions (modelID, modelVersion, trainingDatasetID, referenceTestDatasetID, modelTrainTime, active)
-VALUES
-(?, ?, ?, ?, ?, ?);
-''', mid, model_version, tdid, tstdid, model_train_datetime, True)
+    # Model Version
+    cursor.execute('''
+    INSERT INTO modelVersions (modelID, modelVersion, trainingDatasetID, referenceTestDatasetID, modelTrainTime, active)
+    VALUES
+    (?, ?, ?, ?, ?, ?);
+    ''', mid, model_version, tdid, tstdid, model_train_datetime, True)
 
-# Set any older versions of the same model as inactive
-cursor.execute("UPDATE modelVersions SET active=FALSE WHERE modelID=" + str(mid) + " AND modelVersion!='" + model_version + "'")
+    # Set any older versions of the same model as inactive
+    cursor.execute("UPDATE modelVersions SET active=FALSE WHERE modelID=" + str(mid) + " AND modelVersion!='" + model_version + "'")
 
 cnxn.commit()
 cnxn.close()
