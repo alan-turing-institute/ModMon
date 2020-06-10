@@ -3,6 +3,7 @@ import argparse
 from datetime import datetime
 from db_connect import get_connection, get_unique_id
 import json
+import pandas as pd
 
 # Set up db connection
 cnxn = get_connection()
@@ -12,8 +13,14 @@ cursor = cnxn.cursor()
 ### Create variables ###
 ########################
 
-model = "WineQuality1" # TODO: should these be part of the metadata JSON or decided by the validator?
-model_version = "1.0.0"
+# TODO: this csv loading is messy, I think we should use a yaml instead (or neatly formatted JSON template)
+metadata = pd.read_csv("../models/sklearn_basic/analyst_scripts/metadata.csv") # TODO: sort out file structure so the path isn't hard coded
+def get_value(var):
+    return list(metadata.loc[metadata['Field'] == var]['Value'])[0]
+
+model = get_value('model_name')
+model_version = get_value('model_version')
+
 tstdid = 1 # TODO: the test data dataset ID will need to be selected as a row already in the datasets table OR a new  row needs to be added
 
 print('Is the model run datafile specified with -r a set of reference results created by the analyst? (y/n)')
