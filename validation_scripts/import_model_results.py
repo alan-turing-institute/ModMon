@@ -30,20 +30,20 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument(
-    "-t", help="Model training metadata JSON"
+    "-t", help="Model training metrics csv"
 )
 
 parser.add_argument(
-    "-r", help="Model run metadata JSON"
+    "-r", help="Model run metrics csv"
 )
 
 args = parser.parse_args()
 if args.t:
-    model_training_metadata = args.t
+    training_script = args.t
 else:
     raise RuntimeError("You must supply model training data with -t")
 if args.r:
-    model_run_metadata = args.r
+    model_run_script = args.r
 else:
     raise RuntimeError("You must supply model run data with -r")
 
@@ -51,19 +51,14 @@ else:
 ### Load data from analyst files ###
 ####################################
 
-# Metrics and metadata from model run
-with open(model_run_metadata) as json_file:
-    prediction_model_metadata = json.load(json_file)
-metrics = prediction_model_metadata["metrics"]
-database_access_time = datetime.fromisoformat(prediction_model_metadata["database_access_time"])
+# Load model train metrics
+training_metrics = pd.read_csv(training_script)
 
-# Metrics from model training
-with open(model_training_metadata) as json_file:
-    prediction_model_training_metadata = json.load(json_file)
-training_metrics = prediction_model_training_metadata["metrics"]
+# Load model run reference metrics
+reference_metrics = pd.read_csv(model_run_script)
 
-# Create a single metrics dictionary
-metrics.update(training_metrics)
+# Create a single metrics dictionary (training and prediction metrics)
+metrics = pd.concat([training_metrics, reference_metrics])
 
 #######################
 ### Save data to db ###
@@ -80,29 +75,32 @@ if response == 'y' or response  == 'Y':
     # Get test dataset ID
     cursor.execute("SELECT referenceTestDatasetID FROM modelVersions WHERE modelID=" + str(mid) + " AND modelVersion='" + model_version + "'")
     tstdid = cursor.fetchone()[0]
+    model_run_datetime = get_value('model_run_datetime')
 else:
     reference_result = False
     # New test Dataset:
     tstdid = get_unique_id(cursor, "datasets", "datasetID")
     # Get additional test dataset info
-    db_name = prediction_model_metadata["db_name"]
-    data_window_start = datetime.fromisoformat(prediction_model_metadata["data_window_start"])
-    data_window_end = datetime.fromisoformat(prediction_model_metadata["data_window_end"])
-    test_data_description = prediction_model_metadata["test_data_description"]
+    db_name = get_value('db_name')
+    data_window_start = get_value('data_window_start')
+    data_window_end = get_value('data_window_end')
+    test_data_description = get_value('test_data_description')
+    model_run_datetime = datetime.now().isoformat() # this assumes that the import of model results is done right after the prediction is run
     cursor.execute('''
     INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, description, start_date, end_date)
     VALUES
     (?, ?, ?, ?, ?, ?);
-    ''', tstdid, db_name, database_access_time, test_data_description, data_window_start, data_window_end)
+    ''', tstdid, db_name, model_run_datetime, test_data_description, data_window_start, data_window_end)
 
 # Save result
 rid = get_unique_id(cursor, "results", "runID")
-for metric, value in metrics.items():
+for index, row in metrics.iterrows():
+    metric, value = row
     cursor.execute('''
     INSERT INTO results (modelID, modelVersion, testDatasetID, isReferenceResult, runTime, runID, metric, value)
     VALUES
     (?, ?, ?, ?, ?, ?, ?, ?);
-    ''', mid, model_version, tstdid, reference_result, database_access_time, rid, metric, value)
+    ''', mid, model_version, tstdid, reference_result, model_run_datetime, rid, metric, value)
 
 cnxn.commit()
 cnxn.close()

@@ -13,7 +13,6 @@ cursor = cnxn.cursor()
 ### Extract variables ###
 #########################
 
-# TODO: this csv loading is messy, I think we should use a yaml instead (or neatly formatted JSON template)
 metadata = pd.read_csv("../models/sklearn_basic/analyst_scripts/metadata.csv") # TODO: sort out file structure so the path isn't hard coded
 def get_value(var):
     return list(metadata.loc[metadata['Field'] == var]['Value'])[0]
@@ -27,8 +26,13 @@ model = get_value('model_name')
 model_description = get_value('model_description')
 model_version = get_value('model_version')
 
-# location = 'models/sklearn_basic/analyst_scripts/finalized_model.sav'
-# command = 'python prediction-metrics.py'
+db_name = get_value('db_name')
+data_window_start = get_value('data_window_start')
+data_window_end = get_value('data_window_end')
+model_train_datetime = get_value('model_train_datetime')
+training_data_description = get_value('training_data_description')
+model_run_datetime = get_value('model_run_datetime')
+test_data_description = get_value('test_data_description')
 
 ########################
 ### File arguments #####
@@ -39,20 +43,20 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument(
-    "-t", help="Model training metadata JSON"
+    "-t", help="Model training metrics csv"
 )
 
 parser.add_argument(
-    "-r", help="Model run metadata JSON"
+    "-r", help="Model run metrics csv"
 )
 
 args = parser.parse_args()
 if args.t:
-    model_training_metadata = args.t
+    training_script = args.t
 else:
     raise RuntimeError("You must supply model training data with -t")
 if args.r:
-    model_run_metadata = args.r
+    model_run_script = args.r
 else:
     raise RuntimeError("You must supply model run data with -r")
 
@@ -60,33 +64,14 @@ else:
 ### Load data from analyst files ###
 ####################################
 
-# Load model train metadata and metrics
-with open(model_training_metadata) as json_file:
-    prediction_model_training_metadata = json.load(json_file)
-training_metrics = prediction_model_training_metadata["metrics"]
+# Load model train metrics
+training_metrics = pd.read_csv(training_script)
 
-# Get training dataset info
-db_name_training = prediction_model_training_metadata["db_name"]
-database_access_time_training = datetime.fromisoformat(prediction_model_training_metadata["database_access_time"])
-data_window_start_training = datetime.fromisoformat(prediction_model_training_metadata["data_window_start"])
-data_window_end_training = datetime.fromisoformat(prediction_model_training_metadata["data_window_end"])
-model_train_datetime = datetime.fromisoformat(prediction_model_training_metadata["model_train_datetime"])
-training_data_description = prediction_model_training_metadata["training_data_description"]
-
-# Load model run metadata and metrics
-with open(model_run_metadata) as json_file:
-    prediction_model_metadata = json.load(json_file)
-metrics = prediction_model_metadata["metrics"]
-
-# Get test dataset info
-db_name = prediction_model_metadata["db_name"]
-database_access_time = datetime.fromisoformat(prediction_model_metadata["database_access_time"])
-data_window_start = datetime.fromisoformat(prediction_model_metadata["data_window_start"])
-data_window_end = datetime.fromisoformat(prediction_model_metadata["data_window_end"])
-test_data_description = prediction_model_metadata["test_data_description"]
+# Load model run reference metrics
+reference_metrics = pd.read_csv(model_run_script)
 
 # Create a single metrics dictionary (training and prediction metrics)
-metrics.update(training_metrics)
+metrics = pd.concat([training_metrics, reference_metrics])
 
 #######################
 ### Save data to db ###
@@ -123,7 +108,8 @@ if research_question not in research_questions:
 # Metrics:
 cursor.execute("SELECT metric FROM metrics")
 metrics_table = get_list(cursor)
-for metric in metrics:
+for index, row in metrics.iterrows():
+    metric, value = row
     if metric not in metrics_table:
         cursor.execute('''
         INSERT INTO metrics (metric)
@@ -154,7 +140,7 @@ if model_version not in model_versions:
     INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, description, start_date, end_date)
     VALUES
     (?, ?, ?, ?, ?, ?);
-    ''', tdid, db_name_training, database_access_time_training, training_data_description, data_window_start_training, data_window_end_training)
+    ''', tdid, db_name, model_train_datetime, training_data_description, data_window_start, data_window_end)
 
     # Test Dataset:
     tstdid = get_unique_id(cursor, "datasets", "datasetID")
@@ -162,7 +148,7 @@ if model_version not in model_versions:
     INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, description, start_date, end_date)
     VALUES
     (?, ?, ?, ?, ?, ?);
-    ''', tstdid, db_name, database_access_time, test_data_description, data_window_start, data_window_end)
+    ''', tstdid, db_name, model_run_datetime, test_data_description, data_window_start, data_window_end)
 
     # Model Version
     cursor.execute('''
