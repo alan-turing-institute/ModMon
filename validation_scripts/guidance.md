@@ -14,6 +14,29 @@
 
 ```
 
+## File templates
+
+Template for `prediction_metrics.csv` and `training_metrics.csv`. Must have a metric and a value column.
+
+|metric|value|
+| ---  | --- |
+| mse  | 0.1 |
+| r2   | 0.9 |
+...
+
+Template `metadata.csv`. Must have a Field and a Value column.
+
+|Field | Field Required | Value|
+| --- | --- | --- |
+|team | TRUE | REG|
+|contact | TRUE | Ed Chalstrey|
+|contact_email | TRUE | echalstrey@turing.ac.uk|
+|team_description | FALSE | A team from The Alan Turing Institute|
+|research_question | TRUE | Investigate wine quality dataset|
+|model_name | TRUE | WineQuality1|
+|model_description | FALSE | Model to assess wine quality|
+|model_version | TRUE | 1.0.0|
+
 # Validator guidance
 
 ## Set up a new model

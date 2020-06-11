@@ -1,0 +1,9 @@
+﻿Field,Value
+team,REG
+contact,Ed Chalstrey
+contact_email,echalstrey@turing.ac.uk
+team_description,A team from The Alan Turing Institute
+research_question,Investigate wine quality dataset
+model_name,WineQuality1
+model_description,Model to assess wine quality
+model_version,1.0.0
