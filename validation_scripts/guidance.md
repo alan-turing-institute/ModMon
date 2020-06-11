@@ -19,7 +19,7 @@
 ## Set up a new model
 
 1. `python model_setup.py model` <- where `model` is the folder submitted by the analyst
-2. `python import_model_results model` <- running this for the first time imports reference results/metrics from when the analyst ran their model on test data
+2. `python import_model_results model` <- running this for the first time imports reference results/metrics from when the analyst ran their model on test data (`prediction_metrics.csv`)
 
 ## Log a new result for a model
 
