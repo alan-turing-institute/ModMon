@@ -23,6 +23,6 @@
 
 ## Log a new result for a model
 
-1. `Make` <- set up the environment
+1. `Make` <- set up the environment (perhaps also does step 2 below)
 1. `python run_model.py` (or R equivalent) <- creates a new `prediction_metrics.csv`
 2. `python import_model_results model` <- the new prediction metrics logged in results table, designated as not a reference result
