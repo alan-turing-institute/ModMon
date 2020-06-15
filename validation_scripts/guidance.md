@@ -2,9 +2,11 @@
 
 ## Files
 
+### Simple python example
+
 ```
 |-- model
-|  |-- Makefile                       <- Sets up environment and contains cmd for run_model.py
+|  |-- requirements.txt               <- contains packages to use for run_model.py
 |  |-- model.sav                      <- file ext. of choice
 |  |-- run_model.py                   <- Takes model.sav as arg (language of choice e.g. run_model.R)
 |  |-- data
@@ -13,6 +15,8 @@
 |  |-- |-- prediction_metrics.csv     <- Output of analyst run of run_model.py
 
 ```
+
+This is one example, but only the `run_model.py` and `prediction_metrics.csv` are essential. If the `run_model.py` script also trains the model, instead of loading the pre-trained model, that's fine.
 
 ## File templates
 
