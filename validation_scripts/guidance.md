@@ -6,6 +6,7 @@
 
 ```
 |-- model
+|  |-- README.md                      <- explains how to set up environment/packages and run the model with the files below
 |  |-- requirements.txt               <- contains packages to use for run_model.py
 |  |-- model.sav                      <- file ext. of choice
 |  |-- run_model.py                   <- Takes model.sav as arg (language of choice e.g. run_model.R)
