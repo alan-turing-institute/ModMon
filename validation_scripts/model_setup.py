@@ -9,11 +9,33 @@ import pandas as pd
 cnxn = get_connection()
 cursor = cnxn.cursor()
 
-#########################
-### Extract variables ###
-#########################
+#############
+### Files ###
+#############
 
-metadata = pd.read_csv("../models/sklearn_basic/model/metadata.csv") # TODO: sort out file structure so the path isn't hard coded
+parser = argparse.ArgumentParser(
+    description="Save model run data to db."
+)
+
+parser.add_argument(
+    "-m", help="Model data dir"
+)
+
+args = parser.parse_args()
+if args.m:
+    model_path = args.m
+else:
+    raise RuntimeError("You must supply model data dir with -m")
+
+metadata_script = model_path + "/metadata.csv"
+training_metrics_csv =  model_path + "/data/training_metrics.csv"
+prediction_metrics_csv =  model_path + "/data/prediction_metrics.csv"
+
+#####################
+### Load metadata ###
+#####################
+
+metadata = pd.read_csv(metadata_script)
 def get_value(var):
     return list(metadata.loc[metadata['Field'] == var]['Value'])[0]
 
@@ -34,41 +56,15 @@ training_data_description = get_value('training_data_description')
 model_run_datetime = get_value('model_run_datetime')
 test_data_description = get_value('test_data_description')
 
-########################
-### File arguments #####
-########################
-
-parser = argparse.ArgumentParser(
-    description="Save model run data to db."
-)
-
-parser.add_argument(
-    "-t", help="Model training metrics csv"
-)
-
-parser.add_argument(
-    "-r", help="Model run metrics csv"
-)
-
-args = parser.parse_args()
-if args.t:
-    training_script = args.t
-else:
-    raise RuntimeError("You must supply model training data with -t")
-if args.r:
-    model_run_script = args.r
-else:
-    raise RuntimeError("You must supply model run data with -r")
-
-####################################
-### Load data from analyst files ###
-####################################
+#################
+### Load data ###
+#################
 
 # Load model train metrics
-training_metrics = pd.read_csv(training_script)
+training_metrics = pd.read_csv(training_metrics_csv)
 
 # Load model run reference metrics
-reference_metrics = pd.read_csv(model_run_script)
+reference_metrics = pd.read_csv(prediction_metrics_csv)
 
 # Create a single metrics dictionary (training and prediction metrics)
 metrics = pd.concat([training_metrics, reference_metrics])
