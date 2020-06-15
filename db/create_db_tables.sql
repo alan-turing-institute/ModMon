@@ -19,7 +19,7 @@ CREATE TABLE teams (
 
 CREATE TABLE researchQuestions (
   questionID INT NOT NULL,
-  description VARCHAR(500) NOT NULL, -- TODO: longer if needed (research question)
+  description VARCHAR(500) NOT NULL,
   PRIMARY KEY (questionID)
 );
 
@@ -73,7 +73,6 @@ CREATE TABLE results (
   modelVersion VARCHAR(10) NOT NULL,
   testDatasetID INT NOT NULL,
   isReferenceResult BOOLEAN NOT NULL,
-  runTime TIMESTAMP NOT NULL,
   runID INT NOT NULL, -- rows that share this ID are from the same run of a model on a particular dataset
   metric VARCHAR(20) NOT NULL,
   value FLOAT NOT NULL,

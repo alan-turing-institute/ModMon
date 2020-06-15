@@ -97,10 +97,10 @@ rid = get_unique_id(cursor, "results", "runID")
 for index, row in metrics.iterrows():
     metric, value = row
     cursor.execute('''
-    INSERT INTO results (modelID, modelVersion, testDatasetID, isReferenceResult, runTime, runID, metric, value)
+    INSERT INTO results (modelID, modelVersion, testDatasetID, isReferenceResult, runID, metric, value)
     VALUES
-    (?, ?, ?, ?, ?, ?, ?, ?);
-    ''', mid, model_version, tstdid, reference_result, model_run_datetime, rid, metric, value)
+    (?, ?, ?, ?, ?, ?, ?);
+    ''', mid, model_version, tstdid, reference_result, rid, metric, value)
 
 cnxn.commit()
 cnxn.close()
