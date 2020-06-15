@@ -22,7 +22,7 @@ stop_model_training = timeit.default_timer()
 training_time = stop_model_training - start_model_training
 
 # Save model to disk
-filename = 'finalized_model.sav'
+filename = 'model.sav'
 pickle.dump(model, open(filename, 'wb'))
 
 # Output metrics as csv

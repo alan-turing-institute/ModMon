@@ -14,7 +14,7 @@ cursor = cnxn.cursor()
 ########################
 
 # TODO: this csv loading is messy, I think we should use a yaml instead (or neatly formatted JSON template)
-metadata = pd.read_csv("../models/sklearn_basic/analyst_scripts/metadata.csv") # TODO: sort out file structure so the path isn't hard coded
+metadata = pd.read_csv("../models/sklearn_basic/model/metadata.csv") # TODO: sort out file structure so the path isn't hard coded
 def get_value(var):
     return list(metadata.loc[metadata['Field'] == var]['Value'])[0]
 
