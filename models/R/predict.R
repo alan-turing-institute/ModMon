@@ -1,19 +1,18 @@
 # Change to this script's directory and run it as follows:
-#     Rscript predict.R <START_IDX> <END_IDX>
-# Where <START_IDX> and <END_IDX> are replaced with integers representing
+#     Rscript predict.R <START_DATE> <END_DATE> <DATABASE>
+# Where <START_DATE> and <END_DATE> are replaced with integers representing
 # the first and last index in the data to predict and calculate the
 # metrics for.
 
 library(tidyverse)
 library(glmnet)
 library(caret)
-library(RJSONIO)
 library(argparse)
 
 # Parse command line arguments
 args <- commandArgs(trailingOnly=TRUE)
 
-if (length(args)!= 2) {
+if (length(args) < 2) {
   stop("Two arguments must be supplied: start_idx and end_idx",
        call.=FALSE)
 } else {
@@ -38,12 +37,11 @@ x.test <- model.matrix(quality ~., wine)[,-1]
 predictions <- model %>% predict(x.test) %>% as.vector()
 
 # Model performance metrics
-metrics <- list(
-  RMSE = RMSE(predictions, wine$quality),
-  Rsquare = R2(predictions, wine$quality)
+df <- data.frame(
+  metric = c("RMSE", "Rsquare"),
+  value = c(RMSE(predictions, wine$quality), R2(predictions, wine$quality))
 )
-print(paste(c("RMSE:", metrics$RMSE, ", Rsquare:", metrics$Rsquare),
-            collapse=" "))
+print(df)
+
 # Save metrics to file
-exportJson <- toJSON(metrics)
-write(exportJson, "metrics.json")
+write.csv(df, "metrics.csv", row.names=FALSE)

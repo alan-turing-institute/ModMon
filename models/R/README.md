@@ -5,8 +5,8 @@ Largely inspired by this tutorial: http://www.sthda.com/english/articles/37-mode
 2 scripts:
 * `train.R`: Train a ridge regression model, save it as `model.rds`:
   - `Rscript train.R`
-* `predict.R`: Calculate metrics for all rows between `start_idx` and `run_idx`, saves results as `metrics.json`.
-  - `Rscript predict.R start_idx end_idx`
+* `predict.R`: Calculate metrics for all rows between `start_date` and `run_date`, in database `database` (not used), saves results as `metrics.csv`.
+  - `Rscript predict.R <START_DATE> <END_DATE> <DATABASE>`
   
 ## Environment
 
