@@ -43,7 +43,6 @@ CREATE TABLE models (
 CREATE TABLE datasets (
   datasetID INT NOT NULL,
   dataBaseName VARCHAR(20) NOT NULL,
-  dataBaseAccessTime TIMESTAMP NOT NULL,
   description VARCHAR(500), -- Must provide some info on how the analysts database query was modified, if it has been. Possibly entire query (save this for version 2?)
   start_date TIMESTAMP,
   end_date TIMESTAMP,
@@ -73,6 +72,7 @@ CREATE TABLE results (
   modelVersion VARCHAR(10) NOT NULL,
   testDatasetID INT NOT NULL,
   isReferenceResult BOOLEAN NOT NULL,
+  runTime TIMESTAMP NOT NULL,
   runID INT NOT NULL, -- rows that share this ID are from the same run of a model on a particular dataset
   metric VARCHAR(20) NOT NULL,
   value FLOAT NOT NULL,

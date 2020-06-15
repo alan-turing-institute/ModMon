@@ -82,20 +82,20 @@ else:
     test_data_description = get_value('test_data_description')
     model_run_datetime = datetime.now().isoformat() # this assumes that the import of model results is done right after the prediction is run
     cursor.execute('''
-    INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, description, start_date, end_date)
+    INSERT INTO datasets (datasetID, dataBaseName, description, start_date, end_date)
     VALUES
-    (?, ?, ?, ?, ?, ?);
-    ''', tstdid, db_name, model_run_datetime, test_data_description, data_window_start, data_window_end)
+    (?, ?, ?, ?, ?);
+    ''', tstdid, db_name, test_data_description, data_window_start, data_window_end)
 
 # Save result
 rid = get_unique_id(cursor, "results", "runID")
 for index, row in metrics.iterrows():
     metric, value = row
     cursor.execute('''
-    INSERT INTO results (modelID, modelVersion, testDatasetID, isReferenceResult, runID, metric, value)
+    INSERT INTO results (modelID, modelVersion, testDatasetID, isReferenceResult, runTime, runID, metric, value)
     VALUES
-    (?, ?, ?, ?, ?, ?, ?);
-    ''', mid, model_version, tstdid, reference_result, rid, metric, value)
+    (?, ?, ?, ?, ?, ?, ?, ?);
+    ''', mid, model_version, tstdid, reference_result, model_run_datetime, rid, metric, value)
 
 cnxn.commit()
 cnxn.close()

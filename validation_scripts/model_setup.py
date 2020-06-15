@@ -133,18 +133,18 @@ if model_version not in model_versions:
     # Training Dataset:
     tdid = get_unique_id(cursor, "datasets", "datasetID")
     cursor.execute('''
-    INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, description, start_date, end_date)
+    INSERT INTO datasets (datasetID, dataBaseName, description, start_date, end_date)
     VALUES
-    (?, ?, ?, ?, ?, ?);
-    ''', tdid, db_name, model_train_datetime, training_data_description, data_window_start, data_window_end)
+    (?, ?, ?, ?, ?);
+    ''', tdid, db_name, training_data_description, data_window_start, data_window_end)
 
     # Test Dataset:
     tstdid = get_unique_id(cursor, "datasets", "datasetID")
     cursor.execute('''
-    INSERT INTO datasets (datasetID, dataBaseName, dataBaseAccessTime, description, start_date, end_date)
+    INSERT INTO datasets (datasetID, dataBaseName, description, start_date, end_date)
     VALUES
-    (?, ?, ?, ?, ?, ?);
-    ''', tstdid, db_name, model_run_datetime, test_data_description, data_window_start, data_window_end)
+    (?, ?, ?, ?, ?);
+    ''', tstdid, db_name, test_data_description, data_window_start, data_window_end)
 
     # Model Version
     cursor.execute('''
