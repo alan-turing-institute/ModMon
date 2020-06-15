@@ -14,3 +14,4 @@ model_train_datetime,03/06/2020
 training_data_description,This is 50% of the wine quality dataset
 model_run_datetime,11/07/2020
 test_data_description,This is the 50% of the wine quality dataset that was not used for training the model
+command,python run_prediction_model.py <db name> <start date (yyyy-mm-dd)> <end date (yyyy-mm-dd)>

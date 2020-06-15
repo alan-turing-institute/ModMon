@@ -56,6 +56,8 @@ training_data_description = get_value('training_data_description')
 model_run_datetime = get_value('model_run_datetime')
 test_data_description = get_value('test_data_description')
 
+command = get_value('command')
+
 #################
 ### Load data ###
 #################
@@ -148,10 +150,10 @@ if model_version not in model_versions:
 
     # Model Version
     cursor.execute('''
-    INSERT INTO modelVersions (modelID, modelVersion, trainingDatasetID, referenceTestDatasetID, modelTrainTime, active)
+    INSERT INTO modelVersions (modelID, modelVersion, trainingDatasetID, referenceTestDatasetID, command, modelTrainTime, active)
     VALUES
-    (?, ?, ?, ?, ?, ?);
-    ''', mid, model_version, tdid, tstdid, model_train_datetime, True)
+    (?, ?, ?, ?, ?, ?, ?);
+    ''', mid, model_version, tdid, tstdid, command, model_train_datetime, True)
 
     # Set any older versions of the same model as inactive
     cursor.execute("UPDATE modelVersions SET active=FALSE WHERE modelID=" + str(mid) + " AND modelVersion!='" + model_version + "'")
