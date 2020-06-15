@@ -52,5 +52,5 @@ Template `metadata.csv`. Must have a Field and a Value column.
 ## Log a new result for a model
 
 1. Set up the environment in the way specified by the analyst in `model/README.md`
-1. `python run_model.py` (or R equivalent) <- creates a new `prediction_metrics.csv`
+1. Run the model in the way specified in `model/README.md` <- creates a new `prediction_metrics.csv`
 2. `python import_model_results model` <- the new prediction metrics logged in results table, designated as not a reference result
