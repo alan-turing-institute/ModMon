@@ -47,10 +47,10 @@ Template `metadata.csv`. Must have a Field and a Value column.
 ## Set up a new model
 
 1. `python model_setup.py model` <- where `model` is the folder submitted by the analyst
-2. `python import_model_results model` <- running this for the first time imports reference results/metrics from when the analyst ran their model on test data (`prediction_metrics.csv`)
+2. `python import_model_results.py model` <- running this for the first time imports reference results/metrics from when the analyst ran their model on test data (`prediction_metrics.csv`)
 
 ## Log a new result for a model
 
-1. `Make` <- set up the environment (perhaps also does step 2 below)
+1. Set up the environment in the way specified by the analyst in `model/README.md`
 1. `python run_model.py` (or R equivalent) <- creates a new `prediction_metrics.csv`
 2. `python import_model_results model` <- the new prediction metrics logged in results table, designated as not a reference result
