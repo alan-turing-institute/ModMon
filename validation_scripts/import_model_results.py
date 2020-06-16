@@ -16,16 +16,9 @@ cursor = cnxn.cursor()
 parser = argparse.ArgumentParser(
     description="Save model run data to db."
 )
-
-parser.add_argument(
-    "-m", help="Model data dir"
-)
-
+parser.add_argument('model')
 args = parser.parse_args()
-if args.m:
-    model_path = args.m
-else:
-    raise RuntimeError("You must supply model data dir with -m")
+model_path = args.model
 
 metadata_json = model_path + "/metadata.json"
 training_metrics_csv =  model_path + "/data/training_metrics.csv"
