@@ -57,10 +57,10 @@ CREATE TABLE modelVersions (
   modelVersion VARCHAR(10) NOT NULL,
   trainingDatasetID INT NOT NULL,
   referenceTestDatasetID INT NOT NULL,
-  -- location VARCHAR(500),
+  location VARCHAR(500),
   command VARCHAR(500), -- to run the model prediction script
   modelTrainTime TIMESTAMP,
-  active BOOLEAN, -- submission of a new model should turn this off, default on
+  active BOOLEAN,
   PRIMARY KEY (modelID, modelVersion),
   FOREIGN KEY (modelID) REFERENCES models (modelID),
   FOREIGN KEY (trainingDatasetID) REFERENCES datasets (datasetID),
