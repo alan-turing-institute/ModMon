@@ -2,7 +2,7 @@
 
 _Work in progress_
 
-Model monitoring framework for DECOVID.
+Model monitoring framework for DECOVID. A way for analysts to automate the calculation of performance metrics of pre-trained models on new data as it becomes available.
 
 ### Links
 
