@@ -54,13 +54,49 @@ Template `metadata.json`:
 
 ## Set up a new model
 
-1. `python model_setup.py model` <- where `model` is the folder submitted by the analyst
-2. `python import_model_results.py model` <- running this for the first time imports reference results/metrics from when the analyst ran their model on test data (`prediction_metrics.csv`)
+1. ```bash
+cd path/to/validation_scripts
+```
+2. Where `model` is the folder submitted by the analyst:
+```bash
+python model_setup.py path/to/model
+```
+3. Running this for the first time imports reference results/metrics from when the analyst ran their model on test data (`prediction_metrics.csv`):
+```bash
+python import_model_results.py path/to/model
+```
 
 ## Log a new result for a model
 
-1. Set up the environment:
-    * `conda env create -f environment.yml`
-    * `conda activate <model name>`
-1. Run the model: `python run_prediction_model.py <db name> <start date (yyyy-mm-dd)> <end date (yyyy-mm-dd)>` <- creates a new `prediction_metrics.csv` (TODO: command in modelVersions table instead)
-2. `python import_model_results model` <- the new prediction metrics logged in results table, designated as not a reference result
+1. Log in to the db and choose a model: `psql -h localhost -p 5432 ModMon`, then:
+    * ```SQL
+      select name, modelID from models; -- choose a model (note the modelID number)
+      ```
+    * ```SQL
+      select modelVersion from modelVersions where modelID=<modelID>; -- list model versions (note one of them)
+      ```
+    * ```SQL
+      select location from modelVersions where modelID=<modelID> and modelVersion='<modelVersion>'; -- gets `path/to/model`
+      ```
+2. Now you know the location, set up the environment:
+    * ```bash
+      cd path/to/model
+      ```
+    * ```bash
+    conda env create -f environment.yml
+    ```
+    * ```bash
+    conda activate <model name>
+    ```
+3. Back to validation scripts:
+  * ```bash
+    cd path/to/validation_scripts
+    ```
+4. Load the analyst's designated command to run their model on new data (command in modelVersions table), creating a new `prediction_metrics.csv`:
+  * ```bash
+  python run_model.py <db name> <start date (yyyy-mm-dd)> <end date (yyyy-mm-dd)>
+  ```
+5. Log the new prediction metrics in results table, designating as not a reference result:
+    *  ```bash
+    python import_model_results.py path/to/model
+    ```
