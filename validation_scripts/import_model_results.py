@@ -27,7 +27,7 @@ if args.m:
 else:
     raise RuntimeError("You must supply model data dir with -m")
 
-metadata_script = model_path + "/metadata.csv"
+metadata_json = model_path + "/metadata.json"
 training_metrics_csv =  model_path + "/data/training_metrics.csv"
 prediction_metrics_csv =  model_path + "/data/prediction_metrics.csv"
 
@@ -35,12 +35,11 @@ prediction_metrics_csv =  model_path + "/data/prediction_metrics.csv"
 ### Load metadata ###
 #####################
 
-metadata = pd.read_csv(metadata_script)
-def get_value(var):
-    return list(metadata.loc[metadata['Field'] == var]['Value'])[0]
+with open(metadata_json, 'r') as f:
+    metadata = json.load(f)
 
-model = get_value('model_name')
-model_version = get_value('model_version')
+model = metadata['model_name']
+model_version = metadata['model_version']
 
 #################
 ### Load data ###
@@ -70,16 +69,16 @@ if response == 'y' or response  == 'Y':
     # Get test dataset ID
     cursor.execute("SELECT referenceTestDatasetID FROM modelVersions WHERE modelID=" + str(mid) + " AND modelVersion='" + model_version + "'")
     tstdid = cursor.fetchone()[0]
-    model_run_datetime = get_value('model_run_datetime')
+    model_run_datetime = metadata['model_run_datetime']
 else:
     reference_result = False
     # New test Dataset:
     tstdid = get_unique_id(cursor, "datasets", "datasetID")
     # Get additional test dataset info
-    db_name = get_value('db_name')
-    data_window_start = get_value('data_window_start')
-    data_window_end = get_value('data_window_end')
-    test_data_description = get_value('test_data_description')
+    db_name = metadata['db_name']
+    data_window_start = metadata['data_window_start']
+    data_window_end = metadata['data_window_end']
+    test_data_description = metadata['test_data_description']
     model_run_datetime = datetime.now().isoformat() # this assumes that the import of model results is done right after the prediction is run
     cursor.execute('''
     INSERT INTO datasets (datasetID, dataBaseName, description, start_date, end_date)

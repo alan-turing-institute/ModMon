@@ -27,7 +27,7 @@ if args.m:
 else:
     raise RuntimeError("You must supply model data dir with -m")
 
-metadata_script = model_path + "/metadata.csv"
+metadata_json = model_path + "/metadata.json"
 training_metrics_csv =  model_path + "/data/training_metrics.csv"
 prediction_metrics_csv =  model_path + "/data/prediction_metrics.csv"
 
@@ -35,28 +35,27 @@ prediction_metrics_csv =  model_path + "/data/prediction_metrics.csv"
 ### Load metadata ###
 #####################
 
-metadata = pd.read_csv(metadata_script)
-def get_value(var):
-    return list(metadata.loc[metadata['Field'] == var]['Value'])[0]
+with open(metadata_json, 'r') as f:
+    metadata = json.load(f)
 
-team = get_value('team')
-contact = get_value('contact')
-contact_email = get_value('contact_email')
-team_description = get_value('team_description')
-research_question = get_value('research_question')
-model = get_value('model_name')
-model_description = get_value('model_description')
-model_version = get_value('model_version')
+team = metadata['team']
+contact = metadata['contact']
+contact_email = metadata['contact_email']
+team_description = metadata['team_description']
+research_question = metadata['research_question']
+model = metadata['model_name']
+model_description = metadata['model_description']
+model_version = metadata['model_version']
 
-db_name = get_value('db_name')
-data_window_start = get_value('data_window_start')
-data_window_end = get_value('data_window_end')
-model_train_datetime = get_value('model_train_datetime')
-training_data_description = get_value('training_data_description')
-model_run_datetime = get_value('model_run_datetime')
-test_data_description = get_value('test_data_description')
+db_name = metadata['db_name']
+data_window_start = metadata['data_window_start']
+data_window_end = metadata['data_window_end']
+model_train_datetime = metadata['model_train_datetime']
+training_data_description = metadata['training_data_description']
+model_run_datetime = metadata['model_run_datetime']
+test_data_description = metadata['test_data_description']
 
-command = get_value('command')
+command = metadata['command']
 
 #################
 ### Load data ###
