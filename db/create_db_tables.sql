@@ -6,9 +6,6 @@ DROP TABLE IF EXISTS metrics;
 DROP TABLE IF EXISTS researchQuestions;
 DROP TABLE IF EXISTS teams;
 
--- The first set of tables are populated with data that comes
--- directly from an analyst team
-
 CREATE TABLE teams (
   teamName VARCHAR(50) NOT NULL,
   contactName VARCHAR(100) NOT NULL,
@@ -48,9 +45,6 @@ CREATE TABLE datasets (
   end_date TIMESTAMP,
   PRIMARY KEY (datasetID)
 );
-
--- The second set of tables are populated by the model validator
--- each time they run a model and get some output data
 
 CREATE TABLE modelVersions (
   modelID INT NOT NULL,
