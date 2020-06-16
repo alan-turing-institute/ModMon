@@ -21,8 +21,8 @@ args = parser.parse_args()
 model_path = args.model
 
 metadata_json = model_path + "/metadata.json"
-training_metrics_csv =  model_path + "/data/training_metrics.csv"
-prediction_metrics_csv =  model_path + "/data/prediction_metrics.csv"
+training_metrics_csv =  model_path + "/training_metrics.csv"
+prediction_metrics_csv =  model_path + "/prediction_metrics.csv"
 
 #####################
 ### Load metadata ###

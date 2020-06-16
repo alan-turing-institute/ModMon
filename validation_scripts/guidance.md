@@ -10,10 +10,9 @@
 |  |-- requirements.txt               <- contains packages to use for run_model.py
 |  |-- model.sav                      <- file ext. of choice
 |  |-- run_model.py                   <- Takes model.sav as arg (language of choice e.g. run_model.R)
-|  |-- data
-|  |-- |-- metadata.csv               <- Manually compiled
-|  |-- |-- training_metrics.csv       <- Output of your model training
-|  |-- |-- prediction_metrics.csv     <- Output of analyst run of run_model.py
+|  |-- metadata.csv                   <- Manually compiled
+|  |-- training_metrics.csv           <- Output of your model training
+|  |-- prediction_metrics.csv         <- Output of analyst run of run_model.py
 
 ```
 
@@ -42,6 +41,8 @@ Template `metadata.csv`. Must have a Field and a Value column.
 |model_description | FALSE | Model to assess wine quality|
 |model_version | TRUE | 1.0.0|
 
+TODO: update this^ or just link to file
+
 # Validator guidance
 
 ## Set up a new model
@@ -51,6 +52,6 @@ Template `metadata.csv`. Must have a Field and a Value column.
 
 ## Log a new result for a model
 
-1. Set up the environment in the way specified by the analyst in `model/README.md`
-1. Run the model in the way specified in `model/README.md` <- creates a new `prediction_metrics.csv`
+1. Set up the environment in the way specified by the analyst in `model/README.md` (TODO: conda yml instead)
+1. Run the model in the way specified in `model/README.md` <- creates a new `prediction_metrics.csv` (TODO: command in modelVersions table instead)
 2. `python import_model_results model` <- the new prediction metrics logged in results table, designated as not a reference result

@@ -34,4 +34,4 @@ metrics = pd.DataFrame([["r2", r2_score(y_test, predicted_qualities)],
                 columns=["metric", "value"])
 
 # Save metrics csv
-metrics.to_csv("data/prediction_metrics.csv",  index=False)
+metrics.to_csv("prediction_metrics.csv",  index=False)

@@ -21,8 +21,8 @@ args = parser.parse_args()
 model_path = args.model
 
 metadata_json = model_path + "/metadata.json"
-training_metrics_csv =  model_path + "/data/training_metrics.csv"
-prediction_metrics_csv =  model_path + "/data/prediction_metrics.csv"
+training_metrics_csv =  model_path + "/training_metrics.csv"
+prediction_metrics_csv =  model_path + "/prediction_metrics.csv"
 
 #####################
 ### Load metadata ###
@@ -55,7 +55,7 @@ metrics = pd.concat([training_metrics, reference_metrics])
 cursor.execute("SELECT modelID FROM models WHERE name='" + model + "'")
 mid = cursor.fetchone()[0]
 
-print('Is the "model/data/prediction_metrics.csv" a reference result created by the analyst? (y/n)')
+print('Is the "model/prediction_metrics.csv" a reference result created by the analyst? (y/n)')
 response = input()
 if response == 'y' or response  == 'Y':
     reference_result = True
