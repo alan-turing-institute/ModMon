@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS results;
-DROP TABLE IF EXISTS datasets;
 DROP TABLE IF EXISTS modelVersions;
+DROP TABLE IF EXISTS datasets;
 DROP TABLE IF EXISTS models;
 DROP TABLE IF EXISTS metrics;
 DROP TABLE IF EXISTS researchQuestions;
@@ -19,7 +19,7 @@ CREATE TABLE teams (
 
 CREATE TABLE researchQuestions (
   questionID INT NOT NULL,
-  description VARCHAR(500) NOT NULL, -- TODO: longer if needed (research question)
+  description VARCHAR(500) NOT NULL,
   PRIMARY KEY (questionID)
 );
 
@@ -33,11 +33,20 @@ CREATE TABLE models (
   modelID INT NOT NULL,
   teamName VARCHAR(50) NOT NULL,
   questionID INT NOT NULL,
-  name VARCHAR(20),
+  name VARCHAR(20) NOT NULL,
   description VARCHAR(500),
   PRIMARY KEY (modelID),
   FOREIGN KEY (teamName) REFERENCES teams (teamName),
   FOREIGN KEY (questionID) REFERENCES researchQuestions (questionID)
+);
+
+CREATE TABLE datasets (
+  datasetID INT NOT NULL,
+  dataBaseName VARCHAR(20) NOT NULL,
+  description VARCHAR(500), -- Must provide some info on how the analysts database query was modified, if it has been. Possibly entire query (save this for version 2?)
+  start_date TIMESTAMP,
+  end_date TIMESTAMP,
+  PRIMARY KEY (datasetID)
 );
 
 -- The second set of tables are populated by the model validator
@@ -46,45 +55,31 @@ CREATE TABLE models (
 CREATE TABLE modelVersions (
   modelID INT NOT NULL,
   modelVersion VARCHAR(10) NOT NULL,
-  datasetID INT NOT NULL, -- dataset the model was trained on
-  location VARCHAR(500), -- path to model file and prediction script TODO: is this something that is appropriate to be stored in the database (perhaps an evironment script too)
+  trainingDatasetID INT NOT NULL,
+  referenceTestDatasetID INT NOT NULL,
+  location VARCHAR(500),
   command VARCHAR(500), -- to run the model prediction script
-  uploadTime TIMESTAMP,
-  active BOOLEAN, -- submission of a new model should turn this off, default on
+  modelTrainTime TIMESTAMP,
+  active BOOLEAN,
   PRIMARY KEY (modelID, modelVersion),
-  FOREIGN KEY (modelID) REFERENCES models (modelID)
+  FOREIGN KEY (modelID) REFERENCES models (modelID),
+  FOREIGN KEY (trainingDatasetID) REFERENCES datasets (datasetID),
+  FOREIGN KEY (referenceTestDatasetID) REFERENCES datasets (datasetID)
 );
-
-CREATE TABLE datasets (
-  datasetID INT NOT NULL,
-  dataBaseName VARCHAR(20) NOT NULL,
-  dataBaseVersionTime TIMESTAMP NOT NULL, -- either current TIMESTAMP or a TIMESTAMP in the past before an update was pushed to the db
-  description VARCHAR(500), -- Must provide some info on how the analysts database query was modified, if it has been. Possibly entire query (save this for version 2?)
-  start_date TIMESTAMP,
-  end_date TIMESTAMP,
-  PRIMARY KEY (datasetID)
-);
-
--- DROP TABLE IF EXISTS modelMetrics; -- TODO: do we need this? I think covered by results table
--- CREATE TABLE modelMetrics (
---   modelID INT,
---   metric INT,
---   model INT,
---   active bool
--- );
 
 CREATE TABLE results (
-  -- id INT, TODO: Do we need a result id?
   modelID INT NOT NULL,
   modelVersion VARCHAR(10) NOT NULL,
-  datasetID INT NOT NULL,
+  testDatasetID INT NOT NULL,
+  isReferenceResult BOOLEAN NOT NULL,
   runTime TIMESTAMP NOT NULL,
+  runID INT NOT NULL, -- rows that share this ID are from the same run of a model on a particular dataset
   metric VARCHAR(20) NOT NULL,
-  value FLOAT NOT NULL, -- TODO will this be a float for every metric?
+  value FLOAT NOT NULL,
   valueError FLOAT,
   resultMessage VARCHAR(500),
-  PRIMARY KEY (modelID, modelVersion, datasetID, runTime, metric),
+  PRIMARY KEY (modelID, modelVersion, testDatasetID, runID, metric),
   FOREIGN KEY (modelID, modelVersion) REFERENCES modelVersions (modelID, modelVersion),
-  FOREIGN KEY (datasetID) REFERENCES datasets (datasetID),
+  FOREIGN KEY (testDatasetID) REFERENCES datasets (datasetID),
   FOREIGN KEY (metric) REFERENCES metrics (metric)
 );

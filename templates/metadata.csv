@@ -1,0 +1,9 @@
+﻿Field,Field Required,Value
+team,TRUE,
+contact,TRUE,
+contact_email,TRUE,
+team_description,FALSE,
+research_question,TRUE,
+model_name,TRUE,
+model_description,FALSE,
+model_version,TRUE,
