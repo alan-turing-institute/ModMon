@@ -56,15 +56,15 @@ Template `metadata.json`:
 
 1. Navigate to validation scripts
     ```bash
-		cd path/to/validation_scripts
+    cd path/to/validation_scripts
     ```
 2. Where `model` is the folder submitted by the analyst:
     ```bash
-		python model_setup.py path/to/model
+    python model_setup.py path/to/model
     ```
 3. Running this for the first time imports reference results/metrics from when the analyst ran their model on test data (`metrics.csv`):
     ```bash
-		python import_model_results.py path/to/model
+    python import_model_results.py path/to/model
     ```
 
 ## Log a new result for a model
@@ -91,11 +91,11 @@ Template `metadata.json`:
     ```
 3. Find, then run the analyst's designated command to run their model on new data (substitute new args), creating a new `metrics.csv`:
     ```SQL
-		select command from modelVersions where modelID=<modelID> and modelVersion='<modelVersion>';
+    select command from modelVersions where modelID=<modelID> and modelVersion='<modelVersion>';
     ```
 
     ```bash
-		python run_model.py <db name> <start date (yyyy-mm-dd)> <end date (yyyy-mm-dd)>
+    python run_model.py <db name> <start date (yyyy-mm-dd)> <end date (yyyy-mm-dd)>
     ```
 4. Back to validation scripts:
     ```bash
