@@ -69,38 +69,38 @@ python import_model_results.py path/to/model
 ## Log a new result for a model
 
 1. Log in to the db and choose a model: `psql -h localhost -p 5432 ModMon`, then:
-    * ```SQL
-      select name, modelID from models; -- choose a model (note the modelID number)
-      ```
-    * ```SQL
-      select modelVersion from modelVersions where modelID=<modelID>; -- list model versions (note one of them)
-      ```
-    * ```SQL
-      select location from modelVersions where modelID=<modelID> and modelVersion='<modelVersion>'; -- gets `path/to/model`
-      ```
+    ```SQL
+    select name, modelID from models; -- choose a model (note the modelID number)
+    ```
+    ```SQL
+    select modelVersion from modelVersions where modelID=<modelID>; -- list model versions (note one of them)
+    ```
+    ```SQL
+    select location from modelVersions where modelID=<modelID> and modelVersion='<modelVersion>'; -- gets `path/to/model`
+    ```
 2. Now you know the location, set up the environment:
-    * ```bash
-      cd path/to/model
-      ```
-    * ```bash
+    ```bash
+    cd path/to/model
+    ```
+    ```bash
     conda env create -f environment.yml
     ```
-    * ```bash
+    ```bash
     conda activate <model name>
     ```
 3. Find, then run the analyst's designated command to run their model on new data (substitute new args), creating a new `metrics.csv`:
-    * ```SQL
+    ```SQL
 		select command from modelVersions where modelID=<modelID> and modelVersion='<modelVersion>';
-		```
-		Example command:
-    	* ```bash
-  		python run_model.py <db name> <start date (yyyy-mm-dd)> <end date (yyyy-mm-dd)>
-  		```
+    ```
+
+    ```bash
+		python run_model.py <db name> <start date (yyyy-mm-dd)> <end date (yyyy-mm-dd)>
+    ```
 4. Back to validation scripts:
-  	* ```bash
+    ```bash
     cd path/to/validation_scripts
     ```
 5. Log the new prediction metrics in results table, designating as not a reference result:
-    *  ```bash
+    ```bash
     python import_model_results.py path/to/model
     ```
