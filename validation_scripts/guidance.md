@@ -7,7 +7,7 @@
 ```
 |-- model
 |  |-- environment.yml             <- Required: Sets up environment needed for model to run
-|  |-- run_model.py                <- Required: Takes trained model.sav as arg (language of choice e.g. run_model.R)
+|  |-- run_model.py                <- Required: Metrics calculation script (language of choice e.g. run_model.R)
 |  |-- model.sav                   <- Optional: file ext. of choice (alternately don't include this and run_model.py also trains model)
 |  |-- metadata.json                <- Required: Manually compiled
 |  |-- metrics.csv                 <- Required: Output of analyst run of run_model.py
