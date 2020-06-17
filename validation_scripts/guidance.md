@@ -88,14 +88,18 @@ python import_model_results.py path/to/model
     * ```bash
     conda activate <model name>
     ```
-3. Back to validation scripts:
-  * ```bash
+3. Find, then run the analyst's designated command to run their model on new data (substitute new args), creating a new `prediction_metrics.csv`:
+    * ```SQL
+		select command from modelVersions where modelID=<modelID> and modelVersion='<modelVersion>';
+		```
+		Example command:
+    	* ```bash
+  		python run_model.py <db name> <start date (yyyy-mm-dd)> <end date (yyyy-mm-dd)>
+  		```
+4. Back to validation scripts:
+  	* ```bash
     cd path/to/validation_scripts
     ```
-4. Load the analyst's designated command to run their model on new data (command in modelVersions table), creating a new `prediction_metrics.csv`:
-  * ```bash
-  python run_model.py <db name> <start date (yyyy-mm-dd)> <end date (yyyy-mm-dd)>
-  ```
 5. Log the new prediction metrics in results table, designating as not a reference result:
     *  ```bash
     python import_model_results.py path/to/model
