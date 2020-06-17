@@ -22,7 +22,7 @@ model_path = args.model
 
 metadata_json = model_path + "/metadata.json"
 training_metrics_csv =  model_path + "/training_metrics.csv"
-prediction_metrics_csv =  model_path + "/prediction_metrics.csv"
+prediction_metrics_csv =  model_path + "/metrics.csv"
 
 #####################
 ### Load metadata ###

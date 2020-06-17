@@ -10,16 +10,16 @@
 |  |-- run_model.py                <- Required: Takes trained model.sav as arg (language of choice e.g. run_model.R)
 |  |-- model.sav                   <- Optional: file ext. of choice (alternately don't include this and run_model.py also trains model)
 |  |-- metadata.csv                <- Required: Manually compiled
-|  |-- training_metrics.csv        <- Optional: Output of your model training (not essential)
-|  |-- prediction_metrics.csv      <- Required: Output of analyst run of run_model.py (essential)
+|  |-- metrics.csv      					 <- Required: Output of analyst run of run_model.py
+|  |-- training_metrics.csv        <- Optional: Output of your model training
 
 ```
 
-This is one example, but only the `run_model.py` and `prediction_metrics.csv` are essential. If the `run_model.py` script also trains the model, instead of loading the pre-trained model, that's fine.
+This is one example, but only the `run_model.py` and `metrics.csv` are essential. If the `run_model.py` script also trains the model, instead of loading the pre-trained model, that's fine.
 
 ## File templates
 
-Template for `prediction_metrics.csv` and `training_metrics.csv`. Must have a metric and a value column.
+Template for `metrics.csv` and `training_metrics.csv`. Must have a metric and a value column.
 
 |metric|value|
 | ---  | --- |
@@ -61,7 +61,7 @@ cd path/to/validation_scripts
 ```bash
 python model_setup.py path/to/model
 ```
-3. Running this for the first time imports reference results/metrics from when the analyst ran their model on test data (`prediction_metrics.csv`):
+3. Running this for the first time imports reference results/metrics from when the analyst ran their model on test data (`metrics.csv`):
 ```bash
 python import_model_results.py path/to/model
 ```
@@ -88,7 +88,7 @@ python import_model_results.py path/to/model
     * ```bash
     conda activate <model name>
     ```
-3. Find, then run the analyst's designated command to run their model on new data (substitute new args), creating a new `prediction_metrics.csv`:
+3. Find, then run the analyst's designated command to run their model on new data (substitute new args), creating a new `metrics.csv`:
     * ```SQL
 		select command from modelVersions where modelID=<modelID> and modelVersion='<modelVersion>';
 		```
