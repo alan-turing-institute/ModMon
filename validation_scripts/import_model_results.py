@@ -38,14 +38,15 @@ model_version = metadata['model_version']
 ### Load data ###
 #################
 
-# Load model train metrics
-training_metrics = pd.read_csv(training_metrics_csv)
-
 # Load model run reference metrics
-reference_metrics = pd.read_csv(prediction_metrics_csv)
+metrics = pd.read_csv(prediction_metrics_csv)
 
-# Create a single metrics dictionary (training and prediction metrics)
-metrics = pd.concat([training_metrics, reference_metrics])
+# Load model train metrics, if included
+try:
+    training_metrics = pd.read_csv(training_metrics_csv)
+    metrics = pd.concat([training_metrics, metrics]) # Create a single metrics dictionary
+except FileNotFoundError:
+    pass
 
 #######################
 ### Save data to db ###
