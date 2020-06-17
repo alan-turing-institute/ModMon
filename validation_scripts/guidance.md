@@ -15,7 +15,7 @@
 
 ```
 
-This is one example, but only the `run_model.py` and `metrics.csv` are essential. If the `run_model.py` script also trains the model, instead of loading the pre-trained model, that's fine.
+This is one example, but only the metrics calculation script (`run_model.py` or whichever name and language you choose) and `metrics.csv` are essential. If the script also trains the model, instead of loading a pre-trained model, that's fine.
 
 ## File templates
 
