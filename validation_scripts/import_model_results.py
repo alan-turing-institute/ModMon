@@ -38,7 +38,7 @@ model_version = metadata['model_version']
 ### Load data ###
 #################
 
-# Load model run reference metrics
+# Load model run metrics
 metrics = pd.read_csv(prediction_metrics_csv)
 
 # Load model train metrics, if included
