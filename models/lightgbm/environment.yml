@@ -1,6 +1,5 @@
 name: wine-lightgbm
-channels:
-  - defaults
+
 dependencies:
   - python=3.8.3
   - pip
