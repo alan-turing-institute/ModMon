@@ -83,17 +83,23 @@ Template `metadata.json`:
     ```bash
     cd path/to/model
     ```
+	For **Python** projects:
     ```bash
     conda env create -f environment.yml
     ```
     ```bash
     conda activate <model name>
     ```
+	For **R** projects, open an R cli (`R`):
+    ```R
+	renv::init()
+	renv::snapshot()
+    ```
 3. Find, then run the analyst's designated command to run their model on new data (substitute new args), creating a new `metrics.csv`:
     ```SQL
     select command from modelVersions where modelID=<modelID> and modelVersion='<modelVersion>';
     ```
-
+	For example:
     ```bash
     python run_model.py <db name> <start date (yyyy-mm-dd)> <end date (yyyy-mm-dd)>
     ```
