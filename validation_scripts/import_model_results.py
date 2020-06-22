@@ -61,8 +61,11 @@ response = input()
 if response == 'y' or response  == 'Y':
     reference_result = True
     # Get test dataset ID
-    cursor.execute("SELECT referenceTestDatasetID FROM modelVersions WHERE modelID=" + str(mid) + " AND modelVersion='" + model_version + "'")
-    tstdid = cursor.fetchone()[0]
+    try:
+        cursor.execute("SELECT referenceTestDatasetID FROM modelVersions WHERE modelID=" + str(mid) + " AND modelVersion='" + model_version + "'")
+        tstdid = cursor.fetchone()[0]
+    except TypeError:  # when what the cursor in the line above fetches is not a list
+        print("You may need to setup this model or model version with model_setup.py")
     model_run_datetime = metadata['model_run_datetime']
 else:
     reference_result = False
