@@ -11,4 +11,4 @@
 
 # SQLAlchemy
 
-1. Create schema (if changes to schema.sql): `sqlacodegen postgresql://echalstrey@localhost:5432/ModMon --outfile schema.py`
+1. Create schema (if changes to schema.sql): `sqlacodegen postgresql://username@localhost:5432/ModMon --outfile schema.py`
