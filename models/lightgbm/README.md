@@ -29,7 +29,9 @@ Full command:
 make clean; make START_DATE=<start_date> END_DATE=<end_date> DATABASE=<database>
 ```
 Replace `<start_date>`, `<end_date>` and `<database>` with appropriate values. Start and
-end date should be row indexes, database is not used.
+end date should be dates in `%Y-%m-%d` format, and the year will be interpreted as the
+row index. E.g. a `<start_date>` of `2500-1-1` will calculate the metrics starting from
+row 2500. Database is not used.
 
 ### Deacticate Environment
 

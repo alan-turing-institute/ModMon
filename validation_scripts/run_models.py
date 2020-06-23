@@ -1,9 +1,15 @@
 import subprocess
 import os
+from datetime import datetime
+import argparse
+
+import pandas as pd
+
+from db_connect import get_connection, get_unique_id
 
 
 def build_env_name(model_id, model_version):
-    return f"model-{model_id}-version-{model_version}"
+    return f"ModMon-model-{model_id}-version-{model_version}"
 
 
 def conda_env_exists(env_name):
@@ -41,7 +47,14 @@ def get_conda_activate_command(env_name, conda_path=None):
     return command
 
 
-def build_run_cmd(raw_cmd, start_date, end_date):
+def build_run_cmd(raw_cmd, start_date, end_date, database):
+    if "<start_date>" not in raw_cmd:
+        raise ValueError("Command does not contain <start_date> placeholder")
+    if "<end_date>" not in raw_cmd:
+        raise ValueError("Command does not contain <end_date> placeholder")
+    if "<database>" not in raw_cmd:
+        raise ValueError("Command does not contain <database> placeholder")
+
     return (
         raw_cmd.replace("<start_date>", str(start_date))
         .replace("<end_date>", str(end_date))
@@ -49,31 +62,152 @@ def build_run_cmd(raw_cmd, start_date, end_date):
     )
 
 
-def main(start_date, end_date):
-    # TODO get model versions from db
-    model_versions = [
-        {
-            "model_id": 1,
-            "model_version": "1.0.0",
-            "location": "/Users/jroberts/GitHub/DECOVID-dataaccess/monitor/models/lightgbm",
-            "command": "make clean; make START_DATE=<start_date> END_DATE=<end_date> DATABASE=<database>",
-        }
-    ]
+def get_model_versions(cursor):
+    model_versions = cursor.execute(
+        "SELECT * FROM modelVersions WHERE active=TRUE"
+    ).fetchall()
 
-    for mv in model_versions:
-        env_name = build_env_name(mv["model_id"], mv["model_version"])
-        create_conda_env(env_name, f"{mv['location']}/environment.yml")
-        env_cmd = get_conda_activate_command(env_name)
-        run_cmd = build_run_cmd(mv["command"], start_date, end_date)
+    return model_versions
 
-        # TODO Delete metrics file from previous run
 
-        subprocess.run(
-            f"{env_cmd} && {run_cmd}", cwd=mv["location"], shell=True, check=True
+def get_iso_time():
+    return datetime.now().replace(microsecond=0).isoformat()
+
+
+def create_dataset(cursor, start_date, end_date, database):
+    # create id for dataset
+    dataset_id = get_unique_id(cursor, "datasets", "datasetID")
+
+    # current date and time in iso format
+    description = f"Automatically created by ModMon {get_iso_time()}"
+
+    cursor.execute(
+        """
+    INSERT INTO datasets (datasetID, dataBaseName, description, start_date, end_date)
+    VALUES (?, ?, ?, ?, ?);
+    """,
+        dataset_id,
+        database,
+        description,
+        start_date,
+        end_date,
+    )
+
+    return dataset_id
+
+
+def get_metrics_path(model_version):
+    return f"{model_version.location}/metrics.csv"
+
+
+def add_results_from_file(cursor, model_version, dataset_id, run_time):
+    metrics_path = get_metrics_path(model_version)
+
+    if not os.path.exists(metrics_path):
+        raise FileNotFoundError(
+            f"{metrics_path} not found. This should be created by running {mv.command}."
         )
 
-        # TODO save results to db
+    run_id = get_unique_id(cursor, "results", "runID")
+
+    metrics = pd.read_csv(metrics_path)
+
+    for _, row in metrics.iterrows():
+        metric_name, metric_value = row
+        reference_result = False
+        cursor.execute(
+            """
+        INSERT INTO results (modelID, modelVersion, testDatasetID, isReferenceResult, runTime, runID, metric, value)
+        VALUES
+        (?, ?, ?, ?, ?, ?, ?, ?);
+        """,
+            model_version.modelid,
+            model_version.modelversion,
+            dataset_id,
+            reference_result,
+            run_time,
+            run_id,
+            metric_name,
+            metric_value,
+        )
+
+
+def main(start_date, end_date, database):
+    # Set up db connection
+    print("Connecting to monitoring database...")
+    cnxn = get_connection()
+    cursor = cnxn.cursor()
+
+    # get active model versions from db
+    print("Getting active model versions...", end=" ")
+    model_versions = get_model_versions(cursor)
+    print(f"found {len(model_versions)} model versions.")
+
+    if len(model_versions) == 0:
+        print("No active model versions found. Returning.")
+        return
+
+    # create dataset for this date range and database
+    print("Creating dataset entry...")
+    dataset_id = create_dataset(cursor, start_date, end_date, database)
+
+    # run metrics script for all model versions
+    for i, mv in enumerate(model_versions):
+        print("=" * 30)
+        print(
+            f"MODEL {i + 1} OUT OF {len(model_versions)}: ID {mv.modelid} VERSION {mv.modelversion}"
+        )
+        print("=" * 30)
+
+        print("Creating environment...")
+        env_name = build_env_name(mv.modelid, mv.modelversion)
+        create_conda_env(env_name, f"{mv.location}/environment.yml")
+        env_cmd = get_conda_activate_command(env_name)
+
+        print("Running metrics script...")
+        # delete any pre-existing metrics file
+        metrics_path = get_metrics_path(mv)
+        try:
+            os.remove(metrics_path)
+        except FileNotFoundError:
+            pass
+
+        run_cmd = build_run_cmd(mv.command, start_date, end_date, database)
+        run_time = get_iso_time()
+
+        # run metrics script
+        subprocess.run(
+            f"{env_cmd} && {run_cmd}", cwd=mv.location, shell=True, check=True
+        )
+
+        if not os.path.exists(metrics_path):
+            raise FileNotFoundError(
+                f"{metrics_path} not found. This should be created by running {run_cmd}."
+            )
+
+        print("Adding results to database...")
+        add_results_from_file(cursor, mv, dataset_id, run_time)
+        cnxn.commit()
+
+    cnxn.close()
 
 
 if __name__ == "__main__":
-    main(2200, 2500)
+    parser = argparse.ArgumentParser(
+        description="Automatically run all active model versions in the monitoring database"
+    )
+    parser.add_argument(
+        "--start_date", help="Start date of dataset", required=True
+    )
+    parser.add_argument(
+        "--end_date", help="End date of dataset", required=True
+    )
+    parser.add_argument(
+        "--database",
+        help="Dummy placeholder for database to connect to, not used",
+        required=False,
+        default="TEST"
+    )
+
+    args = parser.parse_args()
+    main(args.start_date, args.end_date, args.database)

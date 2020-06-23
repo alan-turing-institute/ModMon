@@ -2,6 +2,7 @@ import lightgbm as lgb
 import pandas as pd
 import argparse
 import numpy as np
+from datetime import datetime
 
 
 def get_input_data(start_idx, end_idx):
@@ -34,8 +35,9 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    start_idx = int(args.start_date)
-    end_idx = int(args.end_date)
+    # Interpret year of dates as row indexes to use for dummy example
+    start_idx = datetime.strptime(args.start_date, "%Y-%m-%d").year
+    end_idx = datetime.strptime(args.end_date, "%Y-%m-%d").year
 
     data = get_input_data(start_idx, end_idx)
     preds = predict(data)
