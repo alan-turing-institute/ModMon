@@ -153,7 +153,10 @@ if metadata['model_version'] not in model_versions:
     session.commit()
 
     # Set any older versions of the same model as inactive
-    cursor.execute("UPDATE modelVersions SET active=FALSE WHERE modelID=" + str(model_id) + " AND modelVersion!='" + metadata['model_version'] + "'")
+    old_versions_this_model = session.query(Modelversion).filter_by(modelid=model_id).filter(Modelversion.modelversion!=metadata['model_version']).all()
+    for old_model_version in old_versions_this_model:
+        old_model_version.active=False
+        session.commit()
 
 cnxn.commit()
 cnxn.close()
