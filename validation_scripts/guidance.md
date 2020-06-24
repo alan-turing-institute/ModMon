@@ -9,7 +9,7 @@
 |  |-- environment.yml             <- Required: Sets up environment needed for model to run
 |  |-- run_model.py                <- Required: Metrics calculation script (language of choice e.g. run_model.R)
 |  |-- model.sav                   <- Optional: file ext. of choice (alternately don't include this and run_model.py also trains model)
-|  |-- metadata.json                <- Required: Manually compiled
+|  |-- metadata.json               <- Required: Manually compiled
 |  |-- metrics.csv                 <- Required: Output of analyst run of run_model.py
 |  |-- training_metrics.csv        <- Optional: Output of your model training
 
@@ -83,17 +83,23 @@ Template `metadata.json`:
     ```bash
     cd path/to/model
     ```
+	For **Python** projects:
     ```bash
     conda env create -f environment.yml
     ```
     ```bash
     conda activate <model name>
     ```
+	For **R** projects, open an R cli (`R`):
+    ```R
+	renv::init()
+	renv::snapshot()
+    ```
 3. Find, then run the analyst's designated command to run their model on new data (substitute new args), creating a new `metrics.csv`:
     ```SQL
     select command from modelVersions where modelID=<modelID> and modelVersion='<modelVersion>';
     ```
-
+	For example:
     ```bash
     python run_model.py <db name> <start date (yyyy-mm-dd)> <end date (yyyy-mm-dd)>
     ```

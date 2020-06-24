@@ -95,6 +95,9 @@ if research_question not in research_questions:
     VALUES
     (?, ?);
     ''', qid, research_question)
+else:
+    cursor.execute("select questionID from researchQuestions where description='" + research_question + "'")
+    qid = get_list(cursor)[0]
 
 # Metrics:
 cursor.execute("SELECT metric FROM metrics")
