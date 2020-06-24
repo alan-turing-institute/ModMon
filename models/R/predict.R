@@ -19,7 +19,7 @@ if (length(args) < 2) {
        call.=FALSE)
 } else {
   start_idx <- year(as.Date(args[1], '%Y-%m-%d'))
-  end_idx <- year(as.Date(args[1], '%Y-%m-%d'))
+  end_idx <- year(as.Date(args[2], '%Y-%m-%d'))
   print(paste(c("start_idx:", start_idx, ", end_idx:", end_idx),
               collapse=" "))
 }

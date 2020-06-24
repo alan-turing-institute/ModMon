@@ -111,25 +111,37 @@ def get_iso_time():
 
 
 def create_dataset(cursor, start_date, end_date, database):
-    # create id for dataset
-    dataset_id = get_unique_id(cursor, "datasets", "datasetID")
+    # check whether matching dataset already exists
+    # TODO currently only checks by date, not times
+    dataset = cursor.execute(
+        f"""SELECT * FROM datasets
+        WHERE start_date::date=date '{start_date}' AND end_date::date=date '{end_date}' AND dataBaseName='{database}';"""
+    ).fetchone()
+    
+    # if matching dataset exists return its id
+    if dataset:
+        return dataset.datasetid
 
-    # current date and time in iso format
-    description = f"Automatically created by ModMon {get_iso_time()}"
+    else:
+        # create id for dataset
+        dataset_id = get_unique_id(cursor, "datasets", "datasetID")
 
-    cursor.execute(
-        """
-    INSERT INTO datasets (datasetID, dataBaseName, description, start_date, end_date)
-    VALUES (?, ?, ?, ?, ?);
-    """,
-        dataset_id,
-        database,
-        description,
-        start_date,
-        end_date,
-    )
+        # current date and time in iso format
+        description = f"Automatically created by ModMon {get_iso_time()}"
 
-    return dataset_id
+        cursor.execute(
+            """
+        INSERT INTO datasets (datasetID, dataBaseName, description, start_date, end_date)
+        VALUES (?, ?, ?, ?, ?);
+        """,
+            dataset_id,
+            database,
+            description,
+            start_date,
+            end_date,
+        )
+
+        return dataset_id
 
 
 def get_metrics_path(model_version):
@@ -194,6 +206,9 @@ def main(start_date, end_date, database):
             f"MODEL {i + 1} OUT OF {len(model_versions)}: ID {mv.modelid} VERSION {mv.modelversion}"
         )
         print("=" * 30)
+        
+        # TODO check whether results already exist for this model version on
+        # this dataset - if so skip?
 
         print("Creating environment...")
         env_cmd = create_env(mv)
@@ -236,7 +251,7 @@ if __name__ == "__main__":
         "--database",
         help="Dummy placeholder for database to connect to, not used",
         required=False,
-        default="TEST",
+        default="dummydb",
     )
 
     args = parser.parse_args()
