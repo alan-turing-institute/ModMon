@@ -1,14 +1,17 @@
 import pyodbc
 import pandas as pd
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+from schema import Base
 
+PORT = "5432"
+DB = 'ModMon'
 
 def get_connection():
     """Get a pyodbc connection that can be used to excecute queries"""
-    server = "localhost,5432"
-    db_name = "ModMon"
     # This is the driver location that Homebrew saves on Mac
     driver = "/usr/local/lib/psqlodbcw.so"
-    return pyodbc.connect("DRIVER={" + driver + "};SERVER=" + server + ";DATABASE=" + db_name + ";Trusted_Connection=yes;")
+    return pyodbc.connect("DRIVER={" + driver + "};SERVER=localhost," + PORT + ";DATABASE=" + DB + ";Trusted_Connection=yes;")
 
 
 def get_unique_id(cursor, table, column):
@@ -19,3 +22,10 @@ def get_unique_id(cursor, table, column):
         return max_question_id + 1
     else:
         return 1
+
+
+def get_session():
+    """Get SQLAlchemy session"""
+    Base.metadata.bind = create_engine("postgresql://localhost:" + PORT + "/" + DB)
+    DBSession = sessionmaker()
+    return DBSession()

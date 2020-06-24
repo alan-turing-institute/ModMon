@@ -1,27 +1,20 @@
 # Run this script once, the first time an analyst submits a model file (including for a new version of a model)
 import argparse
 from datetime import datetime
-from db_connect import get_connection, get_unique_id
+from db_connect import get_connection, get_unique_id, get_session
 import json
 import pandas as pd
-from schema import (Base,
-                    Team,
+from schema import (Team,
                     Dataset,
                     Metric,
                     Researchquestion,
                     Model,
                     Modelversion)
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
 
 # Set up db connection
 cnxn = get_connection()
 cursor = cnxn.cursor()
-
-# TODO: edit this so not specific username
-Base.metadata.bind = create_engine('postgresql://echalstrey@localhost:5432/ModMon')
-DBSession = sessionmaker()
-session = DBSession()
+session =  get_session()
 
 #############
 ### Files ###
