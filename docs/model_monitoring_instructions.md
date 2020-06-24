@@ -1,6 +1,7 @@
 # Setup db
 
 1. Nagigate to `monitor/db` dir
+1. Install required python packages: `pip install -r requirements.txt`
 1. Create db: `createdb ModMon "DECOVID Model Monitoring"`
 2. Create tables: `psql -f schema.sql ModMon`
 3. Connect to db: `psql -h localhost -p 5432 ModMon`
