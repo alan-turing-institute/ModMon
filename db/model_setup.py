@@ -108,16 +108,13 @@ else:
     qid = question.questionid
 
 # Metrics:
-cursor.execute("SELECT metric FROM metrics")
-metrics_table = get_list(cursor)
+metrics_in_db = [metric.metric for metric in session.query(Metric).all()]
 for index, row in metrics.iterrows():
     metric, value = row
-    if metric not in metrics_table:
-        cursor.execute('''
-        INSERT INTO metrics (metric)
-        VALUES
-        (?)
-        ''', metric)
+    if metric not in metrics_in_db:
+        newmetric = Metric(metric = metric)
+        session.add(newmetric)
+        session.commit()
 
 # Models:
 cursor.execute("SELECT name FROM models")
