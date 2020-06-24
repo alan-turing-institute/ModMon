@@ -45,18 +45,6 @@ prediction_metrics_csv =  model_path + "/metrics.csv"
 with open(metadata_json, 'r') as f:
     metadata = json.load(f)
 
-model_version = metadata['model_version']
-
-db_name = metadata['db_name']
-data_window_start = metadata['data_window_start']
-data_window_end = metadata['data_window_end']
-model_train_datetime = metadata['model_train_datetime']
-training_data_description = metadata['training_data_description']
-model_run_datetime = metadata['model_run_datetime']
-test_data_description = metadata['test_data_description']
-
-command = metadata['command']
-
 #################
 ### Load data ###
 #################
@@ -96,14 +84,14 @@ if metadata['team'] not in teams:
 research_questions = [q.description for q in session.query(Researchquestion).all()]
 if metadata['research_question'] not in research_questions:
     #TODO: use sqlalchemy for this function:
-    qid = get_unique_id(cursor, "researchQuestions", "questionID")
-    newquestion = Researchquestion(questionid = qid,
+    question_id = get_unique_id(cursor, "researchQuestions", "questionID")
+    newquestion = Researchquestion(questionid = question_id,
                                    description = metadata['research_question'])
     session.add(newquestion)
     session.commit()
 else:
     question = session.query(Researchquestion).filter_by(description=metadata['research_question']).first()
-    qid = question.questionid
+    question_id = question.questionid
 
 # Metrics:
 metrics_in_db = [metric.metric for metric in session.query(Metric).all()]
@@ -117,47 +105,55 @@ for index, row in metrics.iterrows():
 # Models:
 models = [model.name for model in session.query(Model).all()]
 if metadata['model_name'] not in models:
-    mid = get_unique_id(cursor, "models", "modelID")
-    newmodel = Model(modelid = mid,
+    model_id = get_unique_id(cursor, "models", "modelID")
+    newmodel = Model(modelid = model_id,
                      teamname = metadata['team'],
-                     questionid = qid,
+                     questionid = question_id,
                      name = metadata['model_name'],
                      description = metadata['model_description'])
     session.add(newmodel)
     session.commit()
 else:
     model = session.query(Model).filter_by(name=metadata['model_name']).first()
-    mid = model.modelid
+    model_id = model.modelid
 
 # Model version, training and testing datasets
-cursor.execute("SELECT modelVersion FROM modelVersions WHERE modelID=" + str(mid))
-model_versions = get_list(cursor)
-if model_version not in model_versions:
+model_versions = [model.modelversion for model in session.query(Modelversion).filter_by(modelid=model_id).all()]
+if metadata['model_version'] not in model_versions:
     # Training Dataset:
-    tdid = get_unique_id(cursor, "datasets", "datasetID")
-    cursor.execute('''
-    INSERT INTO datasets (datasetID, dataBaseName, description, start_date, end_date)
-    VALUES
-    (?, ?, ?, ?, ?);
-    ''', tdid, db_name, training_data_description, data_window_start, data_window_end)
+    training_dataset_id = get_unique_id(cursor, "datasets", "datasetID")
+    training_dataset = Dataset(datasetid = training_dataset_id,
+                               databasename = metadata['db_name'],
+                               description = metadata['training_data_description'],
+                               start_date = metadata['data_window_start'],
+                               end_date = metadata['data_window_end'])
+    session.add(training_dataset)
+    session.commit()
 
     # Test Dataset:
-    tstdid = get_unique_id(cursor, "datasets", "datasetID")
-    cursor.execute('''
-    INSERT INTO datasets (datasetID, dataBaseName, description, start_date, end_date)
-    VALUES
-    (?, ?, ?, ?, ?);
-    ''', tstdid, db_name, test_data_description, data_window_start, data_window_end)
+    test_dataset_id = get_unique_id(cursor, "datasets", "datasetID")
+    test_dataset = Dataset(datasetid = test_dataset_id,
+                           databasename = metadata['db_name'],
+                           description = metadata['test_data_description'],
+                           start_date = metadata['data_window_start'],
+                           end_date = metadata['data_window_end'])
+    session.add(test_dataset)
+    session.commit()
 
     # Model Version
-    cursor.execute('''
-    INSERT INTO modelVersions (modelID, modelVersion, trainingDatasetID, referenceTestDatasetID, location, command, modelTrainTime, active)
-    VALUES
-    (?, ?, ?, ?, ?, ?, ?, ?);
-    ''', mid, model_version, tdid, tstdid, model_path, command, model_train_datetime, True)
+    model_version = Modelversion(modelid = model_id,
+                                 modelversion = metadata['model_version'],
+                                 trainingdatasetid = training_dataset_id,
+                                 referencetestdatasetid = test_dataset_id,
+                                 location = model_path,
+                                 command = metadata['command'],
+                                 modeltraintime = metadata['model_train_datetime'],
+                                 active = True)
+    session.add(model_version)
+    session.commit()
 
     # Set any older versions of the same model as inactive
-    cursor.execute("UPDATE modelVersions SET active=FALSE WHERE modelID=" + str(mid) + " AND modelVersion!='" + model_version + "'")
+    cursor.execute("UPDATE modelVersions SET active=FALSE WHERE modelID=" + str(model_id) + " AND modelVersion!='" + metadata['model_version'] + "'")
 
 cnxn.commit()
 cnxn.close()
