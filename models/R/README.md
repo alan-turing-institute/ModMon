@@ -7,7 +7,8 @@ Largely inspired by this tutorial: http://www.sthda.com/english/articles/37-mode
   - `Rscript train.R`
 * `predict.R`: Calculate metrics for all rows between `start_date` and `run_date`, in database `database` (not used), saves results as `metrics.csv`.
   - `Rscript predict.R <START_DATE> <END_DATE> <DATABASE>`
-  
+  - `<START_DATE>` and `<END_DATE>` should be in `%Y-%m-%d` format, with the year being interpreted as a row index (the month and day are ignored). E.g. a `<START_DATE>` of `2500-1-1` means the first row used in the predictions will be row 2500.
+
 ## Environment
 
 Uses `renv` to share package versions etc., see docs here: https://rstudio.github.io/renv/articles/renv.html

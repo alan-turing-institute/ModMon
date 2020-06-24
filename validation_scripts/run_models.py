@@ -8,6 +8,20 @@ import pandas as pd
 from db_connect import get_connection, get_unique_id
 
 
+def get_model_env_types(path):
+    if os.path.exists(f"{path}/environment.yml"):
+        conda = True
+    else:
+        conda = False
+
+    if os.path.exists(f"{path}/renv.lock"):
+        renv = True
+    else:
+        renv = False
+
+    return {"conda": conda, "renv": renv}
+
+
 def build_env_name(model_id, model_version):
     return f"ModMon-model-{model_id}-version-{model_version}"
 
@@ -45,6 +59,28 @@ def get_conda_activate_command(env_name, conda_path=None):
     command = f"{source_conda} && {activate_env}"
 
     return command
+
+
+def create_renv_env(path):
+    # Call out to R with ModMon conda env activated, which has R and renv installed
+    modmon_env_cmd = get_conda_activate_command("ModMon")
+    renv_cmd = "Rscript -e 'renv::init()'"
+    subprocess.run(f"{modmon_env_cmd} && {renv_cmd}", cwd=path, shell=True, check=True)
+
+
+def create_env(model_version):
+    env_types = get_model_env_types(model_version.location)
+    env_cmd = None
+
+    if env_types["conda"]:
+        env_name = build_env_name(model_version.modelid, model_version.modelversion)
+        create_conda_env(env_name, f"{model_version.location}/environment.yml")
+        env_cmd = get_conda_activate_command(env_name)
+
+    if env_types["renv"]:
+        create_renv_env(model_version.location)
+
+    return env_cmd
 
 
 def build_run_cmd(raw_cmd, start_date, end_date, database):
@@ -160,9 +196,7 @@ def main(start_date, end_date, database):
         print("=" * 30)
 
         print("Creating environment...")
-        env_name = build_env_name(mv.modelid, mv.modelversion)
-        create_conda_env(env_name, f"{mv.location}/environment.yml")
-        env_cmd = get_conda_activate_command(env_name)
+        env_cmd = create_env(mv)
 
         print("Running metrics script...")
         # delete any pre-existing metrics file
@@ -173,19 +207,19 @@ def main(start_date, end_date, database):
             pass
 
         run_cmd = build_run_cmd(mv.command, start_date, end_date, database)
-        run_time = get_iso_time()
+        if env_cmd is not None:
+            run_cmd = f"{env_cmd} && {run_cmd}"
 
         # run metrics script
-        subprocess.run(
-            f"{env_cmd} && {run_cmd}", cwd=mv.location, shell=True, check=True
-        )
+        run_time = get_iso_time()
+        subprocess.run(run_cmd, cwd=mv.location, shell=True, check=True)
 
+        print("Adding results to database...")
         if not os.path.exists(metrics_path):
             raise FileNotFoundError(
                 f"{metrics_path} not found. This should be created by running {run_cmd}."
             )
 
-        print("Adding results to database...")
         add_results_from_file(cursor, mv, dataset_id, run_time)
         cnxn.commit()
 
@@ -196,17 +230,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Automatically run all active model versions in the monitoring database"
     )
-    parser.add_argument(
-        "--start_date", help="Start date of dataset", required=True
-    )
-    parser.add_argument(
-        "--end_date", help="End date of dataset", required=True
-    )
+    parser.add_argument("--start_date", help="Start date of dataset", required=True)
+    parser.add_argument("--end_date", help="End date of dataset", required=True)
     parser.add_argument(
         "--database",
         help="Dummy placeholder for database to connect to, not used",
         required=False,
-        default="TEST"
+        default="TEST",
     )
 
     args = parser.parse_args()

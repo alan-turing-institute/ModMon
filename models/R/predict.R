@@ -1,23 +1,25 @@
 # Change to this script's directory and run it as follows:
 #     Rscript predict.R <START_DATE> <END_DATE> <DATABASE>
-# Where <START_DATE> and <END_DATE> are replaced with integers representing
-# the first and last index in the data to predict and calculate the
-# metrics for.
+# Where <START_DATE> and <END_DATE> are replaced with dates
+# in %Y-%m-%d format. The year from these dates are converted
+# into the row indices to predict for, e.g. a start date of
+# 2500-1-1 will predict for rows starting from row 2500.
 
 library(tidyverse)
 library(glmnet)
 library(caret)
 library(argparse)
+library(lubridate)
 
 # Parse command line arguments
 args <- commandArgs(trailingOnly=TRUE)
 
 if (length(args) < 2) {
-  stop("Two arguments must be supplied: start_idx and end_idx",
+  stop("Two arguments must be supplied: start_date and end_date in %Y-%m-%d format.",
        call.=FALSE)
 } else {
-  start_idx <- as.integer(args[1])
-  end_idx <- as.integer(args[2])
+  start_idx <- year(as.Date(args[1], '%Y-%m-%d'))
+  end_idx <- year(as.Date(args[1], '%Y-%m-%d'))
   print(paste(c("start_idx:", start_idx, ", end_idx:", end_idx),
               collapse=" "))
 }
