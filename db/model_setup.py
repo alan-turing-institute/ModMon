@@ -125,11 +125,11 @@ if metadata['model_name'] not in models:
                      description = metadata['model_description'])
     session.add(newmodel)
     session.commit()
-
+else:
+    model = session.query(Model).filter_by(name=metadata['model_name']).first()
+    mid = model.modelid
 
 # Model version, training and testing datasets
-cursor.execute("SELECT modelID FROM models WHERE name='" +  metadata['model_name'] + "'")
-mid = cursor.fetchone()[0]
 cursor.execute("SELECT modelVersion FROM modelVersions WHERE modelID=" + str(mid))
 model_versions = get_list(cursor)
 if model_version not in model_versions:
