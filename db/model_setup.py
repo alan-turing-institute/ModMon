@@ -4,10 +4,24 @@ from datetime import datetime
 from db_connect import get_connection, get_unique_id
 import json
 import pandas as pd
+from schema import (Base,
+                    Team,
+                    Dataset,
+                    Metric,
+                    Researchquestion,
+                    Model,
+                    Modelversion)
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 
 # Set up db connection
 cnxn = get_connection()
 cursor = cnxn.cursor()
+
+# TODO: edit this so not specific username
+Base.metadata.bind = create_engine('postgresql://echalstrey@localhost:5432/ModMon')
+DBSession = sessionmaker()
+session = DBSession()
 
 #############
 ### Files ###
@@ -31,10 +45,6 @@ prediction_metrics_csv =  model_path + "/metrics.csv"
 with open(metadata_json, 'r') as f:
     metadata = json.load(f)
 
-team = metadata['team']
-contact = metadata['contact']
-contact_email = metadata['contact_email']
-team_description = metadata['team_description']
 research_question = metadata['research_question']
 model = metadata['model_name']
 model_description = metadata['model_description']
@@ -76,14 +86,14 @@ def get_list(cursor):
         return []
 
 # Team:
-cursor.execute("SELECT teamName FROM teams")
-teams = get_list(cursor)
-if team not in teams:
-    cursor.execute('''
-    INSERT INTO teams (teamName, contactName, contactEmail, description)
-    VALUES
-    (?, ?, ?, ?);
-    ''', team, contact, contact_email, team_description)
+teams = [team.teamname for team in session.query(Team).all()]
+if metadata['team'] not in teams:
+    newteam = Team(teamname = metadata['team'],
+                   contactname = metadata['contact'],
+                   contactemail = metadata['contact_email'],
+                   description = metadata['team_description'])
+    session.add(newteam)
+    session.commit()
 
 # Research Questions:
 cursor.execute("SELECT description FROM researchQuestions")
@@ -120,7 +130,7 @@ if model not in models:
     INSERT INTO models (modelID, teamName, questionID, name, description)
     VALUES
     (?, ?, ?, ?, ?);
-    ''', mid, team, qid, model, model_description)
+    ''', mid, metadata['team'], qid, model, model_description)
 
 # Model version, training and testing datasets
 cursor.execute("SELECT modelID FROM models WHERE name='" + model + "'")
