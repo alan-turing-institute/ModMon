@@ -45,7 +45,6 @@ prediction_metrics_csv =  model_path + "/metrics.csv"
 with open(metadata_json, 'r') as f:
     metadata = json.load(f)
 
-research_question = metadata['research_question']
 model = metadata['model_name']
 model_description = metadata['model_description']
 model_version = metadata['model_version']
@@ -96,18 +95,17 @@ if metadata['team'] not in teams:
     session.commit()
 
 # Research Questions:
-cursor.execute("SELECT description FROM researchQuestions")
-research_questions = get_list(cursor)
-if research_question not in research_questions:
+research_questions = [q.description for q in session.query(Researchquestion).all()]
+if metadata['research_question'] not in research_questions:
+    #TODO: use sqlalchemy for this function:
     qid = get_unique_id(cursor, "researchQuestions", "questionID")
-    cursor.execute('''
-    INSERT INTO researchQuestions (questionID, description)
-    VALUES
-    (?, ?);
-    ''', qid, research_question)
+    newquestion = Researchquestion(questionid = qid,
+                                   description = metadata['research_question'])
+    session.add(newquestion)
+    session.commit()
 else:
-    cursor.execute("select questionID from researchQuestions where description='" + research_question + "'")
-    qid = get_list(cursor)[0]
+    question = session.query(Researchquestion).filter_by(description=metadata['research_question']).first()
+    qid = question.questionid
 
 # Metrics:
 cursor.execute("SELECT metric FROM metrics")
