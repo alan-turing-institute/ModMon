@@ -45,8 +45,6 @@ prediction_metrics_csv =  model_path + "/metrics.csv"
 with open(metadata_json, 'r') as f:
     metadata = json.load(f)
 
-model = metadata['model_name']
-model_description = metadata['model_description']
 model_version = metadata['model_version']
 
 db_name = metadata['db_name']
@@ -117,18 +115,20 @@ for index, row in metrics.iterrows():
         session.commit()
 
 # Models:
-cursor.execute("SELECT name FROM models")
-models = get_list(cursor)
-if model not in models:
+models = [model.name for model in session.query(Model).all()]
+if metadata['model_name'] not in models:
     mid = get_unique_id(cursor, "models", "modelID")
-    cursor.execute('''
-    INSERT INTO models (modelID, teamName, questionID, name, description)
-    VALUES
-    (?, ?, ?, ?, ?);
-    ''', mid, metadata['team'], qid, model, model_description)
+    newmodel = Model(modelid = mid,
+                     teamname = metadata['team'],
+                     questionid = qid,
+                     name = metadata['model_name'],
+                     description = metadata['model_description'])
+    session.add(newmodel)
+    session.commit()
+
 
 # Model version, training and testing datasets
-cursor.execute("SELECT modelID FROM models WHERE name='" + model + "'")
+cursor.execute("SELECT modelID FROM models WHERE name='" +  metadata['model_name'] + "'")
 mid = cursor.fetchone()[0]
 cursor.execute("SELECT modelVersion FROM modelVersions WHERE modelID=" + str(mid))
 model_versions = get_list(cursor)
