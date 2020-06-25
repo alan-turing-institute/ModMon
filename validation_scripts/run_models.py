@@ -117,7 +117,7 @@ def create_dataset(cursor, start_date, end_date, database):
         f"""SELECT * FROM datasets
         WHERE start_date::date=date '{start_date}' AND end_date::date=date '{end_date}' AND dataBaseName='{database}';"""
     ).fetchone()
-    
+
     # if matching dataset exists return its id
     if dataset:
         return dataset.datasetid
@@ -142,6 +142,18 @@ def create_dataset(cursor, start_date, end_date, database):
         )
 
         return dataset_id
+
+
+def result_exists(cursor, model_id, model_version, dataset_id):
+    result = cursor.execute(
+        f"""SELECT * FROM results WHERE modelID='{model_id}'
+        AND modelVersion='{model_version}' AND testDatasetID='{dataset_id}';"""
+    ).fetchone()
+
+    if result:
+        return True
+    else:
+        return False
 
 
 def get_metrics_path(model_version):
@@ -180,7 +192,7 @@ def add_results_from_file(cursor, model_version, dataset_id, run_time):
         )
 
 
-def main(start_date, end_date, database):
+def main(start_date, end_date, database, force=False):
     # Set up db connection
     print("Connecting to monitoring database...")
     cnxn = get_connection()
@@ -206,9 +218,13 @@ def main(start_date, end_date, database):
             f"MODEL {i + 1} OUT OF {len(model_versions)}: ID {mv.modelid} VERSION {mv.modelversion}"
         )
         print("=" * 30)
-        
-        # TODO check whether results already exist for this model version on
-        # this dataset - if so skip?
+
+        # Check whether result already exists for this model version and dataset
+        if not force and result_exists(cursor, mv.modelid, mv.modelversion, dataset_id):
+            print(
+                f"DB already contains result for model {mv.modelid}, version {mv.modelversion} on dataset {dataset_id}. Skipping."
+            )
+            continue
 
         print("Creating environment...")
         env_cmd = create_env(mv)
@@ -253,6 +269,11 @@ if __name__ == "__main__":
         required=False,
         default="dummydb",
     )
+    parser.add_argument(
+        "--force",
+        help="If set, run models even if results already exist in the database",
+        action="store_true",
+    )
 
     args = parser.parse_args()
-    main(args.start_date, args.end_date, args.database)
+    main(args.start_date, args.end_date, args.database, force=args.force)
