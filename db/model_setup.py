@@ -1,7 +1,7 @@
 # Run this script once, the first time an analyst submits a model file (including for a new version of a model)
 import argparse
 from datetime import datetime
-from db_connect import get_connection, get_unique_id, get_session
+from db_connect import get_unique_id, get_session
 import json
 import pandas as pd
 from schema import (Team,
@@ -68,8 +68,7 @@ if metadata['team'] not in teams:
 # Research Questions:
 research_questions = [q.description for q in session.query(Researchquestion).all()]
 if metadata['research_question'] not in research_questions:
-    #TODO: use sqlalchemy for this function:
-    question_id = get_unique_id("researchQuestions", "questionID")
+    question_id = get_unique_id(session, Researchquestion.questionid)
     newquestion = Researchquestion(questionid = question_id,
                                    description = metadata['research_question'])
     session.add(newquestion)
@@ -90,7 +89,7 @@ for index, row in metrics.iterrows():
 # Models:
 models = [model.name for model in session.query(Model).all()]
 if metadata['model_name'] not in models:
-    model_id = get_unique_id("models", "modelID")
+    model_id = get_unique_id(session, Model.modelid)
     newmodel = Model(modelid = model_id,
                      teamname = metadata['team'],
                      questionid = question_id,
@@ -106,7 +105,7 @@ else:
 model_versions = [model.modelversion for model in session.query(Modelversion).filter_by(modelid=model_id).all()]
 if metadata['model_version'] not in model_versions:
     # Training Dataset:
-    training_dataset_id = get_unique_id("datasets", "datasetID")
+    training_dataset_id = get_unique_id(session, Dataset.datasetid)
     training_dataset = Dataset(datasetid = training_dataset_id,
                                databasename = metadata['db_name'],
                                description = metadata['training_data_description'],
@@ -116,7 +115,7 @@ if metadata['model_version'] not in model_versions:
     session.commit()
 
     # Test Dataset:
-    test_dataset_id = get_unique_id("datasets", "datasetID")
+    test_dataset_id = get_unique_id(session, Dataset.datasetid)
     test_dataset = Dataset(datasetid = test_dataset_id,
                            databasename = metadata['db_name'],
                            description = metadata['test_data_description'],
@@ -144,7 +143,7 @@ if metadata['model_version'] not in model_versions:
         session.commit()
 
     # Save analyst reference result for this model version
-    run_id = get_unique_id("results", "runID")
+    run_id = get_unique_id(session, Result.runid)
     for index, row in metrics.iterrows():
         metric, value = row
         reference_result = Result(modelid = model_id,

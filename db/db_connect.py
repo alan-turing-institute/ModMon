@@ -1,29 +1,27 @@
-import pyodbc
-import pandas as pd
+# import pyodbc
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from schema import Base
+from sqlalchemy import func
 
 PORT = "5432"
 DB = "ModMon"
 
-def get_connection():
-    """Get a pyodbc connection that can be used to excecute queries"""
-    # This is the driver location that Homebrew saves on Mac
-    driver = "/usr/local/lib/psqlodbcw.so"
-    return pyodbc.connect("DRIVER={" + driver + "};SERVER=localhost," + PORT + ";DATABASE=" + DB + ";Trusted_Connection=yes;")
+# pyodbc no longer required:
+
+# def get_connection():
+#     """Get a pyodbc connection that can be used to excecute queries"""
+#     # This is the driver location that Homebrew saves on Mac
+#     driver = "/usr/local/lib/psqlodbcw.so"
+#     return pyodbc.connect("DRIVER={" + driver + "};SERVER=localhost," + PORT + ";DATABASE=" + DB + ";Trusted_Connection=yes;")
 
 
-#TODO: this is the only function that still uses get_connection() and pyodbc - SQLAlchemise to avoid the issue of relying on Homebrew driver^
-def get_unique_id(table, column):
-    """Get value one higher than the highest value in a SQL table column"""
-    cnxn = get_connection()
-    cursor = cnxn.cursor()
-    cursor.execute("select max(" + column + ") from " + table)
-    max_question_id = cursor.fetchone()[0]
-    cnxn.close()
-    if max_question_id:
-        return max_question_id + 1
+def get_unique_id(session, column):
+    """Get value one higher than the highest value in a SQL table column,
+    where the column should be the SQL alchemy table column, e.g. Dataset.datasetid"""
+    max_id = session.query(func.max(column)).scalar()
+    if max_id:
+        return max_id + 1
     return 1
 
 
