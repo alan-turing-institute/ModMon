@@ -11,9 +11,7 @@ from schema import (Team,
                     Model,
                     Modelversion)
 
-# Set up db connection
-cnxn = get_connection()
-cursor = cnxn.cursor()
+# Set up SQLAlchemy session
 session =  get_session()
 
 #############
@@ -77,7 +75,7 @@ if metadata['team'] not in teams:
 research_questions = [q.description for q in session.query(Researchquestion).all()]
 if metadata['research_question'] not in research_questions:
     #TODO: use sqlalchemy for this function:
-    question_id = get_unique_id(cursor, "researchQuestions", "questionID")
+    question_id = get_unique_id("researchQuestions", "questionID")
     newquestion = Researchquestion(questionid = question_id,
                                    description = metadata['research_question'])
     session.add(newquestion)
@@ -98,7 +96,7 @@ for index, row in metrics.iterrows():
 # Models:
 models = [model.name for model in session.query(Model).all()]
 if metadata['model_name'] not in models:
-    model_id = get_unique_id(cursor, "models", "modelID")
+    model_id = get_unique_id("models", "modelID")
     newmodel = Model(modelid = model_id,
                      teamname = metadata['team'],
                      questionid = question_id,
@@ -114,7 +112,7 @@ else:
 model_versions = [model.modelversion for model in session.query(Modelversion).filter_by(modelid=model_id).all()]
 if metadata['model_version'] not in model_versions:
     # Training Dataset:
-    training_dataset_id = get_unique_id(cursor, "datasets", "datasetID")
+    training_dataset_id = get_unique_id("datasets", "datasetID")
     training_dataset = Dataset(datasetid = training_dataset_id,
                                databasename = metadata['db_name'],
                                description = metadata['training_data_description'],
@@ -124,7 +122,7 @@ if metadata['model_version'] not in model_versions:
     session.commit()
 
     # Test Dataset:
-    test_dataset_id = get_unique_id(cursor, "datasets", "datasetID")
+    test_dataset_id = get_unique_id("datasets", "datasetID")
     test_dataset = Dataset(datasetid = test_dataset_id,
                            databasename = metadata['db_name'],
                            description = metadata['test_data_description'],
@@ -150,6 +148,3 @@ if metadata['model_version'] not in model_versions:
     for old_model_version in old_versions_this_model:
         old_model_version.active=False
         session.commit()
-
-cnxn.commit()
-cnxn.close()
