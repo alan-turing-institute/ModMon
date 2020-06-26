@@ -54,13 +54,6 @@ except FileNotFoundError:
 ### Save data to db ###
 #######################
 
-def get_list(cursor):
-    try:
-        fetched = list(cursor.fetchall())
-        return [item for sublist in fetched for item in sublist]
-    except TypeError:
-        return []
-
 # Team:
 teams = [team.teamname for team in session.query(Team).all()]
 if metadata['team'] not in teams:
