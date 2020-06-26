@@ -7,14 +7,6 @@ from sqlalchemy import func
 PORT = "5432"
 DB = "ModMon"
 
-# pyodbc no longer required:
-
-# def get_connection():
-#     """Get a pyodbc connection that can be used to excecute queries"""
-#     # This is the driver location that Homebrew saves on Mac
-#     driver = "/usr/local/lib/psqlodbcw.so"
-#     return pyodbc.connect("DRIVER={" + driver + "};SERVER=localhost," + PORT + ";DATABASE=" + DB + ";Trusted_Connection=yes;")
-
 
 def get_unique_id(session, column):
     """Get value one higher than the highest value in a SQL table column,
