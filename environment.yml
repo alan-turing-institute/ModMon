@@ -9,6 +9,9 @@ dependencies:
   - pip
   - pandas
   - pyodbc
+  - psycopg2
+  - sqlalchemy
+  - sqlacodegen
   - r-base
   - r-renv
 
