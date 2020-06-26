@@ -64,7 +64,7 @@ def get_conda_activate_command(env_name, conda_path=None):
 def create_renv_env(path):
     # Call out to R with ModMon conda env activated, which has R and renv installed
     modmon_env_cmd = get_conda_activate_command("ModMon")
-    renv_cmd = "Rscript -e 'renv::init()'"
+    renv_cmd = "Rscript -e 'renv::restore()' && Rscript -e 'renv::init()'"
     subprocess.run(f"{modmon_env_cmd} && {renv_cmd}", cwd=path, shell=True, check=True)
 
 
