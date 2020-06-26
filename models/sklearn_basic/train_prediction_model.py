@@ -3,19 +3,14 @@ import json
 import numpy as np
 import pandas as pd
 import pickle
-from sklearn.linear_model import BayesianRidge
+from sklearn import svm
 import timeit
 
 # Pull the training data into dataframes (imagine this was a database query)
 X_train, y_train = get_data()
 
-# Set model parameters
-alpha_1=1e-06
-alpha_2=1e-06
-n_iter=500
-
 # Create and train model and get training time metric
-model = BayesianRidge(alpha_1=alpha_1, alpha_2=alpha_2, n_iter=n_iter)
+model = svm.SVC()
 start_model_training = timeit.default_timer()
 model.fit(X_train, y_train)
 stop_model_training = timeit.default_timer()
