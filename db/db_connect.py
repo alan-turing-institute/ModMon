@@ -14,6 +14,7 @@ def get_connection():
     return pyodbc.connect("DRIVER={" + driver + "};SERVER=localhost," + PORT + ";DATABASE=" + DB + ";Trusted_Connection=yes;")
 
 
+#TODO: this is the only function that still uses get_connection() and pyodbc - SQLAlchemise to avoid the issue of relying on Homebrew driver^
 def get_unique_id(table, column):
     """Get value one higher than the highest value in a SQL table column"""
     cnxn = get_connection()

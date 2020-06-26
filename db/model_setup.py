@@ -9,7 +9,8 @@ from schema import (Team,
                     Metric,
                     Researchquestion,
                     Model,
-                    Modelversion)
+                    Modelversion,
+                    Result)
 
 # Set up SQLAlchemy session
 session =  get_session()
@@ -140,4 +141,19 @@ if metadata['model_version'] not in model_versions:
     old_versions_this_model = session.query(Modelversion).filter_by(modelid=model_id).filter(Modelversion.modelversion!=metadata['model_version']).all()
     for old_model_version in old_versions_this_model:
         old_model_version.active=False
+        session.commit()
+
+    # Save analyst reference result for this model version
+    run_id = get_unique_id("results", "runID")
+    for index, row in metrics.iterrows():
+        metric, value = row
+        reference_result = Result(modelid = model_id,
+                                  modelversion = metadata['model_version'],
+                                  testdatasetid = test_dataset_id,
+                                  isreferenceresult = True,
+                                  runtime = metadata['model_run_datetime'],
+                                  runid = run_id,
+                                  metric = metric,
+                                  value = value)
+        session.add(reference_result)
         session.commit()
