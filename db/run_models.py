@@ -99,7 +99,7 @@ def build_run_cmd(raw_cmd, start_date, end_date, database):
     return (
         raw_cmd.replace("<start_date>", str(start_date))
         .replace("<end_date>", str(end_date))
-        .replace("<database>", "TEST")
+        .replace("<database>", database)
     )
 
 
@@ -117,8 +117,8 @@ def create_dataset(session, start_date, end_date, database):
     dataset = (
         session.query(Dataset)
         .filter_by(databasename=database)
-        .filter(func.date(Dataset.start_date) == start_date.date())
-        .filter(func.date(Dataset.end_date) == end_date.date())
+        .filter(func.date(Dataset.start_date) == start_date)
+        .filter(func.date(Dataset.end_date) == end_date)
         .first()
     )
 
@@ -244,6 +244,7 @@ def main(start_date, end_date, database, force=False):
 
         # run metrics script
         run_time = get_iso_time()
+        print("RUN_CMD", run_cmd)
         subprocess.run(run_cmd, cwd=mv.location, shell=True, check=True)
 
         print("Adding results to database...")
@@ -277,6 +278,7 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    start_date = dateparser.parse(args.start_date)
-    end_date = dateparser.parse(args.end_date)
+    # TODO currently only deal with dates, not times
+    start_date = dateparser.parse(args.start_date).date()
+    end_date = dateparser.parse(args.end_date).date()
     main(start_date, end_date, args.database, force=args.force)
