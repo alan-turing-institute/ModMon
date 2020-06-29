@@ -13,7 +13,7 @@ dependencies:
   - psycopg2
   - sqlalchemy
   - sqlacodegen
-  #- r-base
-  #- r-renv
+  - r-base
+  - r-renv
 
 
