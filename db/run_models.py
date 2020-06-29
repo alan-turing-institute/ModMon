@@ -82,6 +82,8 @@ def create_env(model_version):
 
     if env_types["renv"]:
         create_renv_env(model_version.location)
+        # always run R from within ModMon conda env
+        env_cmd = get_conda_activate_command("ModMon")
 
     return env_cmd
 
@@ -115,8 +117,8 @@ def create_dataset(session, start_date, end_date, database):
     dataset = (
         session.query(Dataset)
         .filter_by(databasename=database)
-        .filter_by(func.date(Dataset.start_date) == start_date.date())
-        .filter_by(func.date(Dataset.end_date) == end_date.date())
+        .filter(func.date(Dataset.start_date) == start_date.date())
+        .filter(func.date(Dataset.end_date) == end_date.date())
         .first()
     )
 
@@ -185,10 +187,9 @@ def add_results_from_file(session, model_version, dataset_id, run_time):
             runtime=run_time,
             runid=run_id,
             metric=metric_name,
-            value=metric_value
+            value=metric_value,
         )
         session.add(dataset)
-        
 
 
 def main(start_date, end_date, database, force=False):
@@ -218,7 +219,9 @@ def main(start_date, end_date, database, force=False):
         print("=" * 30)
 
         # Check whether result already exists for this model version and dataset
-        if not force and result_exists(session, mv.modelid, mv.modelversion, dataset_id):
+        if not force and result_exists(
+            session, mv.modelid, mv.modelversion, dataset_id
+        ):
             print(
                 f"DB already contains result for model {mv.modelid}, version {mv.modelversion} on dataset {dataset_id}. Skipping."
             )
