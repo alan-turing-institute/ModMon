@@ -2,13 +2,8 @@
 
 ## Pre-requisites
 
-* conda
-  - [Linux](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
-  - [Mac](https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html)
-
-* PostgreSQL
-  - [Linux](https://www.postgresql.org/download/linux/)
-  - [Mac](https://wiki.postgresql.org/wiki/Homebrew)
+* conda: [Linux](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html), [Mac](https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html)
+* PostgreSQL: [Linux](https://www.postgresql.org/download/linux/), [Mac](https://wiki.postgresql.org/wiki/Homebrew)
 
 ## Setup ModMon Environment
 
