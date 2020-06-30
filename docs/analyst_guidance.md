@@ -39,7 +39,7 @@ numpy==1.18.4
 pandas==1.0.3
 ```
 
-**R** dependencies should be specified with a `renv` environment ([renv docs](https://rstudio.github.io/renv/articles/renv.html)). With `renv` installed, run `renv::init()` from your project directory, which will create the files/directories `renv.lock`, `renv`, and `.Rprofile` specifying all your dependencies.
+**R** dependencies should be specified with a `renv` environment ([renv docs](https://rstudio.github.io/renv/articles/renv.html)). With `renv` installed, run `Rscript -e "renv::init()"` from your project directory, which will create the files/directories `renv.lock`, `renv`, and `.Rprofile` specifying all your dependencies.
 
 ### Metrics Files
 
