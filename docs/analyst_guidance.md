@@ -19,6 +19,8 @@ This is one example, but only the metrics calculation script (`run_model.py` or 
 
 ## File templates
 
+### Metrics Files
+
 Template for `metrics.csv` and `training_metrics.csv`. Must have a metric and a value column.
 
 |metric|value|
@@ -26,6 +28,8 @@ Template for `metrics.csv` and `training_metrics.csv`. Must have a metric and a 
 | mse  | 0.1 |
 | r2   | 0.9 |
 ...
+
+### Metadata Files
 
 Template `metadata.json`:
 
@@ -46,6 +50,16 @@ Template `metadata.json`:
 	"training_data_description": "This is 50% of the wine quality dataset",
 	"model_run_datetime": "11/07/2020",
 	"test_data_description": "This is the 50% of the wine quality dataset that was not used for training the model",
-	"command": "python run_prediction_model.py <db name> <start date (yyyy-mm-dd)> <end date (yyyy-mm-dd)>"
+	"command": "python run_prediction_model.py <database> <start_date> <end_date>"
 }
 ```
+
+- **command:** Must contain the placeholders `<database>`, `<start_date>` and `<end_date>` (case sensitive but in any order). In automated runs of your model these will be replaced by:
+
+  - `<database>`: The OMOP database the monitoring system has access to.
+  - `<start_date>`: The date of the earliest row to extract from the database (`Y-m-d` format)
+  - `<end_date>`: The date of the latest row to extract from the database (`Y-m-d` format)
+
+  Your script must use these inputs to connect to the given database, and to modify any database queries to return only data updated between the given start and end date.
+
+- **`<data_window_start>` and `<data_window_end>`:** The date range used to produce the values in the `metrics.csv` file you provide. Running your specified command with `<data_window_start>` as `<start_date>` and `<data_window_end>` as `<end_date>` should exactly reproduce the values in `metrics.csv`. This will be tested before adding a model to the monitoring system.

@@ -12,7 +12,6 @@ dependencies:
   - pyodbc
   - psycopg2
   - sqlalchemy
-  - sqlacodegen
   - r-base
   - r-renv
 

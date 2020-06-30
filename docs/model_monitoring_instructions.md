@@ -1,78 +1,50 @@
-# Setup db
+# Pre-requisites
 
-1. Nagigate to `monitor/db` dir
-1. Install required python packages: `pip install -r requirements.txt`
-1. Create db: `createdb ModMon "DECOVID Model Monitoring"`
-2. Create tables: `psql -f schema.sql ModMon`
-3. Connect to db: `psql -h localhost -p 5432 ModMon`
+* conda
+  - [Linux](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
+  - [Mac](https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html)
 
-# Connect with psqlodbc
+* PostgreSQL
+  - [Linux](https://www.postgresql.org/download/linux/)
+  - [Mac](https://wiki.postgresql.org/wiki/Homebrew)
 
-1. Install driver for ODBC for PostgreSQL: `brew install psqlodbc`
-2. Connect to database with Python (see test_connection.py)
+# Setup ModMon Environment
 
-# SQLAlchemy
+1. Navigate to the `monitor` directory
+2. Create the `ModMon` conda environment: `conda create env`
+3. Activate the environment: `conda activate ModMon`
 
-1. Create schema (if changes to schema.sql): `sqlacodegen postgresql://username@localhost:5432/ModMon --outfile schema.py`
+⚠️ **_All steps below should be performed with the `ModMon` environment activated._**
+
+# Setup database
+
+1. Navigate to the `monitor/db` directory.
+2. Create the database: `python db_create.py`
+3. Test database connection: `python db_connect.py` should print a list of tables and columns, or you can connect directly to the database from the command line with `psql -h localhost -p 5432 ModMon`.
 
 # Model Monitoring
 
 ## Set up a new model
 
-1. Navigate to validation scripts
-    ```bash
-    cd path/to/validation_scripts
-    ```
-2. Where `model` is the folder submitted by the analyst:
+1. Navigate to the `monitor/db` directory.
+
+2. Add a new model to the database:
     ```bash
     python model_setup.py path/to/model
     ```
-3. Running this for the first time imports reference results/metrics from when the analyst ran their model on test data (`metrics.csv`):
-    ```bash
-    python import_model_results.py path/to/model
-    ```
+    Where `path/to/model` is the absolute path to the directory submitted by the analyst.
 
-## Log a new result for a model
+## Log a new result for all models
 
-1. Log in to the db and choose a model: `psql -h localhost -p 5432 ModMon`, then:
-    ```SQL
-    select name, modelID from models; -- choose a model (note the modelID number)
-    ```
-    ```SQL
-    select modelVersion from modelVersions where modelID=<modelID>; -- list model versions (note one of them)
-    ```
-    ```SQL
-    select location from modelVersions where modelID=<modelID> and modelVersion='<modelVersion>'; -- gets `path/to/model`
-    ```
-2. Now you know the location, set up the environment:
-    ```bash
-    cd path/to/model
-    ```
-	For **Python** projects:
-    ```bash
-    conda env create -f environment.yml
-    ```
-    ```bash
-    conda activate <model name>
-    ```
-	For **R** projects, open an R cli (`R`):
-    ```R
-	renv::init()
-	renv::snapshot()
-    ```
-3. Find, then run the analyst's designated command to run their model on new data (substitute new args), creating a new `metrics.csv`:
-    ```SQL
-    select command from modelVersions where modelID=<modelID> and modelVersion='<modelVersion>';
-    ```
-	For example:
-    ```bash
-    python run_model.py <db name> <start date (yyyy-mm-dd)> <end date (yyyy-mm-dd)>
-    ```
-4. Back to validation scripts:
-    ```bash
-    cd path/to/validation_scripts
-    ```
-5. Log the new prediction metrics in results table, designating as not a reference result:
-    ```bash
-    python import_model_results.py path/to/model
-    ```
+1. Navigate to the `monitor/db` directory.
+
+2. Run this script, replacing `<start_date>` and `<end_date>` with appropriate values (in `Y-m-d` format):
+   ```bash
+   python run_models.py --start_date <start_date> --end_date <end_date>
+   ```
+
+3. New metric values for all active model versions will be added to the results table in the monitorinig database.
+
+## Visualise model reults
+
+**_TODO_**

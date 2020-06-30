@@ -1,6 +1,6 @@
 # import pyodbc
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect
 from sqlalchemy import func
 from sqlalchemy.exc import ProgrammingError
 
@@ -32,3 +32,19 @@ def get_session():
     """Get SQLAlchemy session"""
     DBSession = sessionmaker(bind=ENGINE)
     return DBSession()
+
+
+if __name__ == "__main__":
+    inspector = inspect(ENGINE)
+    session = get_session()
+    for table_name in inspector.get_table_names():
+        print("="*30)
+        print("TABLE:   ", table_name)
+        print("COLUMNS: ", end=" ")
+        columns = inspector.get_columns(table_name)
+        for i, column in enumerate(columns):
+            if i == len(columns) - 1:
+                end = "\n"
+            else:
+                end = ", "
+            print(column["name"], end=end)
