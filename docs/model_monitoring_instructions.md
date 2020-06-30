@@ -25,7 +25,9 @@
 
 1. Navigate to the `monitor/db` directory.
 
-2. Add a new model to the database:
+2. **_TODO:_** Verify reproducibility
+
+3. Add a new model to the database:
     ```bash
     python model_setup.py path/to/model
     ```
@@ -41,6 +43,10 @@
    ```
 
 3. New metric values for all active model versions will be added to the results table in the monitorinig database.
+
+### Schedule Automated Model Runs
+
+**_TODO_**
 
 ### Visualise model reults
 
