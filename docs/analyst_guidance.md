@@ -19,6 +19,28 @@ This is one example, but only the metrics calculation script (`run_model.py` or 
 
 ## File templates
 
+### Environment
+
+**Python** dependencies should be specified with a `conda` environment file named `environment.yml` ([docs on environment files](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#create-env-file-manually)). A simple example may look something like this:
+```yaml
+name: sklearn-model
+
+dependencies:
+  - python=3.8.3
+  - pip
+  - pip:
+    - -r requirements.txt
+```
+It should specify the python version and all packages that should be installed, as well as their versions. In the example above all packages are installed with `pip` as specified by a separate `requirements.txt`, a text file specifying packages and their versions as follows:
+```
+lightgbm==2.3.1
+mccabe==0.6.1
+numpy==1.18.4
+pandas==1.0.3
+```
+
+**R** dependencies should be specified with a `renv` environment ([renv docs](https://rstudio.github.io/renv/articles/renv.html)). With `renv` installed, run `renv::init()` from your project directory, which will create the files/directories `renv.lock`, `renv`, and `.Rprofile` specifying all your dependencies.
+
 ### Metrics Files
 
 Template for `metrics.csv` and `training_metrics.csv`. Must have a metric and a value column.
