@@ -9,9 +9,7 @@ from db_connect import DB, PORT, DB_CONNECTION_STRING, ENGINE
 
 
 def ask_for_confirmation(message):
-    answer = input(
-        f"{message} Type 'yes' to continue: "
-    )
+    answer = input(f"{message} Type 'yes' to continue: ")
     if answer != "yes":
         return False
     else:
@@ -92,7 +90,7 @@ if __name__ == "__main__":
         action="store_true",
     )
     args = parser.parse_args()
-    
+
     if not args.force:
         confirmed = ask_for_confirmation(
             "WARNING: This will delete all data in any pre-existing ModMon database."

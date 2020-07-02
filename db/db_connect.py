@@ -38,7 +38,7 @@ if __name__ == "__main__":
     inspector = inspect(ENGINE)
     session = get_session()
     for table_name in inspector.get_table_names():
-        print("="*30)
+        print("=" * 30)
         print("TABLE:   ", table_name)
         print("COLUMNS: ", end=" ")
         columns = inspector.get_columns(table_name)

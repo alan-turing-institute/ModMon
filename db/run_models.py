@@ -2,6 +2,8 @@ import subprocess
 import os
 from datetime import datetime
 import argparse
+import json
+import warnings
 
 import pandas as pd
 import dateparser
@@ -29,15 +31,20 @@ def build_env_name(model_id, model_version):
     return f"ModMon-model-{model_id}-version-{model_version}"
 
 
-def conda_env_exists(env_name):
+def get_conda_envs():
     output = subprocess.run(["conda", "env", "list"], capture_output=True, check=True)
     lines = output.stdout.decode("utf-8").split("\n")
     envs = [line.split()[0] for line in lines if len(line) > 0]
     envs = [env for env in envs if env != "#"]
+    return envs
+
+
+def conda_env_exists(env_name):
+    envs = get_conda_envs()
     return env_name in envs
 
 
-def create_conda_env(env_name, env_file, overwrite=False):
+def create_conda_env(env_name, env_file=None, dependencies=None, overwrite=False):
     if conda_env_exists(env_name):
         if overwrite:
             subprocess.run(
@@ -46,10 +53,27 @@ def create_conda_env(env_name, env_file, overwrite=False):
         else:
             return
 
-    subprocess.run(
-        ["conda", "env", "create", "-n", env_name, "-f", env_file, "--force"],
-        check=True,
-    )
+    if env_file:
+        subprocess.run(
+            ["conda", "env", "create", "-n", env_name, "-f", env_file, "--force"],
+            check=True,
+        )
+    elif dependencies:
+        subprocess.run(
+            [
+                "conda",
+                "create",
+                "-n",
+                env_name,
+                "-c",
+                "conda-forge",
+                "-y",
+                *dependencies,
+            ],
+            check=True,
+        )
+    else:
+        raise ValueError("One of env_file and dependencies must be specified.")
 
 
 def get_conda_activate_command(env_name, conda_path=None):
@@ -64,26 +88,65 @@ def get_conda_activate_command(env_name, conda_path=None):
     return command
 
 
+def remove_conda_env(env_name):
+    subprocess.run(["conda", "remove", "--name", env_name, "--all", "-y"], check=True)
+
+
+def remove_modmon_envs(models=True, r_versions=True):
+    envs = get_conda_envs()
+
+    if models:
+        [remove_conda_env(env) for env in envs if env.startswith("ModMon-model")]
+    
+    if r_versions:
+        [remove_conda_env(env) for env in envs if env.startswith("ModMon-R")]
+
+
+def get_r_version(path):
+    with open(f"{path}/renv.lock", "r") as f:
+        r_json = json.load(f)
+
+    return r_json["R"]["Version"]
+
+
+def create_r_conda(r_version, overwrite=False):
+    env_name = f"ModMon-R-{r_version}"
+    dependencies = [f"r-base={r_version}", "r-renv"]
+    create_conda_env(env_name, dependencies=dependencies, overwrite=overwrite)
+    return env_name
+
+
 def create_renv_env(path):
-    # Call out to R with ModMon conda env activated, which has R and renv installed
-    modmon_env_cmd = get_conda_activate_command("ModMon")
+    # Create a conda environment with the version of R specified in the lockfile
+    r_version = get_r_version(path)
+    conda_name = create_r_conda(r_version)
+    conda_cmd = get_conda_activate_command(conda_name)
+
     renv_cmd = "Rscript -e 'renv::restore()' && Rscript -e 'renv::init()'"
-    subprocess.run(f"{modmon_env_cmd} && {renv_cmd}", cwd=path, shell=True, check=True)
+    subprocess.run(f"{conda_cmd} && {renv_cmd}", cwd=path, shell=True, check=True)
+    
+    return conda_name
 
 
 def create_env(model_version):
     env_types = get_model_env_types(model_version.location)
     env_cmd = None
 
-    if env_types["conda"]:
-        env_name = build_env_name(model_version.modelid, model_version.modelversion)
-        create_conda_env(env_name, f"{model_version.location}/environment.yml")
-        env_cmd = get_conda_activate_command(env_name)
+    if env_types["renv"] and env_types["conda"]:
+        warnings.warn(
+            "Both conda and renv environment detected - conda environment will be given priority."
+        )
 
     if env_types["renv"]:
-        create_renv_env(model_version.location)
-        # always run R from within ModMon conda env
-        env_cmd = get_conda_activate_command("ModMon")
+        conda_env = create_renv_env(model_version.location)
+        # create_renv_env returns conda environment with appropriate R version
+        # (as well as setting up renv)
+        env_cmd = get_conda_activate_command(conda_env)
+
+    if env_types["conda"]:
+        env_name = build_env_name(model_version.modelid, model_version.modelversion)
+        create_conda_env(env_name, env_file=f"{model_version.location}/environment.yml")
+        env_cmd = get_conda_activate_command(env_name)
 
     return env_cmd
 
