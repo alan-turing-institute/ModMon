@@ -4,7 +4,7 @@ from sqlalchemy import create_engine, inspect
 from sqlalchemy import func
 from sqlalchemy.exc import ProgrammingError
 
-from schema import Base
+from .schema import Base
 
 
 # TODO Deal with DB config correctly, including username ans passwords if needed

@@ -9,8 +9,8 @@ import pandas as pd
 import dateparser
 from sqlalchemy import func
 
-from db_connect import get_session, get_unique_id
-from schema import Modelversion, Dataset, Result
+from ..db.connect import get_session, get_unique_id
+from ..db.schema import Modelversion, Dataset, Result
 
 
 def get_model_env_types(path):

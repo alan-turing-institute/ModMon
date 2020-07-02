@@ -1,10 +1,12 @@
 # Run this script once, the first time an analyst submits a model file (including for a new version of a model)
 import argparse
 from datetime import datetime
-from db_connect import get_unique_id, get_session
 import json
+
 import pandas as pd
-from schema import Team, Dataset, Metric, Researchquestion, Model, Modelversion, Result
+
+from ..db.connect import get_unique_id, get_session
+from ..db.schema import Team, Dataset, Metric, Researchquestion, Model, Modelversion, Result
 
 # Set up SQLAlchemy session
 session = get_session()

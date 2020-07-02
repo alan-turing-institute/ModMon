@@ -4,8 +4,8 @@ import sys
 from sqlalchemy import create_engine
 from sqlalchemy.exc import ProgrammingError
 
-from schema import Base
-from db_connect import DB, PORT, DB_CONNECTION_STRING, ENGINE
+from .schema import Base
+from .connect import DB, PORT, DB_CONNECTION_STRING, ENGINE
 
 
 def ask_for_confirmation(message):
