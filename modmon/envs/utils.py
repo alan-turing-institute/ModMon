@@ -35,7 +35,7 @@ def create_env(model_version):
     if env_types["renv"]:
         conda_env = create_renv_env(model_version.location)
         # create_renv_env returns conda environment with appropriate R version
-        # (as well as setting up renv)
+        #  (as well as setting up renv)
         env_cmd = get_conda_activate_command(conda_env)
 
     if env_types["conda"]:

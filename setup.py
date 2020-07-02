@@ -28,7 +28,7 @@ setup(
         "Programming Language :: R",
         "License :: OSI Approved :: MIT License",
         "Operating System :: Unix",
-        "Topic :: Utilities"
+        "Topic :: Utilities",
     ],
     keywords="model monitor monitoring tracking performance",
     python_requires=">=3.6",

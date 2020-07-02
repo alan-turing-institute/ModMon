@@ -19,5 +19,5 @@ def create_renv_env(path):
 
     renv_cmd = "Rscript -e 'renv::restore()' && Rscript -e 'renv::init()'"
     subprocess.run(f"{conda_cmd} && {renv_cmd}", cwd=path, shell=True, check=True)
-    
+
     return conda_name

@@ -17,8 +17,8 @@ stop_model_training = timeit.default_timer()
 training_time = stop_model_training - start_model_training
 
 # Save model to disk
-filename = 'model.sav'
-pickle.dump(model, open(filename, 'wb'))
+filename = "model.sav"
+pickle.dump(model, open(filename, "wb"))
 
 # Output metrics as csv
 metrics = pd.DataFrame([["training_time", training_time]], columns=["metric", "value"])

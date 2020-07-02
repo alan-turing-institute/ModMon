@@ -118,6 +118,57 @@ def add_results_from_file(session, model_version, dataset_id, run_time):
         session.add(dataset)
 
 
+def run_model(model_version, start_date, end_date, database, force=False, session=None):
+    if not session:
+        session = get_session()
+        close_session = True  # if session is created in function, close it in function
+    else:
+        close_session = False  # if session given, leave it open
+
+    dataset_id = create_dataset(session, start_date, end_date, database)
+
+    # Check whether result already exists for this model version and dataset
+    if not force and result_exists(
+        session, model_version.modelid, model_version.modelversion, dataset_id
+    ):
+        print(
+            f"DB already contains result for model {model_version.modelid}, version {model_version.modelversion} on dataset {dataset_id}. Skipping."
+        )
+        return
+
+    print("Creating environment...")
+    env_cmd = create_env(model_version)
+
+    print("Running metrics script...")
+    # delete any pre-existing metrics file
+    metrics_path = get_metrics_path(model_version)
+    try:
+        os.remove(metrics_path)
+    except FileNotFoundError:
+        pass
+
+    run_cmd = build_run_cmd(model_version.command, start_date, end_date, database)
+    if env_cmd is not None:
+        run_cmd = f"{env_cmd} && {run_cmd}"
+
+    # run metrics script
+    run_time = get_iso_time()
+    print("RUN_CMD", run_cmd)
+    subprocess.run(run_cmd, cwd=model_version.location, shell=True, check=True)
+
+    print("Adding results to database...")
+    if not os.path.exists(metrics_path):
+        raise FileNotFoundError(
+            f"{metrics_path} not found. This should be created by running {run_cmd}."
+        )
+
+    add_results_from_file(session, model_version, dataset_id, run_time)
+    session.commit()
+
+    if close_session:
+        session.close()
+
+
 def run_all_models(start_date, end_date, database, force=False):
     # Set up db connection
     print("Connecting to monitoring database...")
@@ -132,10 +183,6 @@ def run_all_models(start_date, end_date, database, force=False):
         print("No active model versions found. Returning.")
         return
 
-    # create dataset for this date range and database
-    print("Creating dataset entry...")
-    dataset_id = create_dataset(session, start_date, end_date, database)
-
     # run metrics script for all model versions
     for i, mv in enumerate(model_versions):
         print("=" * 30)
@@ -144,43 +191,7 @@ def run_all_models(start_date, end_date, database, force=False):
         )
         print("=" * 30)
 
-        # Check whether result already exists for this model version and dataset
-        if not force and result_exists(
-            session, mv.modelid, mv.modelversion, dataset_id
-        ):
-            print(
-                f"DB already contains result for model {mv.modelid}, version {mv.modelversion} on dataset {dataset_id}. Skipping."
-            )
-            continue
-
-        print("Creating environment...")
-        env_cmd = create_env(mv)
-
-        print("Running metrics script...")
-        # delete any pre-existing metrics file
-        metrics_path = get_metrics_path(mv)
-        try:
-            os.remove(metrics_path)
-        except FileNotFoundError:
-            pass
-
-        run_cmd = build_run_cmd(mv.command, start_date, end_date, database)
-        if env_cmd is not None:
-            run_cmd = f"{env_cmd} && {run_cmd}"
-
-        # run metrics script
-        run_time = get_iso_time()
-        print("RUN_CMD", run_cmd)
-        subprocess.run(run_cmd, cwd=mv.location, shell=True, check=True)
-
-        print("Adding results to database...")
-        if not os.path.exists(metrics_path):
-            raise FileNotFoundError(
-                f"{metrics_path} not found. This should be created by running {run_cmd}."
-            )
-
-        add_results_from_file(session, mv, dataset_id, run_time)
-        session.commit()
+        run_model(mv, start_date, end_date, database, force=force, session=session)
 
     session.close()
 

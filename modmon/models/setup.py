@@ -6,7 +6,15 @@ import json
 import pandas as pd
 
 from ..db.connect import get_unique_id, get_session
-from ..db.schema import Team, Dataset, Metric, Researchquestion, Model, Modelversion, Result
+from ..db.schema import (
+    Team,
+    Dataset,
+    Metric,
+    Researchquestion,
+    Model,
+    Modelversion,
+    Result,
+)
 
 
 def main():
