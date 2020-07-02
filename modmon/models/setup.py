@@ -5,7 +5,8 @@ import json
 
 import pandas as pd
 
-from ..db.connect import get_unique_id, get_session
+from ..db.connect import get_session
+from ..db.utils import get_unique_id
 from ..db.schema import (
     Team,
     Dataset,

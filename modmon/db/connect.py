@@ -25,7 +25,6 @@ def get_session():
 
 def main():
     inspector = inspect(ENGINE)
-    session = get_session()
     for table_name in inspector.get_table_names():
         print("=" * 30)
         print("TABLE:   ", table_name)

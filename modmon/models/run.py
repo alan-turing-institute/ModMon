@@ -9,7 +9,8 @@ import pandas as pd
 import dateparser
 from sqlalchemy import func
 
-from ..db.connect import get_session, get_unique_id
+from ..db.connect import get_session
+from ..db.utils import get_unique_id
 from ..db.schema import Modelversion, Dataset, Result
 from ..envs.utils import create_env
 
@@ -125,6 +126,7 @@ def run_model(model_version, start_date, end_date, database, force=False, sessio
     else:
         close_session = False  # if session given, leave it open
 
+    print("Creating dataset...")
     dataset_id = create_dataset(session, start_date, end_date, database)
 
     # Check whether result already exists for this model version and dataset
