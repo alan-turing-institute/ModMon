@@ -1,5 +1,5 @@
 dateparser
 pandas
-pyodbc
 psycopg2
+pyodbc
 sqlalchemy

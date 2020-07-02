@@ -1,5 +1,5 @@
 black
-pylint
 flake8
 pycodestyle
+pylint
 pytest
