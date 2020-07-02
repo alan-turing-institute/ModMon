@@ -38,7 +38,7 @@ To check the database exists and is functioning normally run:
 ```
 This should print a list of tables and columns. Or you can connect directly to the database with the psql command line tool:
 ```basH
-> psql -h localhost -p 5432 ModMon`
+> psql -h localhost -p 5432 ModMon
 ```
 
 ## Model Monitoring
