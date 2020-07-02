@@ -97,7 +97,7 @@ def remove_modmon_envs(models=True, r_versions=True):
 
     if models:
         [remove_conda_env(env) for env in envs if env.startswith("ModMon-model")]
-    
+
     if r_versions:
         [remove_conda_env(env) for env in envs if env.startswith("ModMon-R")]
 
@@ -255,7 +255,7 @@ def add_results_from_file(session, model_version, dataset_id, run_time):
         session.add(dataset)
 
 
-def main(start_date, end_date, database, force=False):
+def run_all_models(start_date, end_date, database, force=False):
     # Set up db connection
     print("Connecting to monitoring database...")
     session = get_session()
@@ -322,7 +322,7 @@ def main(start_date, end_date, database, force=False):
     session.close()
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         description="Automatically run all active model versions in the monitoring database"
     )
@@ -344,4 +344,4 @@ if __name__ == "__main__":
     # TODO currently only deal with dates, not times
     start_date = dateparser.parse(args.start_date).date()
     end_date = dateparser.parse(args.end_date).date()
-    main(start_date, end_date, args.database, force=args.force)
+    run_all_models(start_date, end_date, args.database, force=args.force)

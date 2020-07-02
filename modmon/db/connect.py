@@ -34,7 +34,7 @@ def get_session():
     return DBSession()
 
 
-if __name__ == "__main__":
+def main():
     inspector = inspect(ENGINE)
     session = get_session()
     for table_name in inspector.get_table_names():

@@ -80,7 +80,7 @@ def delete_schema(force=False, checkfirst=True):
     Base.metadata.drop_all(ENGINE, checkfirst=checkfirst)
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         description="Create the model monitoring database (ModMon)."
     )

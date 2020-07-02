@@ -39,7 +39,7 @@ setup(
             "modmon_db_create=modmon.db.create:main",
             "modmon_db_check=modmon.db.connect:main",
             "modmon_model_setup=modmon.models.setup:main",
-            "modmon_run_models=modmon.models.run:main",
+            "modmon_run=modmon.models.run:main",
         ]
     },
 )
