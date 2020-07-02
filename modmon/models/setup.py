@@ -1,6 +1,5 @@
 # Run this script once, the first time an analyst submits a model file (including for a new version of a model)
 import argparse
-from datetime import datetime
 import json
 
 import pandas as pd
@@ -23,7 +22,7 @@ def main():
     session = get_session()
 
     #############
-    ### Files ###
+    # Files ###
     #############
 
     parser = argparse.ArgumentParser(description="Save model run data to db.")
@@ -36,14 +35,14 @@ def main():
     prediction_metrics_csv = model_path + "/metrics.csv"
 
     #####################
-    ### Load metadata ###
+    # Load metadata ###
     #####################
 
     with open(metadata_json, "r") as f:
         metadata = json.load(f)
 
     #################
-    ### Load data ###
+    # Load data ###
     #################
 
     # Load model run reference metrics
@@ -59,7 +58,7 @@ def main():
         pass
 
     #######################
-    ### Save data to db ###
+    # Save data to db
     #######################
 
     # Team:

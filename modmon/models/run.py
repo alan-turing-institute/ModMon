@@ -2,8 +2,6 @@ import subprocess
 import os
 from datetime import datetime
 import argparse
-import json
-import warnings
 
 import pandas as pd
 import dateparser
@@ -96,7 +94,7 @@ def add_results_from_file(session, model_version, dataset_id, run_time):
 
     if not os.path.exists(metrics_path):
         raise FileNotFoundError(
-            f"{metrics_path} not found. This should be created by running {mv.command}."
+            f"{metrics_path} not found. This should be created by running {model_version.command}."
         )
 
     run_id = get_unique_id(session, Result.runid)
