@@ -35,7 +35,7 @@ end_date = args.end_date # e.g. 2020-06-01
 # Set up synpuf db connection
 # TODO: modify this to be less specific to the local psql driver location
 server = "localhost,5432"
-# driver = "/usr/local/lib/psqlodbcw.so" # This is the location Homebrew saves psql driver on Mac
+driver = "/usr/local/lib/psqlodbcw.so" # This is the location Homebrew saves psql driver on Mac
 cnxn = pyodbc.connect("DRIVER={" + driver + "};SERVER=" + server + ";DATABASE=" + db_name + ";Trusted_Connection=yes;")
 
 #######################
