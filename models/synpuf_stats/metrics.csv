@@ -1,4 +1,5 @@
 metric,value
-jan_births,100
-aug_births,83
-born_83,2
+jan_births,100.0
+aug_births,83.0
+born_83,2.0
+Mean age,71.026
