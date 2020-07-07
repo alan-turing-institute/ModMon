@@ -63,10 +63,20 @@ months = {'January': 1,
 ### Population Size ###
 #######################
 
-population_size = pd.read_sql("SELECT COUNT(person_id) FROM person", cnxn)
+population_size = pd.read_sql("SELECT COUNT(person_id) FROM person", cnxn)["count"][0]
+
+#######################
+###     Mean Age    ###
+#######################
 
 age_table = pd.read_sql(
-            "SELECT gender_concept_id,year_of_birth ,month_of_birth, day_of_birth ,observation_period_end_date,observation_period_start_date, concept_name \
+            "SELECT gender_concept_id,\
+                    year_of_birth ,\
+                    month_of_birth, \
+                    day_of_birth ,\
+                    observation_period_end_date,\
+                    observation_period_start_date, \
+                    concept_name \
             FROM ( SELECT * from person p \
             LEFT JOIN observation_period oe \
                 ON oe.person_id = p.person_id ) t \
@@ -103,7 +113,8 @@ born_83 = year_counts[1983]
 metrics = pd.DataFrame([["jan_births", jan_births],
                         ["aug_births", aug_births],
                         ["born_83", born_83],
-						["Mean age", mean_age]],
+                        ["Population_size",population_size],
+						["Mean_age", mean_age]],
                 columns=["metric", "value"])
 
 # Save the metrics to csv:
