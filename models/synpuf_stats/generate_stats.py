@@ -36,7 +36,8 @@ end_date = args.end_date # e.g. 2020-06-01
 # TODO: modify this to be less specific to the local psql driver location
 server = "localhost,5432"
 driver = "/usr/local/lib/psqlodbcw.so" # This is the location Homebrew saves psql driver on Mac
-cnxn = pyodbc.connect("DRIVER={" + driver + "};SERVER=" + server + ";DATABASE=" + db_name + ";Trusted_Connection=yes;")
+# cnxn = pyodbc.connect("DRIVER={" + driver + "};SERVER=" + server + ";DATABASE=" + db_name + ";Trusted_Connection=yes;")
+cnxn = psycopg2.connect(host=server, database=db_name)
 
 #######################
 ### Calculate stuff ###
@@ -95,6 +96,24 @@ age_table["age"] = compute_age(
         )
 mean_age = np.mean(age_table["age"])
 
+
+
+################################
+###     Patient Mortality    ###
+################################
+
+"""Patient Mortality (% Total)"""
+death_number = pd.read_sql(
+            "SELECT COUNT(person_id) \
+            FROM observation_period op \
+            WHERE op.person_id \
+                IN (SELECT person_id FROM death)",
+            cnxn
+        )
+
+mortality = death_number['count'][0]/population_size*100
+
+
 #########################################################
 ### Metrics (replace with actually interesting stats) ###
 #########################################################
@@ -114,7 +133,8 @@ metrics = pd.DataFrame([["jan_births", jan_births],
                         ["aug_births", aug_births],
                         ["born_83", born_83],
                         ["Population_size",population_size],
-						["Mean_age", mean_age]],
+						["Mean_age", mean_age],
+                        ["% Mortality", mortality]],
                 columns=["metric", "value"])
 
 # Save the metrics to csv:
