@@ -36,8 +36,8 @@ end_date = args.end_date # e.g. 2020-06-01
 # TODO: modify this to be less specific to the local psql driver location
 server = "localhost,5432"
 driver = "/usr/local/lib/psqlodbcw.so" # This is the location Homebrew saves psql driver on Mac
-# cnxn = pyodbc.connect("DRIVER={" + driver + "};SERVER=" + server + ";DATABASE=" + db_name + ";Trusted_Connection=yes;")
-cnxn = psycopg2.connect(host=server, database=db_name)
+cnxn = pyodbc.connect("DRIVER={" + driver + "};SERVER=" + server + ";DATABASE=" + db_name + ";Trusted_Connection=yes;")
+# cnxn = psycopg2.connect(host=server, database=db_name)
 
 #######################
 ### Calculate stuff ###
@@ -117,10 +117,12 @@ mortality = death_number['count'][0]/population_size*100
 
 """Mean duration in days from admission to first condition onset"""
 obs_cdn_table = pd.read_sql(
-            "SELECT op.observation_period_start_date,ce.condition_era_start_date,op.person_id \
-                                            FROM observation_period op \
-                                            LEFT JOIN condition_era ce \
-                                                ON ce.person_id = op.person_id ",
+            "SELECT op.observation_period_start_date,\
+                    ce.condition_era_start_date,\
+                    op.person_id \
+                FROM observation_period op \
+                LEFT JOIN condition_era ce \
+                    ON ce.person_id = op.person_id ",
             cnxn,
         )
 # remove patients without any condition throughout the observation
