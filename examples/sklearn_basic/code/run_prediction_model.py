@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 # Load the model from disk
-model = pickle.load(open("model.sav", "rb"))
+model = pickle.load(open("../data/model.sav", "rb"))
 
 # Get the database name, start and end of date range to use for the model
 parser = argparse.ArgumentParser()
@@ -38,4 +38,4 @@ metrics = pd.DataFrame(
 )
 
 # Save metrics csv
-metrics.to_csv("metrics.csv", index=False)
+metrics.to_csv("../results/metrics.csv", index=False)
