@@ -96,13 +96,11 @@ age_table["age"] = compute_age(
         )
 mean_age = np.mean(age_table["age"])
 
-
-
 ################################
 ###     Patient Mortality    ###
 ################################
 
-"""Patient Mortality (% Total)"""
+"""Patient Mortality"""
 death_number = pd.read_sql(
             "SELECT COUNT(person_id) \
             FROM observation_period op \
@@ -112,6 +110,28 @@ death_number = pd.read_sql(
         )
 
 mortality = death_number['count'][0]/population_size*100
+
+################################
+###  Average Onset Duration  ###
+################################
+
+"""Mean duration in days from admission to first condition onset"""
+obs_cdn_table = pd.read_sql(
+            "SELECT op.observation_period_start_date,ce.condition_era_start_date,op.person_id \
+                                            FROM observation_period op \
+                                            LEFT JOIN condition_era ce \
+                                                ON ce.person_id = op.person_id ",
+            cnxn,
+        )
+# remove patients without any condition throughout the observation
+obs_cdn_table.dropna(inplace=True)
+# sort DataFrame by condition start day
+obs_cdn_table.sort_values(by=["condition_era_start_date"], inplace=True, ascending=True)
+# only select the first occurrance of condition (earliest condition) for each patient
+obs_cdn_table.drop_duplicates(subset=["person_id"], inplace=True)
+obs_cdn_table["duration"] = (obs_cdn_table["condition_era_start_date"]- obs_cdn_table["observation_period_start_date"])
+
+avg_onset = obs_cdn_table.duration.mean().days
 
 
 #########################################################
@@ -132,9 +152,10 @@ born_83 = year_counts[1983]
 metrics = pd.DataFrame([["jan_births", jan_births],
                         ["aug_births", aug_births],
                         ["born_83", born_83],
-                        ["Population_size",population_size],
-						["Mean_age", mean_age],
-                        ["% Mortality", mortality]],
+                        ["population_size",population_size],
+						["mean_age", mean_age],
+                        ["mortality", mortality],
+                        ["average_onset_duration",avg_onset]],
                 columns=["metric", "value"])
 
 # Save the metrics to csv:
