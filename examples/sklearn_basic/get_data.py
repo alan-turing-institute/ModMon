@@ -1,9 +1,9 @@
 from sklearn.model_selection import train_test_split
+import pandas as pd
 import logging
 
 logging.basicConfig(level=logging.WARN)
 logger = logging.getLogger(__name__)
-import pandas as pd
 
 
 def get_data(test=False):
