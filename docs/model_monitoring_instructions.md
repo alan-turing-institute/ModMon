@@ -51,11 +51,18 @@ This should print a list of tables and columns. Or you can connect directly to t
     ```
     Where `path/to/model` is the absolute path to the directory submitted by the analyst.
 
-2. Verify reproducibility with `repro-catalogue` (see [docs](https://repro-catalogue.readthedocs.io/en/latest/example_use.html#run-analysis)):
+### Verify reproducibility
+
+1. Verify reproducibility with `repro-catalogue` (see [docs](https://repro-catalogue.readthedocs.io/en/latest/example_use.html#run-analysis)) - Firstly we log the reference results (we don't expect to monitor code and data changes with repro-catalogue here):
     ```bash
     > cd path/to/model
     > catalogue engage --input_data data --code code
     > catalogue disengage --input_data data --code code --output_data results
+    ```
+2. Run the analyst model code
+3. Repeat step 1
+4. Compare the result files before and after you ran the analyst code run by model monitoring code:
+    ```bash
     > catalogue compare <TIMESTAMP1>.json <TIMESTAMP2>.json
     ```
 
