@@ -29,7 +29,7 @@ class Dataset(Base):
 class Metric(Base):
     __tablename__ = "metrics"
 
-    metric = Column(String(20), primary_key=True)
+    metric = Column(String(50), primary_key=True)
     description = Column(String(500))
 
 
