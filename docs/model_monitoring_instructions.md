@@ -59,7 +59,7 @@ This should print a list of tables and columns. Or you can connect directly to t
     > catalogue engage --input_data data --code code
     > catalogue disengage --input_data data --code code --output_data results
     ```
-2. Run the analyst model code
+2. Run the analyst model code (see the `metadata.json` or `modelVersions.command` in the db) **_TODO_**: Automate this part
 3. Repeat step 1
 4. Compare the result files before and after you ran the analyst code run by model monitoring code:
     ```bash
