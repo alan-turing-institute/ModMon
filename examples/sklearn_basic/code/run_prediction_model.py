@@ -2,9 +2,12 @@ import argparse
 from datetime import datetime
 from get_data import get_data
 import json
+import numpy as np
 import pickle
 import pandas as pd
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+np.random.seed(42)
 
 # Load the model from disk
 model = pickle.load(open("../data/model.sav", "rb"))
