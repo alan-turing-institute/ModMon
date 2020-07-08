@@ -45,13 +45,19 @@ This should print a list of tables and columns. Or you can connect directly to t
 
 ### Set up a new model
 
-1. **_TODO:_** Verify reproducibility
-
-2. Add a new model to the database:
+1. Add a new model to the database:
     ```bash
     > modmon_model_setup path/to/model
     ```
     Where `path/to/model` is the absolute path to the directory submitted by the analyst.
+
+2. Verify reproducibility with `repro-catalogue` (see [docs](https://repro-catalogue.readthedocs.io/en/latest/example_use.html#run-analysis)):
+    ```bash
+    > cd path/to/model
+    > catalogue engage --input_data data --code code
+    > catalogue disengage --input_data data --code code --output_data results
+    > catalogue compare <TIMESTAMP1>.json <TIMESTAMP2>.json
+    ```
 
 ### Log a new result for all models
 
