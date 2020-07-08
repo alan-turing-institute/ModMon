@@ -35,7 +35,7 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    # Interpret year of dates as row indexes to use for dummy example
+    #  Interpret year of dates as row indexes to use for dummy example
     start_idx = datetime.strptime(args.start_date, "%Y-%m-%d").year
     end_idx = datetime.strptime(args.end_date, "%Y-%m-%d").year
 

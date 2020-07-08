@@ -4,14 +4,12 @@ import sys
 from sqlalchemy import create_engine
 from sqlalchemy.exc import ProgrammingError
 
-from schema import Base
-from db_connect import DB, PORT, DB_CONNECTION_STRING, ENGINE
+from .schema import Base
+from .connect import DB, PORT, ENGINE
 
 
 def ask_for_confirmation(message):
-    answer = input(
-        f"{message} Type 'yes' to continue: "
-    )
+    answer = input(f"{message} Type 'yes' to continue: ")
     if answer != "yes":
         return False
     else:
@@ -82,7 +80,7 @@ def delete_schema(force=False, checkfirst=True):
     Base.metadata.drop_all(ENGINE, checkfirst=checkfirst)
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         description="Create the model monitoring database (ModMon)."
     )
@@ -92,7 +90,7 @@ if __name__ == "__main__":
         action="store_true",
     )
     args = parser.parse_args()
-    
+
     if not args.force:
         confirmed = ask_for_confirmation(
             "WARNING: This will delete all data in any pre-existing ModMon database."

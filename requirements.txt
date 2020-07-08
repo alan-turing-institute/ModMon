@@ -1,0 +1,5 @@
+dateparser
+pandas
+psycopg2
+pyodbc
+sqlalchemy
