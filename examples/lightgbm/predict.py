@@ -8,7 +8,7 @@ def get_input_data(start_idx, end_idx):
     df = pd.read_csv("winequality-white.csv", sep=";")
     predict_col = "quality"
     df = df.drop(predict_col, axis=1)
-    return df.iloc[start_idx:(end_idx + 1)]
+    return df.iloc[start_idx : (end_idx + 1)]
 
 
 def predict(data):

@@ -11,13 +11,19 @@ def get_r_version(path):
     return r_json["R"]["Version"]
 
 
-def create_renv_env(path):
+def create_renv_env(path, capture_output=False):
     # Create a conda environment with the version of R specified in the lockfile
     r_version = get_r_version(path)
     conda_name = create_r_conda(r_version)
     conda_cmd = get_conda_activate_command(conda_name)
 
     renv_cmd = "Rscript -e 'renv::restore()' && Rscript -e 'renv::init()'"
-    subprocess.run(f"{conda_cmd} && {renv_cmd}", cwd=path, shell=True, check=True)
+    subprocess.run(
+        f"{conda_cmd} && {renv_cmd}",
+        cwd=path,
+        shell=True,
+        check=True,
+        capture_output=capture_output,
+    )
 
     return conda_name

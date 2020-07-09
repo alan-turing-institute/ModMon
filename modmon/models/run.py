@@ -137,7 +137,9 @@ def run_model(model_version, start_date, end_date, database, force=False, sessio
         return
 
     print("Creating environment...")
-    env_cmd = create_env(model_version)
+    env_cmd = create_env(
+        model_version.location, model_version.modelid, model_version.modelversion
+    )
 
     print("Running metrics script...")
     # delete any pre-existing metrics file

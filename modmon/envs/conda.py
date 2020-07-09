@@ -15,11 +15,15 @@ def conda_env_exists(env_name):
     return env_name in envs
 
 
-def create_conda_env(env_name, env_file=None, dependencies=None, overwrite=False):
+def create_conda_env(
+    env_name, env_file=None, dependencies=None, overwrite=False, capture_output=False
+):
     if conda_env_exists(env_name):
         if overwrite:
             subprocess.run(
-                ["conda", "remove", "-y", "--name", env_name, "--all"], check=True
+                ["conda", "remove", "-y", "--name", env_name, "--all"],
+                check=True,
+                capture_output=capture_output,
             )
         else:
             return
@@ -28,6 +32,7 @@ def create_conda_env(env_name, env_file=None, dependencies=None, overwrite=False
         subprocess.run(
             ["conda", "env", "create", "-n", env_name, "-f", env_file, "--force"],
             check=True,
+            capture_output=capture_output,
         )
     elif dependencies:
         subprocess.run(
@@ -42,6 +47,7 @@ def create_conda_env(env_name, env_file=None, dependencies=None, overwrite=False
                 *dependencies,
             ],
             check=True,
+            capture_output=capture_output,
         )
     else:
         raise ValueError("One of env_file and dependencies must be specified.")

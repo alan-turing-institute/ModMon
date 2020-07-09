@@ -23,7 +23,7 @@ def build_env_name(model_id, model_version):
     return f"ModMon-model-{model_id}-version-{model_version}"
 
 
-def create_env(model_version):
+def create_env(model_path, model_id, model_version, capture_output=False):
     env_types = get_model_env_types(model_version.location)
     env_cmd = None
 
@@ -33,14 +33,20 @@ def create_env(model_version):
         )
 
     if env_types["renv"]:
-        conda_env = create_renv_env(model_version.location)
+        conda_env = create_renv_env(
+            model_version.location, capture_output=capture_output
+        )
         # create_renv_env returns conda environment with appropriate R version
         #  (as well as setting up renv)
         env_cmd = get_conda_activate_command(conda_env)
 
     if env_types["conda"]:
         env_name = build_env_name(model_version.modelid, model_version.modelversion)
-        create_conda_env(env_name, env_file=f"{model_version.location}/environment.yml")
+        create_conda_env(
+            env_name,
+            env_file=f"{model_version.location}/environment.yml",
+            capture_output=capture_output,
+        )
         env_cmd = get_conda_activate_command(env_name)
 
     return env_cmd
