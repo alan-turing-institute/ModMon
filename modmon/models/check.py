@@ -1,3 +1,4 @@
+import argparse
 import os
 import json
 import subprocess
@@ -209,9 +210,7 @@ def check_metrics_file(metrics_path):
     print_warn("NOT IMPLEMENTED: Numeric value check")
 
 
-def check_submission(path):
-    print(f"Checking {path}:")
-
+def check_submission(path, create_envs=False):
     # metadata file
     metadata_path = f"{path}/metadata.json"
     if os.path.exists(metadata_path):
@@ -244,29 +243,33 @@ def check_submission(path):
     if env_types["conda"]:
         print_success("Environment: conda found")
 
-        try:
-            print_info("Environment: Creating conda env...")
-            create_conda_env(
-                "ModMon-TMPCHECK",
-                env_file=f"{path}/environment.yml",
-                capture_output=True,
-                overwrite=True,
-            )
-            print_success("Environment: conda environment created")
-        except subprocess.CalledProcessError as e:
-            print_fail(
-                f"Environment: conda creation failed - {e.returncode} {e.stderr}"
-            )
+        if create_envs:
+            try:
+                print_info("Environment: Creating conda env...")
+                create_conda_env(
+                    "ModMon-TMPCHECK",
+                    env_file=f"{path}/environment.yml",
+                    capture_output=True,
+                    overwrite=True,
+                )
+                print_success("Environment: conda environment created")
+            except subprocess.CalledProcessError as e:
+                print_fail(
+                    f"Environment: conda creation failed - {e.returncode} {e.stderr}"
+                )
 
     if env_types["renv"]:
         print_success("Environment: renv found")
 
-        try:
-            print_info("Environment: Creating renv env...")
-            create_renv_env(path, capture_output=True)
-            print_success("Environment: renv environment created")
-        except subprocess.CalledProcessError as e:
-            print_fail(f"Environment: renv creation failed - {e.returncode} {e.stderr}")
+        if create_envs:
+            try:
+                print_info("Environment: Creating renv env...")
+                create_renv_env(path, capture_output=True)
+                print_success("Environment: renv environment created")
+            except subprocess.CalledProcessError as e:
+                print_fail(
+                    f"Environment: renv creation failed - {e.returncode} {e.stderr}"
+                )
 
     if env_types["conda"] and env_types["renv"]:
         print_warn("Environment: Both conda and renv defined")
@@ -274,3 +277,18 @@ def check_submission(path):
         print_fail("Environment: No conda or renv environment found")
 
     print_warn("NOT IMPLEMENTED: Run command, check reproducibility")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Check whether a directory passes submission checks"
+    )
+    parser.add_argument("path", help="Directory to check")
+    parser.add_argument(
+        "--create_envs",
+        help="If set, check whether defined conda and renv environments can be created",
+        action="store_true",
+    )
+
+    args = parser.parse_args()
+    check_submission(args.path, create_envs=args.create_envs)
