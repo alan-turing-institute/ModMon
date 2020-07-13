@@ -85,3 +85,4 @@ Template `metadata.json`:
   Your script must use these inputs to connect to the given database, and to modify any database queries to return only data updated between the given start and end date.
 
 - **`<data_window_start>` and `<data_window_end>`:** The date range used to produce the values in the `metrics.csv` file you provide. Running your specified command with `<data_window_start>` as `<start_date>` and `<data_window_end>` as `<end_date>` should exactly reproduce the values in `metrics.csv`. This will be tested before adding a model to the monitoring system.
+

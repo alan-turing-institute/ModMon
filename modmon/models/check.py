@@ -282,6 +282,8 @@ def check_submission(path, create_envs=False):
     create_envs : bool, optional
         If True try to create any defined conda or renv environments, by default False
     """
+    print_info(f"Checking {path}...")
+    
     # metadata file
     metadata_path = f"{path}/metadata.json"
     if os.path.exists(metadata_path):
