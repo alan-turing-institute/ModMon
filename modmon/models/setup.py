@@ -1,4 +1,9 @@
-# Run this script once, the first time an analyst submits a model file (including for a new version of a model)
+"""
+Functions to add a model version to the ModMon database.
+
+Run this script once, the first time an analyst submits a model file (including for a
+new version of a model)
+"""
 import argparse
 import json
 
@@ -18,6 +23,10 @@ from ..db.schema import (
 
 
 def main():
+    """Add a model version to the monitoring database.
+    
+    Available from the command-line as modmon_model_setup
+    """
     # Set up SQLAlchemy session
     session = get_session()
 

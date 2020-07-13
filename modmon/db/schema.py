@@ -1,3 +1,6 @@
+"""
+Classes defining the ModMon database schema in the SQLAlchemy ORM
+"""
 # coding: utf-8
 from sqlalchemy import (
     Boolean,
@@ -17,6 +20,8 @@ metadata = Base.metadata
 
 
 class Dataset(Base):
+    """Unique combination of a start date, end date and database.
+    """
     __tablename__ = "datasets"
 
     datasetid = Column(Integer, primary_key=True)
@@ -27,6 +32,9 @@ class Dataset(Base):
 
 
 class Metric(Base):
+    """Unique name and a description for each metric to be tracked. Names will come from
+    the saved metrics.csv files after model runs.
+    """
     __tablename__ = "metrics"
 
     metric = Column(String(20), primary_key=True)
@@ -34,6 +42,8 @@ class Metric(Base):
 
 
 class Researchquestion(Base):
+    """Question the model is trying to answer.
+    """
     __tablename__ = "researchquestions"
 
     questionid = Column(Integer, primary_key=True)
@@ -41,6 +51,8 @@ class Researchquestion(Base):
 
 
 class Team(Base):
+    """Details of the team submitting the model.
+    """
     __tablename__ = "teams"
 
     teamname = Column(String(50), primary_key=True)
@@ -50,6 +62,9 @@ class Team(Base):
 
 
 class Model(Base):
+    """Model table stores groups of unique question, team and model name combinations.
+    Each model may have multiple Model Versionos (see Modelversioni table)
+    """
     __tablename__ = "models"
 
     modelid = Column(Integer, primary_key=True)
@@ -63,6 +78,11 @@ class Model(Base):
 
 
 class Modelversion(Base):
+    """Version of a specified model. Each model version specifies the path to (location)
+    its files and the command needed to run it. The command must conotain placeholder
+    arguments <start_date>, <end_date> and <database> which are replaced with
+    appropriate values at run time.
+    """
     __tablename__ = "modelversions"
 
     modelid = Column(ForeignKey("models.modelid"), primary_key=True, nullable=False)
@@ -85,6 +105,9 @@ class Modelversion(Base):
 
 
 class Result(Base):
+    """Each row in the Result table is a value for a single metric from a run of a model
+    version on a certain dataset.
+    """
     __tablename__ = "results"
     __table_args__ = (
         ForeignKeyConstraint(

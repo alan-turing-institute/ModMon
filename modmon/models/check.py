@@ -1,3 +1,7 @@
+"""
+Check a model contains all the required files and information before submission to the
+ModMon database.
+"""
 import argparse
 import os
 import json
@@ -22,22 +26,58 @@ colorama.init(autoreset=True)
 
 
 def print_success(message):
+    """Print a success message in green font preceded by a tick mark.
+
+    Parameters
+    ----------
+    message : str
+        Message to print
+    """
     print(f"{Fore.GREEN}[✓] {message}")
 
 
 def print_fail(message):
+    """Print a failure message in red font preceded by a cross.
+
+    Parameters
+    ----------
+    message : str
+        Message to print
+    """
     print(f"{Fore.RED}[x] {message}")
 
 
 def print_warn(message):
+    """Print a warning message in yellow font preceded by an exclamation mark.
+
+    Parameters
+    ----------
+    message : str
+        Warning message to print
+    """
     print(f"{Fore.YELLOW}[!] {message}")
 
 
 def print_info(message):
-    print(f"[ ] {message}")
+    """Print information in white font preceded by an empty [ ] for compatibility with
+    print_success, print_error and print_warn.
+
+    Parameters
+    ----------
+    message : str
+        Information to print
+    """
+    print(f"{Fore.WHITE}[ ] {message}")
 
 
 def check_metadata_keys(metadata):
+    """Check whether metadata contains all the expected keys.
+
+    Parameters
+    ----------
+    metadata : dict
+        Loaded metadata JSON as a dict
+    """
     expected_keys = [
         "team",
         "contact",
@@ -73,7 +113,13 @@ def check_metadata_keys(metadata):
 
 
 def check_metadata_values(metadata):
-    # Check fields which should have specific formats
+    """Check whether fields in the metadata have the correct formats.
+
+    Parameters
+    ----------
+    metadata : dict
+        Loaded metadata JSON as a dict
+    """
     checked_values = {}
 
     # email address
@@ -133,6 +179,14 @@ def check_metadata_values(metadata):
 
 
 def check_db_for_duplicates(metadata):
+    """Check whether the metadata defines entities that are already present in the
+    modmon database.
+
+    Parameters
+    ----------
+    metadata : dict
+        Loaded metadata JSON as a dict
+    """
     ok, err = check_connection_ok()
     if not ok:
         print_fail(f"Database: Connection failed - {err}")
@@ -196,6 +250,14 @@ def check_db_for_duplicates(metadata):
 
 
 def check_metrics_file(metrics_path):
+    """Check that the metrics file can be loaded and has two columns called "metric" and
+    "value".
+
+    Parameters
+    ----------
+    metrics_path : str
+        Path to metrics file
+    """
     metrics = pd.read_csv(metrics_path)
     metrics.columns = metrics.columns.str.strip()
 
@@ -211,6 +273,15 @@ def check_metrics_file(metrics_path):
 
 
 def check_submission(path, create_envs=False):
+    """Run all submission checks on a model directory.
+
+    Parameters
+    ----------
+    path : str
+        Path to model directory
+    create_envs : bool, optional
+        If True try to create any defined conda or renv environments, by default False
+    """
     # metadata file
     metadata_path = f"{path}/metadata.json"
     if os.path.exists(metadata_path):
@@ -280,6 +351,10 @@ def check_submission(path, create_envs=False):
 
 
 def main():
+    """Run submission checks for a model.
+    
+    Available from the command-line as modmon_model_check.
+    """
     parser = argparse.ArgumentParser(
         description="Check whether a directory passes submission checks"
     )
