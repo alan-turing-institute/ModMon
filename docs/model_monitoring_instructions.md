@@ -61,11 +61,17 @@ This should print a list of tables and columns. Or you can connect directly to t
 
 ### Verify reproducibility
 
-1. Verify reproducibility with `repro-catalogue` (see [docs](https://repro-catalogue.readthedocs.io/en/latest/example_use.html#run-analysis)) - Firstly we log the reference results, which we've already committed (we don't expect to monitor code and data changes with repro-catalogue here):
+Verify reproducibility of `metrics.csv` with `repro-catalogue` (see [docs](https://repro-catalogue.readthedocs.io/en/latest/example_use.html#run-analysis))
+
+- **TODO:** Automate this, including the creation and deletion of temp dirs:
+
+1. From within `DECOVID-dataaccess/monitor/modmon`:
     ```bash
-    > cd path/to/model
-    > catalogue engage --input_data data --code code
-    > catalogue disengage --input_data data --code code --output_data results
+    > cp path/to/model/metrics.csv temp_results
+    > git add temp_results
+    > git commit -m 'add reference result'
+    > catalogue engage --input_data temp_data --code temp_code
+    > catalogue disengage --input_data temp_data --code temp_code --output_data temp_results
     ```
 2. Run the analyst model code (see the `metadata.json` or `modelVersions.command` in the db) **_TODO_**: Automate this part
 3. Repeat step 1
