@@ -191,7 +191,12 @@ def run_all_models(start_date, end_date, database, force=False):
         )
         print("=" * 30)
 
-        run_model(mv, start_date, end_date, database, force=force, session=session)
+        try:
+            run_model(mv, start_date, end_date, database, force=force, session=session)
+        except subprocess.CalledProcessError as e:
+            print(f"FAILED: subprocess error: {e}")
+        except FileNotFoundError as e:
+            print(f"FAILED: File not found: {e}")
 
     session.close()
 
