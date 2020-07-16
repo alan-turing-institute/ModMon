@@ -1,3 +1,6 @@
+"""
+Functions for creating and deleting the ModMon database.
+"""
 import argparse
 import sys
 
@@ -9,6 +12,18 @@ from .connect import DB, PORT, ENGINE
 
 
 def ask_for_confirmation(message):
+    """Ask user to confirm an action.
+
+    Parameters
+    ----------
+    message : str
+        Message/question the user will be prompted to confirm.
+
+    Returns
+    -------
+    bool
+        True if user input is "yes", False otherwise.
+    """
     answer = input(f"{message} Type 'yes' to continue: ")
     if answer != "yes":
         return False
@@ -17,6 +32,15 @@ def ask_for_confirmation(message):
 
 
 def create_database(db_name=DB, force=False):
+    """Create the ModMon database.
+
+    Parameters
+    ----------
+    db_name : str, optional
+        Name of the database to create, by default modmon.db.connect.DB
+    force : bool, optional
+        If True delete any pre-existing database and create a new one, by default False
+    """
     engine = create_engine(f"postgres://localhost:{PORT}/postgres")
     conn = engine.connect()
     conn.execute("commit")
@@ -36,6 +60,15 @@ def create_database(db_name=DB, force=False):
 
 
 def delete_database(db_name=DB, force=False):
+    """Delete the ModMon database.
+
+    Parameters
+    ----------
+    db_name : str, optional
+        Name of the database to delete, by default modmon.db.connect.DB
+    force : bool, optional
+        Unless True ask the user for confirmation before deleting, by default False
+    """
     if not force:
         confirmed = ask_for_confirmation(
             "WARNING: This will delete all data currently in the database."
@@ -57,6 +90,16 @@ def delete_database(db_name=DB, force=False):
 
 
 def create_schema(force=False, checkfirst=True):
+    """Create the tables and schema on the ModMon database.
+
+    Parameters
+    ----------
+    force : bool, optional
+        Unless True ask for confirmation before taking potentially destructive action if
+        checkfirst is False, by default False
+    checkfirst : bool, optional
+        If True don't recreate tables already present in the database, by default True
+    """
     if not checkfirst and not force:
         confirmed = ask_for_confirmation(
             "WARNING: This will delete all data currently in the database."
@@ -69,6 +112,15 @@ def create_schema(force=False, checkfirst=True):
 
 
 def delete_schema(force=False, checkfirst=True):
+    """Delete all tables and data stored in the ModMon database.
+
+    Parameters
+    ----------
+    force : bool, optional
+        Unless True ask the user for confirmation before proceeding, by default False
+    checkfirst : bool, optional
+        If True only issue DROPs for tables confirmed to be present, by default True
+    """
     if not force:
         confirmed = ask_for_confirmation(
             "WARNING: This will delete ALL tables and data in the database."
@@ -81,6 +133,10 @@ def delete_schema(force=False, checkfirst=True):
 
 
 def main():
+    """Delete and re-create the model monitoring database.
+    
+    To be used from command-line as modmon_db_create
+    """
     parser = argparse.ArgumentParser(
         description="Create the model monitoring database (ModMon)."
     )
