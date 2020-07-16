@@ -53,9 +53,7 @@ This should print a list of tables and columns. Or you can connect directly to t
    of the metadata, database and metrics. You can optionally pass the argument `--create_envs` as well to test that any defined
    virtual environments can be created sucessfully.
 
-2. **_TODO:_** Verify reproducibility
-
-3. Add a new model to the database:
+2. Add a new model to the database:
     ```bash
     > modmon_model_setup path/to/model
     ```
