@@ -13,7 +13,7 @@ We recommend running ModMon in a virtual environment, such as a conda environmen
 ```
 Then activate the environment with:
 ```bash
-conda activate ModMon
+> conda activate ModMon
 ```
 ⚠️ **_All steps in this document should then be run with the `ModMon` environment activated._**
 
