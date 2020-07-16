@@ -61,7 +61,7 @@ This should print a list of tables and columns. Or you can connect directly to t
 
 ### Verify reproducibility
 
-1. Verify reproducibility with `repro-catalogue` (see [docs](https://repro-catalogue.readthedocs.io/en/latest/example_use.html#run-analysis)) - Firstly we log the reference results (we don't expect to monitor code and data changes with repro-catalogue here):
+1. Verify reproducibility with `repro-catalogue` (see [docs](https://repro-catalogue.readthedocs.io/en/latest/example_use.html#run-analysis)) - Firstly we log the reference results, which we've already committed (we don't expect to monitor code and data changes with repro-catalogue here):
     ```bash
     > cd path/to/model
     > catalogue engage --input_data data --code code
