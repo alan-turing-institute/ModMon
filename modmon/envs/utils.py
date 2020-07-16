@@ -78,7 +78,7 @@ def create_env(model_path, model_id, model_version, capture_output=False):
        environments specified this will be the command to activate the conda environment
        only.
     """
-    env_types = get_model_env_types(model_version.location)
+    env_types = get_model_env_types(model_path)
     env_cmd = None
 
     if env_types["renv"] and env_types["conda"]:
@@ -88,17 +88,17 @@ def create_env(model_path, model_id, model_version, capture_output=False):
 
     if env_types["renv"]:
         conda_env = create_renv_env(
-            model_version.location, capture_output=capture_output
+            model_path, capture_output=capture_output
         )
         # create_renv_env returns conda environment with appropriate R version
         #  (as well as setting up renv)
         env_cmd = get_conda_activate_command(conda_env)
 
     if env_types["conda"]:
-        env_name = build_env_name(model_version.modelid, model_version.modelversion)
+        env_name = build_env_name(model_id, model_version)
         create_conda_env(
             env_name,
-            env_file=f"{model_version.location}/environment.yml",
+            env_file=f"{model_path}/environment.yml",
             capture_output=capture_output,
         )
         env_cmd = get_conda_activate_command(env_name)
