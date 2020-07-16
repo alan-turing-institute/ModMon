@@ -59,7 +59,7 @@ This should print a list of tables and columns. Or you can connect directly to t
     ```
     Where `path/to/model` is the absolute path to the directory submitted by the analyst.
 
-### Verify reproducibility
+### Verify reproducibility of model metrics
 
 Verify reproducibility of `metrics.csv` with `repro-catalogue` (see [docs](https://repro-catalogue.readthedocs.io/en/latest/example_use.html#run-analysis))
 
@@ -79,6 +79,26 @@ Verify reproducibility of `metrics.csv` with `repro-catalogue` (see [docs](https
     ```bash
     > catalogue compare <TIMESTAMP1>.json <TIMESTAMP2>.json
     ```
+
+The result of this should be the following:
+
+```
+NOTE we expect the timestamp hashes to differ.
+
+hashes differ in 1 places:
+===========================
+timestamp
+
+hashes match in 4 places:
+==========================
+input_data
+code
+temp_results/metrics.csv
+temp_results/dummy
+
+hashes could not be compared in 0 places:
+==========================================
+```
 
 ### Log a new result for all models
 
