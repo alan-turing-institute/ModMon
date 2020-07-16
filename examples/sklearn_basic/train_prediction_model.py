@@ -1,6 +1,4 @@
 from get_data import get_data
-import json
-import numpy as np
 import pandas as pd
 import pickle
 from sklearn import svm
