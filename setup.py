@@ -38,6 +38,7 @@ setup(
         "console_scripts": [
             "modmon_db_create=modmon.db.create:main",
             "modmon_db_check=modmon.db.connect:main",
+            "modmon_model_check=modmon.models.check:main",
             "modmon_model_setup=modmon.models.setup:main",
             "modmon_run=modmon.models.run:main",
         ]

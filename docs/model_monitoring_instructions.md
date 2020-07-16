@@ -13,7 +13,7 @@ We recommend running ModMon in a virtual environment, such as a conda environmen
 ```
 Then activate the environment with:
 ```bash
-conda activate ModMon
+> conda activate ModMon
 ```
 ⚠️ **_All steps in this document should then be run with the `ModMon` environment activated._**
 
@@ -45,7 +45,17 @@ This should print a list of tables and columns. Or you can connect directly to t
 
 ### Set up a new model
 
-1. Add a new model to the database:
+1. To check the code, environments, metadata and metrics files of a model are in the expected formats you can run the command:
+   ```bash
+   > modmon_model_check path/to/model
+   ```
+   Where `path/to/model` is the path to the directory to be submitted to the database. This command runs general sanity checks
+   of the metadata, database and metrics. You can optionally pass the argument `--create_envs` as well to test that any defined
+   virtual environments can be created sucessfully.
+
+2. **_TODO:_** Verify reproducibility
+
+3. Add a new model to the database:
     ```bash
     > modmon_model_setup path/to/model
     ```

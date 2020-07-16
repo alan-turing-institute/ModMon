@@ -1,7 +1,6 @@
 import lightgbm as lgb
 import pandas as pd
 import argparse
-import numpy as np
 from datetime import datetime
 
 

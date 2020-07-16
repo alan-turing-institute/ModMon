@@ -1,8 +1,18 @@
+"""
+Functions for creating, activating and maintaining conda environments.
+"""
 import subprocess
 import os
 
 
 def get_conda_envs():
+    """Get a list of all conda environments on the system.
+
+    Returns
+    -------
+    list
+        Name (str) of all the conda environments returned by "conda env list"
+    """
     output = subprocess.run(["conda", "env", "list"], capture_output=True, check=True)
     lines = output.stdout.decode("utf-8").split("\n")
     envs = [line.split()[0] for line in lines if len(line) > 0]
@@ -11,15 +21,53 @@ def get_conda_envs():
 
 
 def conda_env_exists(env_name):
+    """Check whether a given conda environment exists on the system.
+
+    Parameters
+    ----------
+    env_name : str
+        Name of the environment to search for
+
+    Returns
+    -------
+    bool
+        True if env_name found on the system.
+    """
     envs = get_conda_envs()
     return env_name in envs
 
 
-def create_conda_env(env_name, env_file=None, dependencies=None, overwrite=False):
+def create_conda_env(
+    env_name, env_file=None, dependencies=None, overwrite=False, capture_output=False
+):
+    """Create a conda environment from a file or list of dependencies.
+
+    Parameters
+    ----------
+    env_name : str
+        Name of the environment to create
+    env_file : str, optional
+        Path to environment file, by default None
+    dependencies : list, optional
+        List of packages to install (with conda) in "package_name=version" format, where
+        the version is optional. Not used if env_file is defined. By default None
+    overwrite : bool, optional
+        If True remove any pre-existing environment called env_name, by default False
+    capture_output : bool, optional
+        Passed to subprocess.run, whether to catch stdout and stderr of calls to conda,
+        by default False
+
+    Raises
+    ------
+    ValueError
+        If neither env_file nor dependencies is defined.
+    """
     if conda_env_exists(env_name):
         if overwrite:
             subprocess.run(
-                ["conda", "remove", "-y", "--name", env_name, "--all"], check=True
+                ["conda", "remove", "-y", "--name", env_name, "--all"],
+                check=True,
+                capture_output=capture_output,
             )
         else:
             return
@@ -28,6 +76,7 @@ def create_conda_env(env_name, env_file=None, dependencies=None, overwrite=False
         subprocess.run(
             ["conda", "env", "create", "-n", env_name, "-f", env_file, "--force"],
             check=True,
+            capture_output=capture_output,
         )
     elif dependencies:
         subprocess.run(
@@ -42,12 +91,28 @@ def create_conda_env(env_name, env_file=None, dependencies=None, overwrite=False
                 *dependencies,
             ],
             check=True,
+            capture_output=capture_output,
         )
     else:
         raise ValueError("One of env_file and dependencies must be specified.")
 
 
 def get_conda_activate_command(env_name, conda_path=None):
+    """Build command needed to source conda and activate an environment.
+
+    Parameters
+    ----------
+    env_name : str
+        Name of the environment to activate
+    conda_path : str, optional
+        Path to conda executable, or if None use the value of the "CONDA_EXE"
+        environment variable, by default None
+
+    Returns
+    -------
+    str
+        Command to source conda and activate the environment called env_name
+    """
     if not conda_path:
         conda_path = os.path.dirname(os.environ["CONDA_EXE"])
 
@@ -60,6 +125,22 @@ def get_conda_activate_command(env_name, conda_path=None):
 
 
 def create_r_conda(r_version, overwrite=False):
+    """Create a conda environment with a specific version of R and renv installed. The
+    environment will be called "ModMon-R-<r_version>".
+
+    Parameters
+    ----------
+    r_version : str
+        Version of R to install
+    overwrite : bool, optional
+        If True overwrite any pre-existing conda environment for this R version, by
+        default False
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
     env_name = f"ModMon-R-{r_version}"
     dependencies = [f"r-base={r_version}", "r-renv"]
     create_conda_env(env_name, dependencies=dependencies, overwrite=overwrite)
@@ -67,10 +148,28 @@ def create_r_conda(r_version, overwrite=False):
 
 
 def remove_conda_env(env_name):
+    """Remove a conda environment.
+
+    Parameters
+    ----------
+    env_name : str
+        The name of the conda environment to delete.
+    """
     subprocess.run(["conda", "remove", "--name", env_name, "--all", "-y"], check=True)
 
 
-def remove_modmon_envs(models=True, r_versions=True):
+def remove_modmon_envs(models=False, r_versions=False, tmp=False):
+    """Remove conda environments created by ModMon.
+
+    Parameters
+    ----------
+    models : bool, optional
+        Delete model environments with names starting "ModMon-model", by default False
+    r_versions : bool, optional
+        Delete R version environments with names starting "ModMon-R", by default False
+    tmp : bool, optional
+        Delete temporary environments with names starting "ModMon-TMP", by default False
+    """
     envs = get_conda_envs()
 
     if models:
@@ -78,3 +177,6 @@ def remove_modmon_envs(models=True, r_versions=True):
 
     if r_versions:
         [remove_conda_env(env) for env in envs if env.startswith("ModMon-R")]
+        
+    if tmp:
+        [remove_conda_env(env) for env in envs if env.startswith("ModMon-TMP")]

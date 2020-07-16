@@ -1,3 +1,4 @@
+colorama
 dateparser
 pandas
 psycopg2
