@@ -4,6 +4,8 @@ Functions for creating, activating and maintaining conda environments.
 import subprocess
 import os
 
+from ..config import config
+
 
 def get_conda_envs():
     """Get a list of all conda environments on the system.
@@ -38,7 +40,12 @@ def conda_env_exists(env_name):
 
 
 def create_conda_env(
-    env_name, env_file=None, dependencies=None, overwrite=False, capture_output=False
+    env_name,
+    env_file=None,
+    dependencies=None,
+    overwrite=False,
+    capture_output=False,
+    offline=None,
 ):
     """Create a conda environment from a file or list of dependencies.
 
@@ -56,6 +63,10 @@ def create_conda_env(
     capture_output : bool, optional
         Passed to subprocess.run, whether to catch stdout and stderr of calls to conda,
         by default False
+    offline : bool, optional
+        Whether to create environments offline by setting the --offline flag, by default
+        None which uses the value of modmon.config["conda"]["offline"] if available, or
+        False otherwise.
 
     Raises
     ------
@@ -73,28 +84,40 @@ def create_conda_env(
             return
 
     if env_file:
-        subprocess.run(
-            ["conda", "env", "create", "-n", env_name, "-f", env_file, "--force"],
-            check=True,
-            capture_output=capture_output,
-        )
+        conda_create_cmd = [
+            "conda",
+            "env",
+            "create",
+            "-n",
+            env_name,
+            "-f",
+            env_file,
+            "--force",
+        ]
     elif dependencies:
-        subprocess.run(
-            [
-                "conda",
-                "create",
-                "-n",
-                env_name,
-                "-c",
-                "conda-forge",
-                "-y",
-                *dependencies,
-            ],
-            check=True,
-            capture_output=capture_output,
-        )
+        conda_create_cmd = [
+            "conda",
+            "create",
+            "-n",
+            env_name,
+            "-c",
+            "conda-forge",
+            "-y",
+            *dependencies,
+        ]
     else:
         raise ValueError("One of env_file and dependencies must be specified.")
+
+    # Set offline flag
+    if offline is None:
+        if "conda" in config and config["conda"].get("offline") == "True":
+            offline = True
+        else:
+            offline = False
+    if offline:
+        conda_create_cmd.append("--offline")
+
+    subprocess.run(conda_create_cmd, check=True, capture_output=capture_output)
 
 
 def get_conda_activate_command(env_name, conda_path=None):
@@ -177,6 +200,6 @@ def remove_modmon_envs(models=False, r_versions=False, tmp=False):
 
     if r_versions:
         [remove_conda_env(env) for env in envs if env.startswith("ModMon-R")]
-        
+
     if tmp:
         [remove_conda_env(env) for env in envs if env.startswith("ModMon-TMP")]
