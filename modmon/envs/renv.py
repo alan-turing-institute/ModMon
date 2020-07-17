@@ -50,15 +50,15 @@ def create_renv_env(path, capture_output=False, rconda=None):
     str
         Name of the created conda environment
     """
-    
+
     renv_cmd = "Rscript -e 'renv::restore()' && Rscript -e 'renv::init()'"
-    
+
     if rconda is None:
         if "renv" in config and config["renv"].get("rconda") == "False":
             rconda = False
         else:
             rconda = True
-    
+
     if rconda:
         r_version = get_r_version(path)
         conda_name = create_r_conda(r_version)
@@ -66,13 +66,9 @@ def create_renv_env(path, capture_output=False, rconda=None):
         renv_cmd = f"{conda_cmd} && {renv_cmd}"
     else:
         conda_name = None
-    
+
     subprocess.run(
-        renv_cmd,
-        cwd=path,
-        shell=True,
-        check=True,
-        capture_output=capture_output,
+        renv_cmd, cwd=path, shell=True, check=True, capture_output=capture_output
     )
 
     return conda_name

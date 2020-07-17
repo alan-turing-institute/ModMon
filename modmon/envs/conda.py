@@ -3,6 +3,7 @@ Functions for creating, activating and maintaining conda environments.
 """
 import subprocess
 import os
+from pathlib import Path
 
 from ..config import config
 
@@ -117,7 +118,12 @@ def create_conda_env(
     if offline:
         conda_create_cmd.append("--offline")
 
-    subprocess.run(conda_create_cmd, check=True, capture_output=capture_output)
+    subprocess.run(
+        conda_create_cmd,
+        check=True,
+        capture_output=capture_output,
+        cwd=Path(env_file).parent,
+    )
 
 
 def get_conda_activate_command(env_name, conda_path=None):
