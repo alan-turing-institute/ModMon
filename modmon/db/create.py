@@ -8,11 +8,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import ProgrammingError
 
 from .schema import Base
-from .connect import get_database_connection_string, DATABASE_NAME, ENGINE
+from .connect import get_database_config, DATABASE_NAME, ENGINE
 from ..config import config
 
 
-ADMIN_CONNECTION_STRING = get_database_connection_string(config["database-admin"])
+ADMIN_CONNECTION_STRING, _ = get_database_config(config["database-admin"])
 
 
 def ask_for_confirmation(message):

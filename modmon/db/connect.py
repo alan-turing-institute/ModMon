@@ -10,7 +10,7 @@ from ..config import config
 from .schema import Base
 
 
-def get_database_connection_string(db_config=config["database"]):
+def get_database_config(db_config=config["database"]):
     """Generate a database connection string from a section in the ModMon config file.
 
     Parameters
@@ -61,7 +61,7 @@ def get_database_connection_string(db_config=config["database"]):
     return url, database
 
 
-DB_CONNECTION_STRING, DATABASE_NAME = get_database_connection_string(config["database"])
+DB_CONNECTION_STRING, DATABASE_NAME = get_database_config(config["database"])
 ENGINE = create_engine(DB_CONNECTION_STRING)
 Base.metadata.bind = ENGINE
 
