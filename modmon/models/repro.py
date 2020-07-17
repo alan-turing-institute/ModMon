@@ -18,6 +18,13 @@ args = parser.parse_args()
 path = args.path
 
 with tempfile.TemporaryDirectory() as tmpdirname:
-    shutil.copyfile(path + "/metrics.csv", tmpdirname + "/metrics.csv")
-    test = pd.read_csv(tmpdirname +  "/metrics.csv")
+    subprocess.run(["mkdir", tmpdirname + "/data"], check=True)
+    subprocess.run(["mkdir", tmpdirname + "/code"], check=True)
+    subprocess.run(["mkdir", tmpdirname + "/results"], check=True)
+    shutil.copyfile(path + "/metrics.csv", tmpdirname + "/results/metrics.csv")
+
+    # subprocess.run(["git", "add", tmpdirname + "/metrics.csv"], check=True)  # check=True <- creates python exception
+    # subprocess.run(["git", "commit", "-m", "'add reference result'"], check=True)
+    # subprocess.run(["catalogue engage", "--input_data", "temp_data", "--code", "temp_code"], check=True)
+    test = pd.read_csv(tmpdirname +  "/results/metrics.csv")
     print(test)
