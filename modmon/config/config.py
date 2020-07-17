@@ -21,10 +21,18 @@ else:
 with open(config_path, "r") as f:
     config.read_file(f)
 
-if "database" not in config:
-    raise KeyError(f"[database] section not found in {config_path}")
-if "database-admin" not in config:
-    raise warnings.warn(
-        f"[database-admin] not found in {config_path}: "
-        "Creating or deleting the database will fail."
-    )
+error_sections = ["database"]
+for section in error_sections:
+    if section not in config:
+        raise KeyError(
+            f"[{section}] section not found in {config_path}: "
+            "This must be defined for core modmon functionality."
+        )
+
+warn_sections = ["database-admin", "conda", "renv"]
+for section in warn_sections:
+    if section not in config:
+        warnings.warn(
+            f"[{section}] not found in {config_path}: "
+            "Some modmon features may not work or will take default values."
+        )
