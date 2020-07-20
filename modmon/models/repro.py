@@ -11,8 +11,27 @@ import pandas as pd
 # Get start dates and end dates etc from metadata or db
 # Load JSON files from catalogue_results dir within temp dir (only should be 2) and compare the metrics csv hashes
 
-def check_reproduciblity(path, metadata):
+def catalogue_metrics(path, tmpdirname):
+    shutil.copyfile(path + "/metrics.csv", tmpdirname + "/results/metrics.csv")
 
+    subprocess.run(["git", "add", "metrics.csv"], check=True, cwd=tmpdirname + "/results")  # check=True <- creates python exception
+    try:
+        subprocess.run(["git", "commit", "-m", "'add reference result'"], check=True, cwd=tmpdirname)
+    except subprocess.CalledProcessError:  # Commit will fail when metrics.csv is added unchanged
+        pass
+
+    subprocess.run(["catalogue", "engage",
+                    "--input_data", "data",
+                    "--code", "code"
+                    ], check=True, cwd=tmpdirname)
+    subprocess.run(["catalogue", "disengage",
+                    "--input_data", "data",
+                    "--code", "code",
+                    "--output_data", "results"
+                    ], check=True, cwd=tmpdirname)
+
+
+def check_reproduciblity(path, metadata):
     session = get_session()
 
     with tempfile.TemporaryDirectory() as tmpdirname:
@@ -21,20 +40,8 @@ def check_reproduciblity(path, metadata):
         subprocess.run(["mkdir", tmpdirname + "/data"], check=True)
         subprocess.run(["mkdir", tmpdirname + "/code"], check=True)
         subprocess.run(["mkdir", tmpdirname + "/results"], check=True)
-        shutil.copyfile(path + "/metrics.csv", tmpdirname + "/results/metrics.csv")
 
-        subprocess.run(["git", "add", "metrics.csv"], check=True, cwd=tmpdirname + "/results")  # check=True <- creates python exception
-        subprocess.run(["git", "commit", "-m", "'add reference result'"], check=True, cwd=tmpdirname)
-
-        subprocess.run(["catalogue", "engage",
-                        "--input_data", "data",
-                        "--code", "code"
-                        ], check=True, cwd=tmpdirname)
-        subprocess.run(["catalogue", "disengage",
-                        "--input_data", "data",
-                        "--code", "code",
-                        "--output_data", "results"
-                        ], check=True, cwd=tmpdirname)
+        catalogue_metrics(path, tmpdirname)
 
         # Get active model version for this model
         modelid = session.query(Model).filter_by(name=metadata["model_name"]).first().modelid
@@ -46,3 +53,5 @@ def check_reproduciblity(path, metadata):
                   metadata["db_name"],
                   reference=True,
                   session=session)
+
+        catalogue_metrics(path, tmpdirname)
