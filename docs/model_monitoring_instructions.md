@@ -25,9 +25,10 @@ Navigate to the `monitor` directory and then run:
 ```
 The `-e` flag above installs the package in editable mode (**used for development only**)
 
-## Configure ModMon
+Configure ModMon
+----
 
-To configure database and some environoment settings ModMon uses a configuration file in 
+To configure database and some environoment settings ModMon uses a configuration file in
 .ini format. By default this is the file in `modmon/config/defaults.ini`. This defines:
 * The ModMon database to be a postgresql database on localhost, without a username and password.
 * conda environments to install dependencies via the internet.
