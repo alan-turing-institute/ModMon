@@ -1,8 +1,9 @@
 import argparse
+from ..db.connect import get_session
 import tempfile
 import shutil # copy
 import subprocess
-# from ..models.run import run_model
+from ..models.run import run_model
 import pandas as pd
 
 # Temporarily get path from args, but then actually just use function within check
@@ -10,6 +11,8 @@ import pandas as pd
 # Load JSON files from catalogue_results dir within temp dir (only should be 2) and compare the metrics csv hashes
 
 def check_reproduciblity(path):
+
+    session = get_session()
 
     with tempfile.TemporaryDirectory() as tmpdirname:
         subprocess.run(["git", "init"], check=True, cwd=tmpdirname)
@@ -31,3 +34,5 @@ def check_reproduciblity(path):
                         "--code", "code",
                         "--output_data", "results"
                         ], check=True, cwd=tmpdirname)
+
+        # run_model(model_version, start_date, end_date, database, force=True, session=session)
