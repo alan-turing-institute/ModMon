@@ -19,6 +19,7 @@ from ..db.schema import Team, Model, Modelversion, Researchquestion, Dataset
 from ..envs.utils import get_model_env_types
 from ..envs.conda import create_conda_env
 from ..envs.renv import create_renv_env
+from ..models.repro import check_reproduciblity
 from ..models.run import build_run_cmd
 
 # reset print colour to default after each use of colorama
@@ -283,7 +284,7 @@ def check_submission(path, create_envs=False):
         If True try to create any defined conda or renv environments, by default False
     """
     print_info(f"Checking {path}...")
-    
+
     # metadata file
     metadata_path = f"{path}/metadata.json"
     if os.path.exists(metadata_path):
@@ -349,12 +350,13 @@ def check_submission(path, create_envs=False):
     elif not (env_types["conda"] or env_types["renv"]):
         print_fail("Environment: No conda or renv environment found")
 
-    print_warn("NOT IMPLEMENTED: Run command, check reproducibility")
+    print_info(f"Checking {path}/metrics.csv reproducibility...")
+    check_reproduciblity(path)
 
 
-def main():
+def main(): #TODO: add repro check as option
     """Run submission checks for a model.
-    
+
     Available from the command-line as modmon_model_check.
     """
     parser = argparse.ArgumentParser(
