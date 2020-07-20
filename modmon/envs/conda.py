@@ -108,7 +108,7 @@ def create_conda_env(
             *dependencies,
         ]
         # working directory doesn't matter if using a list of dependencies, but need
-        # something to pass to subprocess.run
+        #  something to pass to subprocess.run
         cwd = Path(__file__).parent
     else:
         raise ValueError("One of env_file and dependencies must be specified.")
@@ -123,10 +123,7 @@ def create_conda_env(
         conda_create_cmd.append("--offline")
 
     subprocess.run(
-        conda_create_cmd,
-        check=True,
-        capture_output=capture_output,
-        cwd=cwd,
+        conda_create_cmd, check=True, capture_output=capture_output, cwd=cwd,
     )
 
 
