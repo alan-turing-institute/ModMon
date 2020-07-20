@@ -9,14 +9,6 @@ import pandas as pd
 # Get start dates and end dates etc from metadata or db
 # Load JSON files from catalogue_results dir within temp dir (only should be 2) and compare the metrics csv hashes
 
-parser = argparse.ArgumentParser(
-    description="Get model path"
-)
-parser.add_argument("path", help="Directory to check")
-
-args = parser.parse_args()
-path = args.path
-
 def check_reproduciblity(path):
 
     with tempfile.TemporaryDirectory() as tmpdirname:
@@ -39,5 +31,3 @@ def check_reproduciblity(path):
                         "--code", "code",
                         "--output_data", "results"
                         ], check=True, cwd=tmpdirname)
-
-check_reproduciblity(path)
