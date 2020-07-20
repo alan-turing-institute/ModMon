@@ -3,30 +3,30 @@ from ..db.connect import get_session
 from ..db.schema import Modelversion, Model
 import json
 from ..models.run import run_model
-from os import listdir
+from os import listdir, devnull
 import pandas as pd
 import shutil
 import subprocess
 import tempfile
 
-def catalogue_metrics(path, tmpdirname):
+def catalogue_metrics(path, tmpdirname, dev_null):
     shutil.copyfile(path + "/metrics.csv", tmpdirname + "/results/metrics.csv")
 
-    subprocess.run(["git", "add", "metrics.csv"], check=True, cwd=tmpdirname + "/results")  # check=True <- creates python exception
+    subprocess.run(["git", "add", "metrics.csv"], check=True, cwd=tmpdirname + "/results", stdout=dev_null, stderr=dev_null)
     try:
-        subprocess.run(["git", "commit", "-m", "'add reference result'"], check=True, cwd=tmpdirname)
+        subprocess.run(["git", "commit", "-m", "'add reference result'"], check=True, cwd=tmpdirname, stdout=dev_null, stderr=dev_null)
     except subprocess.CalledProcessError:  # Commit will fail when metrics.csv is added unchanged
         pass
 
     subprocess.run(["catalogue", "engage",
                     "--input_data", "data",
                     "--code", "code"
-                    ], check=True, cwd=tmpdirname)
+                    ], check=True, cwd=tmpdirname, stdout=dev_null, stderr=dev_null)
     subprocess.run(["catalogue", "disengage",
                     "--input_data", "data",
                     "--code", "code",
                     "--output_data", "results"
-                    ], check=True, cwd=tmpdirname)
+                    ], check=True, cwd=tmpdirname, stdout=dev_null, stderr=dev_null)
 
 
 def results_match(tmpdirname):
@@ -47,16 +47,17 @@ def results_match(tmpdirname):
 
 def check_reproduciblity(path, metadata):
     session = get_session()
+    dev_null = open(devnull, 'w')
 
     with tempfile.TemporaryDirectory() as tmpdirname:
-        subprocess.run(["git", "init"], check=True, cwd=tmpdirname)
+        subprocess.run(["git", "init"], check=True, cwd=tmpdirname, stdout=dev_null, stderr=dev_null)
 
         subprocess.run(["mkdir", tmpdirname + "/data"], check=True)
         subprocess.run(["mkdir", tmpdirname + "/code"], check=True)
         subprocess.run(["mkdir", tmpdirname + "/results"], check=True)
 
         # Use repro-catalogue with reference metrics supplied by analyst
-        catalogue_metrics(path, tmpdirname)
+        catalogue_metrics(path, tmpdirname, dev_null)
 
         # Get active model version for this model
         modelid = session.query(Model).filter_by(name=metadata["model_name"]).first().modelid
@@ -72,7 +73,7 @@ def check_reproduciblity(path, metadata):
                   session=session)
 
         # Use repro-catalogue with new metrics just generated
-        catalogue_metrics(path, tmpdirname)
+        catalogue_metrics(path, tmpdirname, dev_null)
 
         if results_match(tmpdirname):
             print("GENERATED METRICS MATCH REFERENCE")
