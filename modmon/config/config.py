@@ -2,7 +2,9 @@ import configparser
 from pathlib import Path
 import warnings
 
-config = configparser.ConfigParser()
+from .interpolate import EnvInterpolation
+
+config = configparser.ConfigParser(interpolation=EnvInterpolation())
 
 # search for .modmon.ini in home directory, if not present use defaults.ini
 user_config_path = Path(Path.home(), ".modmom.ini")
@@ -21,7 +23,7 @@ else:
 with open(config_path, "r") as f:
     config.read_file(f)
 
-error_sections = ["database"]
+error_sections = ["database", "storage"]
 for section in error_sections:
     if section not in config:
         raise KeyError(
