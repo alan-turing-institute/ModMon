@@ -350,7 +350,7 @@ def check_submission(path, create_envs=False):
     elif not (env_types["conda"] or env_types["renv"]):
         print_fail("Environment: No conda or renv environment found")
 
-    print_info(f"Checking {path}/metrics.csv reproducibility...")
+    print_info(f"Checking metrics.csv reproducibility...")
     check_reproduciblity(path)
 
 
