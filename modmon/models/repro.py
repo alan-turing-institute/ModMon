@@ -45,7 +45,7 @@ def results_match(tmpdirname):
     return False
 
 
-def check_reproduciblity(path, metadata):
+def reference_result_is_reproducible(path, metadata):
     session = get_session()
     dev_null = open(devnull, 'w')
 
@@ -75,7 +75,5 @@ def check_reproduciblity(path, metadata):
         # Use repro-catalogue with new metrics just generated
         catalogue_metrics(path, tmpdirname, dev_null)
 
-        if results_match(tmpdirname):
-            print("GENERATED METRICS MATCH REFERENCE")
-        else:
-            print("generated metrics DO NOT match reference")
+        match_bool = results_match(tmpdirname)
+    return match_bool

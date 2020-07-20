@@ -19,7 +19,7 @@ from ..db.schema import Team, Model, Modelversion, Researchquestion, Dataset
 from ..envs.utils import get_model_env_types
 from ..envs.conda import create_conda_env
 from ..envs.renv import create_renv_env
-from ..models.repro import check_reproduciblity
+from ..models.repro import reference_result_is_reproducible
 from ..models.run import build_run_cmd
 
 # reset print colour to default after each use of colorama
@@ -351,7 +351,10 @@ def check_submission(path, create_envs=False):
         print_fail("Environment: No conda or renv environment found")
 
     print_info(f"Checking metrics.csv reproducibility...")
-    check_reproduciblity(path, metadata)
+    if reference_result_is_reproducible(path, metadata):
+        print_success("Metrics: Reference metrics are reproducible")
+    else:
+        print_fail("Metrics: Reference metrics could not be reproduced")
 
 
 def main(): #TODO: add repro check as option
