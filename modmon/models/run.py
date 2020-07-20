@@ -182,7 +182,7 @@ def get_metrics_path(model_version):
     ----------
     model_version : modmon.schema.db.Modelversion
         Model version object
-        
+
 
     Returns
     -------
@@ -239,7 +239,7 @@ def add_results_from_file(session, model_version, dataset_id, run_time):
         session.add(dataset)
 
 
-def run_model(model_version, start_date, end_date, database, force=False, session=None):
+def run_model(model_version, start_date, end_date, database, force=False, session=None, reference=False):
     """Run a model version's command to generate new metrics values with the specified
     dataset inputs.
 
@@ -259,6 +259,8 @@ def run_model(model_version, start_date, end_date, database, force=False, sessio
     session : sqlalchemy.orm.session.Session, optional
         ModMon database session or None in which case one will be created, by default
         None
+    reference : bool, optional
+        If True, do not add anything to the database, only setup env and run model
 
     Raises
     ------
@@ -272,17 +274,18 @@ def run_model(model_version, start_date, end_date, database, force=False, sessio
     else:
         close_session = False  # if session given, leave it open
 
-    print("Creating dataset...")
-    dataset_id = create_dataset(session, start_date, end_date, database)
+    if not reference:
+        print("Creating dataset...")
+        dataset_id = create_dataset(session, start_date, end_date, database)
 
-    # Check whether result already exists for this model version and dataset
-    if not force and result_exists(
-        session, model_version.modelid, model_version.modelversion, dataset_id
-    ):
-        print(
-            f"DB already contains result for model {model_version.modelid}, version {model_version.modelversion} on dataset {dataset_id}. Skipping."
-        )
-        return
+        # Check whether result already exists for this model version and dataset
+        if not force and result_exists(
+            session, model_version.modelid, model_version.modelversion, dataset_id
+        ):
+            print(
+                f"DB already contains result for model {model_version.modelid}, version {model_version.modelversion} on dataset {dataset_id}. Skipping."
+            )
+            return
 
     print("Creating environment...")
     env_cmd = create_env(
@@ -306,13 +309,14 @@ def run_model(model_version, start_date, end_date, database, force=False, sessio
     print("RUN_CMD", run_cmd)
     subprocess.run(run_cmd, cwd=model_version.location, shell=True, check=True)
 
-    print("Adding results to database...")
-    if not os.path.exists(metrics_path):
-        raise FileNotFoundError(
-            f"{metrics_path} not found. This should be created by running {run_cmd}."
-        )
+    if not reference:
+        print("Adding results to database...")
+        if not os.path.exists(metrics_path):
+            raise FileNotFoundError(
+                f"{metrics_path} not found. This should be created by running {run_cmd}."
+            )
 
-    add_results_from_file(session, model_version, dataset_id, run_time)
+        add_results_from_file(session, model_version, dataset_id, run_time)
     session.commit()
 
     if close_session:
@@ -368,7 +372,7 @@ def run_all_models(start_date, end_date, database, force=False):
 
 def main():
     """Run all active model versions in the datbase on a new model version.
-    
+
     Available from the command-line as modmon_run
     """
     parser = argparse.ArgumentParser(

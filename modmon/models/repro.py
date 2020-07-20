@@ -11,7 +11,7 @@ import pandas as pd
 # Get start dates and end dates etc from metadata or db
 # Load JSON files from catalogue_results dir within temp dir (only should be 2) and compare the metrics csv hashes
 
-def check_reproduciblity(path, model_name):
+def check_reproduciblity(path, metadata):
 
     session = get_session()
 
@@ -37,9 +37,12 @@ def check_reproduciblity(path, model_name):
                         ], check=True, cwd=tmpdirname)
 
         # Get active model version for this model
-        modelid = session.query(Model).filter_by(name=model_name).first().modelid
+        modelid = session.query(Model).filter_by(name=metadata["model_name"]).first().modelid
         model_version = session.query(Modelversion).filter_by(modelid=modelid).filter_by(active=True).first()
 
-        print(model_version.modelversion, model_version.modelid)
-
-        # run_model(model_version, start_date, end_date, database, force=True, session=session)
+        run_model(model_version,
+                  metadata["data_window_start"],
+                  metadata["data_window_end"],
+                  metadata["db_name"],
+                  reference=True,
+                  session=session)

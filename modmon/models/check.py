@@ -351,7 +351,7 @@ def check_submission(path, create_envs=False):
         print_fail("Environment: No conda or renv environment found")
 
     print_info(f"Checking metrics.csv reproducibility...")
-    check_reproduciblity(path, metadata['model_name'])
+    check_reproduciblity(path, metadata)
 
 
 def main(): #TODO: add repro check as option
