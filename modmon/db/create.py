@@ -8,7 +8,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import ProgrammingError
 
 from .schema import Base
-from .connect import DB, PORT, ENGINE
+from .connect import get_database_config, DATABASE_NAME, ENGINE
+from ..config import config
+
+
+ADMIN_CONNECTION_STRING, _ = get_database_config(config["database-admin"])
 
 
 def ask_for_confirmation(message):
@@ -31,7 +35,7 @@ def ask_for_confirmation(message):
         return True
 
 
-def create_database(db_name=DB, force=False):
+def create_database(db_name=DATABASE_NAME, force=False):
     """Create the ModMon database.
 
     Parameters
@@ -41,7 +45,8 @@ def create_database(db_name=DB, force=False):
     force : bool, optional
         If True delete any pre-existing database and create a new one, by default False
     """
-    engine = create_engine(f"postgres://localhost:{PORT}/postgres")
+
+    engine = create_engine(ADMIN_CONNECTION_STRING)
     conn = engine.connect()
     conn.execute("commit")
     try:
@@ -59,7 +64,7 @@ def create_database(db_name=DB, force=False):
             raise
 
 
-def delete_database(db_name=DB, force=False):
+def delete_database(db_name=DATABASE_NAME, force=False):
     """Delete the ModMon database.
 
     Parameters
@@ -77,7 +82,7 @@ def delete_database(db_name=DB, force=False):
             print("Aborting create.")
             return
 
-    engine = create_engine(f"postgres://localhost:{PORT}/postgres")
+    engine = create_engine(ADMIN_CONNECTION_STRING)
     conn = engine.connect()
     conn.execute("commit")
     try:

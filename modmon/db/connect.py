@@ -6,17 +6,62 @@ import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, inspect
 
+from ..config import config
 from .schema import Base
 
 
-# TODO Deal with DB config correctly, including username ans passwords if needed
-# and including details for postgres user on postgres database (for db creation).
-#  Should be defined in a config file.
-PORT = "5432"
-DB = "ModMon"
+def get_database_config(db_config=config["database"]):
+    """Generate a database connection string from a section in the ModMon config file.
 
-DB_CONNECTION_STRING = f"postgresql://localhost:{PORT}/{DB}"
+    Parameters
+    ----------
+    db_config : configparser.SectionProxy, optional
+        Section from a ConfigParser config file. The section must include the keys
+        "dialect", "host" and "database", and optionally can contain "port", "username"
+        and "password". By default modmon.config.config["database"].
 
+    Returns
+    -------
+    str, str
+        sqlalchemy database connection string and the name of the database.
+
+    Raises
+    ------
+    KeyError
+        If "dialect", "host" or "database" are not present in db_config
+    """
+    required = ["dialect", "host", "database"]
+    for key in required:
+        if key not in db_config:
+            raise KeyError(f"{key} not found in database config")
+
+    dialect = db_config.get("dialect")
+    host = db_config.get("host")
+    port = db_config.get("port")
+    database = db_config.get("database")
+    username = db_config.get("user")
+    password = db_config.get("password", None)
+
+    if username == "":
+        username = None
+    if password == "":
+        password = None
+    if port == "":
+        port = None
+
+    url = sqlalchemy.engine.url.URL(
+        dialect,
+        username=username,
+        password=password,
+        host=host,
+        port=port,
+        database=database,
+        query=None,
+    )
+    return url, database
+
+
+DB_CONNECTION_STRING, DATABASE_NAME = get_database_config(config["database"])
 ENGINE = create_engine(DB_CONNECTION_STRING)
 Base.metadata.bind = ENGINE
 
