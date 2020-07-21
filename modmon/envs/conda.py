@@ -177,6 +177,6 @@ def remove_modmon_envs(models=False, r_versions=False, tmp=False):
 
     if r_versions:
         [remove_conda_env(env) for env in envs if env.startswith("ModMon-R")]
-        
+
     if tmp:
         [remove_conda_env(env) for env in envs if env.startswith("ModMon-TMP")]

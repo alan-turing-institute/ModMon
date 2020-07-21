@@ -357,7 +357,7 @@ def check_submission(path, create_envs=False):
         print_fail("Metrics: Reference metrics could not be reproduced")
 
 
-def main(): #TODO: add repro check as option
+def main():  # TODO: add repro check as option
     """Run submission checks for a model.
 
     Available from the command-line as modmon_model_check.

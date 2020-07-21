@@ -239,7 +239,15 @@ def add_results_from_file(session, model_version, dataset_id, run_time):
         session.add(dataset)
 
 
-def run_model(model_version, start_date, end_date, database, force=False, session=None, reference=False):
+def run_model(
+    model_version,
+    start_date,
+    end_date,
+    database,
+    force=False,
+    session=None,
+    reference=False,
+):
     """Run a model version's command to generate new metrics values with the specified
     dataset inputs.
 
