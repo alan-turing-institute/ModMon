@@ -3,7 +3,7 @@ from ..db.connect import get_session
 from ..db.schema import Modelversion, Model
 import json
 from ..models.run import run_model
-from os import listdir, devnull
+from os import listdir, devnull, mkdir
 import pandas as pd
 import shutil
 import subprocess
