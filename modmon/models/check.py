@@ -19,8 +19,8 @@ from ..db.schema import Team, Model, Modelversion, Researchquestion, Dataset
 from ..envs.utils import get_model_env_types
 from ..envs.conda import create_conda_env
 from ..envs.renv import create_renv_env
-from ..models.repro import reference_result_is_reproducible
-from ..models.run import build_run_cmd
+from .repro import reference_result_is_reproducible
+from .run import build_run_cmd
 
 # reset print colour to default after each use of colorama
 colorama.init(autoreset=True)
@@ -273,7 +273,7 @@ def check_metrics_file(metrics_path):
     print_warn("NOT IMPLEMENTED: Numeric value check")
 
 
-def check_submission(path, create_envs=False):
+def check_submission(path, create_envs=False, repro_check=False):
     """Run all submission checks on a model directory.
 
     Parameters
@@ -317,11 +317,13 @@ def check_submission(path, create_envs=False):
     if env_types["conda"]:
         print_success("Environment: conda found")
 
-        if create_envs:
+        if create_envs or repro_check:
+            # reproducibility check always needs env to be created, even if create_envs
+            # is not True.
             try:
                 print_info("Environment: Creating conda env...")
                 create_conda_env(
-                    "ModMon-TMPCHECK",
+                    "ModMon-model-TMP-version-TMP",
                     env_file=f"{path}/environment.yml",
                     capture_output=True,
                     overwrite=True,
@@ -350,14 +352,15 @@ def check_submission(path, create_envs=False):
     elif not (env_types["conda"] or env_types["renv"]):
         print_fail("Environment: No conda or renv environment found")
 
-    print_info(f"Checking metrics.csv reproducibility...")
-    if reference_result_is_reproducible(path, metadata):
-        print_success("Metrics: Reference metrics are reproducible")
-    else:
-        print_fail("Metrics: Reference metrics could not be reproduced")
+    if repro_check:
+        print_info(f"Checking metrics.csv reproducibility...")
+        if reference_result_is_reproducible(path, metadata):
+            print_success("Metrics: Reference metrics are reproducible")
+        else:
+            print_fail("Metrics: Reference metrics could not be reproduced")
 
 
-def main():  # TODO: add repro check as option
+def main():
     """Run submission checks for a model.
 
     Available from the command-line as modmon_model_check.
@@ -371,6 +374,12 @@ def main():  # TODO: add repro check as option
         help="If set, check whether defined conda and renv environments can be created",
         action="store_true",
     )
-
+    parser.add_argument(
+        "--repro_check",
+        help="If set, check whether reference metrics values can be reproduced",
+        action="store_true",
+    )
     args = parser.parse_args()
-    check_submission(args.path, create_envs=args.create_envs)
+    check_submission(
+        args.path, create_envs=args.create_envs, repro_check=args.repro_check
+    )

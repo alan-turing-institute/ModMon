@@ -55,27 +55,29 @@ This should print a list of tables and columns. Or you can connect directly to t
 
 ## Model Monitoring
 
+### Check a model before submission
+
+To check the code, environments, metadata and metrics files of a model are in the expected formats you can run the command:
+```bash
+> modmon_model_check path/to/model
+```
+Where `path/to/model` is the path to the directory to be submitted to the database. This command runs general sanity checks
+of the metadata, database and metrics. To perform a more substantial check you can also pass the arguments:
+- `--create_envs` to test that any defined virtual environments can be created sucessfully.
+- `--repro_check` to verify that the command can be run successfully and the smae metrics values are reproduced. The reproducibility
+  check on `metrics.csv` is done with `repro-catalogue` (see [docs](https://repro-catalogue.readthedocs.io/en/latest/example_use.html#run-analysis))
+
 ### Set up a new model
 
-1. To check the code, environments, metadata and metrics files of a model are in the expected formats you can run the command:
-   ```bash
-   > modmon_model_check path/to/model
-   ```
-   Where `path/to/model` is the path to the directory to be submitted to the database. This command runs general sanity checks
-   of the metadata, database and metrics. You can optionally pass the argument `--create_envs` as well to test that any defined
-   virtual environments can be created sucessfully.
-
-2. Add a new model to the database:
-    ```bash
-    > modmon_model_setup path/to/model
-    ```
-    Where `path/to/model` is the absolute path to the directory submitted by the analyst.
+To add a new model to the database:
+```bash
+> modmon_model_setup path/to/model
+```
+Where `path/to/model` is the absolute path to the directory submitted by the analyst.
 
 ### Verify reproducibility of model metrics
 
-Verify reproducibility of `metrics.csv` with `repro-catalogue` (see [docs](https://repro-catalogue.readthedocs.io/en/latest/example_use.html#run-analysis))
-
-- **TODO:** Automate this, including the creation and deletion of temp dirs:
+- **TODO:** This is now automated and summary above - we should be able to delete this section.
 
 1. From within `DECOVID-dataaccess/monitor/modmon`:
     ```bash

@@ -9,7 +9,31 @@ import pandas as pd
 
 from ..db.connect import get_session
 from ..db.schema import Modelversion, Model
-from ..models.run import run_model
+from .run import run_model
+
+
+class DummyModelversion:
+    """
+    Dummy Modelversion class to use to pass a model to run functions without needing a
+    database entry.
+    """
+
+    modelid = "TMP"
+    modelversion = "TMP"
+
+    def __init__(self, location, command):
+        """Initialise an instance of DummyModelversion
+
+        Parameters
+        ----------
+        location : str
+            Path to model directory
+        command : str
+            Command to run model, including <start_date>, <end_date> and <database>
+            placeholders.
+        """
+        self.location = location
+        self.command = command
 
 
 def catalogue_metrics(path, tmpdirname, dev_null):
@@ -99,16 +123,8 @@ def reference_result_is_reproducible(path, metadata):
         # Use repro-catalogue with reference metrics supplied by analyst
         catalogue_metrics(path, tmpdirname, dev_null)
 
-        # Get active model version for this model
-        modelid = (
-            session.query(Model).filter_by(name=metadata["model_name"]).first().modelid
-        )
-        model_version = (
-            session.query(Modelversion)
-            .filter_by(modelid=modelid)
-            .filter_by(active=True)
-            .first()
-        )
+        # Create a dummy model version to mimic one from the database
+        model_version = DummyModelversion(path, metadata["command"])
 
         # Run the model in reference mode (do not add results to db)
         # This overwrites metrics.csv within the dir supplied to modmon_model_check

@@ -389,9 +389,7 @@ def main():
     parser.add_argument("--start_date", help="Start date of dataset", required=True)
     parser.add_argument("--end_date", help="End date of dataset", required=True)
     parser.add_argument(
-        "--database",
-        help="Name of the database to connect to",
-        required=True,
+        "--database", help="Name of the database to connect to", required=True,
     )
     parser.add_argument(
         "--force",
