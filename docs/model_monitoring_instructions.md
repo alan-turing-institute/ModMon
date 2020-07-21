@@ -75,9 +75,10 @@ This should print a list of tables and columns. Or you can connect directly to t
 
 ### Log a new result for all models
 
-1. Run this command, replacing `<start_date>` and `<end_date>` with appropriate values (in `Y-m-d` format):
+1. Run this command, replacing `<start_date>` and `<end_date>` with appropriate values (in `Y-m-d` format),
+   and `<database>` with the name of the database to connect to:
    ```bash
-   > modmon_run --start_date <start_date> --end_date <end_date>
+   > modmon_run --start_date <start_date> --end_date <end_date> --database <database>
    ```
 
 2. New metric values for all active model versions will be added to the results table in the monitorinig database.
