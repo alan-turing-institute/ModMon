@@ -52,9 +52,9 @@ def reference_result_is_reproducible(path, metadata):
     with tempfile.TemporaryDirectory() as tmpdirname:
         subprocess.run(["git", "init"], check=True, cwd=tmpdirname, stdout=dev_null, stderr=dev_null)
 
-        subprocess.run(["mkdir", tmpdirname + "/data"], check=True)
-        subprocess.run(["mkdir", tmpdirname + "/code"], check=True)
-        subprocess.run(["mkdir", tmpdirname + "/results"], check=True)
+        mkdir(tmpdirname + "/data")
+        mkdir(tmpdirname + "/code")
+        mkdir(tmpdirname + "/results")
 
         # Use repro-catalogue with reference metrics supplied by analyst
         catalogue_metrics(path, tmpdirname, dev_null)
