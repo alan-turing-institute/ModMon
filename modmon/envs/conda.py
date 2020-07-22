@@ -95,6 +95,7 @@ def create_conda_env(
             env_file,
             "--force",
         ]
+        cwd = Path(env_file).parent
     elif dependencies:
         conda_create_cmd = [
             "conda",
@@ -106,6 +107,9 @@ def create_conda_env(
             "-y",
             *dependencies,
         ]
+        # working directory doesn't matter if using a list of dependencies, but need
+        #  something to pass to subprocess.run
+        cwd = Path(__file__).parent
     else:
         raise ValueError("One of env_file and dependencies must be specified.")
 
@@ -119,10 +123,7 @@ def create_conda_env(
         conda_create_cmd.append("--offline")
 
     subprocess.run(
-        conda_create_cmd,
-        check=True,
-        capture_output=capture_output,
-        cwd=Path(env_file).parent,
+        conda_create_cmd, check=True, capture_output=capture_output, cwd=cwd,
     )
 
 
@@ -209,3 +210,4 @@ def remove_modmon_envs(models=False, r_versions=False, tmp=False):
 
     if tmp:
         [remove_conda_env(env) for env in envs if env.startswith("ModMon-TMP")]
+        remove_conda_env("ModMon-model-TMP-version-TMP")

@@ -20,6 +20,7 @@ from ..db.schema import (
     Modelversion,
     Result,
 )
+from .store import copy_model_to_storage
 
 
 def main():
@@ -155,13 +156,18 @@ def main():
         session.add(test_dataset)
         session.commit()
 
+        # Copy model files to storage
+        modmon_model_path = copy_model_to_storage(
+            model_path, model_id, metadata["model_version"]
+        )
+
         # Model Version
         model_version = Modelversion(
             modelid=model_id,
             modelversion=metadata["model_version"],
             trainingdatasetid=training_dataset_id,
             referencetestdatasetid=test_dataset_id,
-            location=model_path,
+            location=str(modmon_model_path),
             command=metadata["command"],
             modeltraintime=metadata["model_train_datetime"],
             active=True,

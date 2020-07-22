@@ -8,11 +8,11 @@
 	"model_description": "Model to assess wine quality",
 	"model_version": "1.0.0",
 	"db_name": "dummydb",
-	"data_window_start": "03/03/2020",
-	"data_window_end": "03/06/2020",
-	"model_train_datetime": "03/06/2020",
+	"data_window_start": "2020-03-03",
+	"data_window_end": "2020-06-03",
+	"model_train_datetime": "2020-06-03",
 	"training_data_description": "This is 50% of the wine quality dataset",
-	"model_run_datetime": "11/07/2020",
+	"model_run_datetime": "2020-07-11",
 	"test_data_description": "This is the 50% of the wine quality dataset that was not used for training the model",
 	"command": "python run_prediction_model.py <database> <start_date> <end_date>"
 }

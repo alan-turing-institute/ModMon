@@ -4,3 +4,4 @@ pandas
 psycopg2
 pyodbc
 sqlalchemy
+repro-catalogue

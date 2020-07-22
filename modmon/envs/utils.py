@@ -6,6 +6,7 @@ import warnings
 
 from .renv import create_renv_env
 from .conda import get_conda_activate_command, create_conda_env
+from ..utils.utils import build_model_identifier
 
 
 def get_model_env_types(path):
@@ -36,25 +37,6 @@ def get_model_env_types(path):
         renv = False
 
     return {"conda": conda, "renv": renv}
-
-
-def build_env_name(model_id, model_version):
-    """Generate the name of the conda environment to use for a given model ID and
-    version.
-
-    Parameters
-    ----------
-    model_id : int
-        ID of the model
-    model_version : str
-        Version of the model
-
-    Returns
-    -------
-    str
-        Environment name with the format ModMon-model-<model_id>-version-<model_version>
-    """
-    return f"ModMon-model-{model_id}-version-{model_version}"
 
 
 def create_env(model_path, model_id, model_version, capture_output=False):
@@ -93,7 +75,7 @@ def create_env(model_path, model_id, model_version, capture_output=False):
         env_cmd = get_conda_activate_command(conda_env)
 
     if env_types["conda"]:
-        env_name = build_env_name(model_id, model_version)
+        env_name = build_model_identifier(model_id, model_version)
         create_conda_env(
             env_name,
             env_file=f"{model_path}/environment.yml",

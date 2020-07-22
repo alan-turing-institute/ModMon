@@ -11,8 +11,6 @@
 |  |-- model.sav                   <- Optional: file ext. of choice (alternately don't include this and run_model.py also trains model)
 |  |-- metadata.json               <- Required: Manually compiled
 |  |-- metrics.csv                 <- Required: Output of analyst run of run_model.py
-|  |-- training_metrics.csv        <- Optional: Output of your model training
-
 ```
 
 This is one example, but only the metrics calculation script (`run_model.py` or whichever name and language you choose) and `metrics.csv` are essential. If the script also trains the model, instead of loading a pre-trained model, that's fine.
@@ -43,7 +41,7 @@ pandas==1.0.3
 
 ### Metrics Files
 
-Template for `metrics.csv` and `training_metrics.csv`. Must have a metric and a value column.
+Template for `metrics.csv`. Must have a metric and a value column.
 
 |metric|value|
 | ---  | --- |
@@ -84,5 +82,4 @@ Template `metadata.json`:
 
   Your script must use these inputs to connect to the given database, and to modify any database queries to return only data updated between the given start and end date.
 
-- **`<data_window_start>` and `<data_window_end>`:** The date range used to produce the values in the `metrics.csv` file you provide. Running your specified command with `<data_window_start>` as `<start_date>` and `<data_window_end>` as `<end_date>` should exactly reproduce the values in `metrics.csv`. This will be tested before adding a model to the monitoring system.
-
+- **`<data_window_start>`, `<data_window_end>` and `<db_name>`:** The date range and database used to produce the values in the `metrics.csv` file you provide. Running your specified command with `<data_window_start>` as `<start_date>` and `<data_window_end>` as `<end_date>` should exactly reproduce the values in `metrics.csv`. This will be tested before adding a model to the monitoring system.
