@@ -270,7 +270,7 @@ def check_metrics_file(metrics_path):
             f"Metrics: Incorrect columns - found {metrics.columns} instead of {exp_cols}"
         )
 
-    print_warn("NOT IMPLEMENTED: Numeric value check")
+    # TODO check metrics values are numeric
 
 
 def check_submission(path, create_envs=False, repro_check=False):
