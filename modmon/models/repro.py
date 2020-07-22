@@ -152,11 +152,11 @@ def reference_result_is_reproducible(path, metadata):
         # copy model to temporary directory to avoid overwriting source files
         tmp_model_path = tmpdirname + "/model"
         shutil.copytree(path, tmp_model_path)
-        
+
         # temporary dir for repro-catalogue results
         tmp_repro_path = tmpdirname + "/repro"
         mkdir(tmp_repro_path)
-        
+
         subprocess.run(
             ["git", "init"],
             check=True,
