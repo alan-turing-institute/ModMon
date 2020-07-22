@@ -31,8 +31,6 @@ args = parser.parse_args()
 
 # TODO: in the versioned SQL-Server implementation of the db, the dates will be used within the query(s) below
 db_name = args.db_name  # e.g. "synpuf"
-# TODO: un-hardcode:
-db_name = "synpuf"  # because run_models.py currently hardcoded to 'dummydb'
 start_date = args.start_date  # e.g. 2020-01-01
 end_date = args.end_date  # e.g. 2020-06-01
 
@@ -181,3 +179,5 @@ metrics = pd.DataFrame(
 
 # Save the metrics to csv:
 metrics.to_csv("metrics.csv", index=False)
+
+print(metrics)
