@@ -10,29 +10,9 @@ from sqlalchemy.exc import ProgrammingError
 from .schema import Base
 from .connect import get_database_config, DATABASE_NAME, ENGINE
 from ..config import config
-
+from ..utils.utils import ask_for_confirmation
 
 ADMIN_CONNECTION_STRING, _ = get_database_config(config["database-admin"])
-
-
-def ask_for_confirmation(message):
-    """Ask user to confirm an action.
-
-    Parameters
-    ----------
-    message : str
-        Message/question the user will be prompted to confirm.
-
-    Returns
-    -------
-    bool
-        True if user input is "yes", False otherwise.
-    """
-    answer = input(f"{message} Type 'yes' to continue: ")
-    if answer != "yes":
-        return False
-    else:
-        return True
 
 
 def create_database(db_name=DATABASE_NAME, force=False):

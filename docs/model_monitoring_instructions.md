@@ -26,14 +26,14 @@ Navigate to the `monitor` directory and then run:
 ```
 The `-e` flag above installs the package in editable mode (**used for development only**)
 
-Configure ModMon
-----
+## Configure ModMon
 
 To configure database and some environoment settings ModMon uses a configuration file in
 .ini format. By default this is the file in `modmon/config/defaults.ini`. This defines:
 * The ModMon database to be a postgresql database on localhost, without a username and password.
 * conda environments to install dependencies via the internet.
 * R models to be run in a conda environment with the R version specified by the renv.lock file.
+* Submitted models to be stored in the user's home directory at `$HOME/modmon/storage`.
 
 To change the default values you should copy `modmon/config/defaults.ini` to the file
 `$HOME/.modmon.ini`, where `$HOME` is the path to your home directory.
