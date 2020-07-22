@@ -64,8 +64,8 @@ To check the code, environments, metadata and metrics files of a model are in th
 ```
 Where `path/to/model` is the path to the directory to be submitted to the database. This command runs general sanity checks
 of the metadata, database and metrics. To perform a more substantial check you can also pass the arguments:
-- `--create_envs` to test that any defined virtual environments can be created sucessfully.
-- `--repro_check` to verify that the command can be run successfully and the smae metrics values are reproduced. The reproducibility
+- `--create_envs` to test that any defined virtual environments can be created successfully.
+- `--repro_check` to verify that the command can be run successfully and the same metrics values are reproduced. The reproducibility
   check on `metrics.csv` is done with `repro-catalogue` (see [docs](https://repro-catalogue.readthedocs.io/en/latest/example_use.html#run-analysis))
 
 ### Set up a new model
@@ -75,45 +75,6 @@ To add a new model to the database:
 > modmon_model_setup path/to/model
 ```
 Where `path/to/model` is the absolute path to the directory submitted by the analyst.
-
-### Verify reproducibility of model metrics
-
-- **TODO:** This is now automated and summary above - we should be able to delete this section.
-
-1. From within `DECOVID-dataaccess/monitor/modmon`:
-    ```bash
-    > cp path/to/model/metrics.csv temp_results
-    > git add temp_results
-    > git commit -m 'add reference result'
-    > catalogue engage --input_data temp_data --code temp_code
-    > catalogue disengage --input_data temp_data --code temp_code --output_data temp_results
-    ```
-2. Run the analyst model code (see the `metadata.json` or `modelVersions.command` in the db) **_TODO_**: Automate this part
-3. Repeat step 1
-4. Compare the result files before and after you ran the analyst code run by model monitoring code:
-    ```bash
-    > catalogue compare <TIMESTAMP1>.json <TIMESTAMP2>.json
-    ```
-
-The result of this should be the following:
-
-```
-NOTE we expect the timestamp hashes to differ.
-
-hashes differ in 1 places:
-===========================
-timestamp
-
-hashes match in 4 places:
-==========================
-input_data
-code
-temp_results/metrics.csv
-temp_results/dummy
-
-hashes could not be compared in 0 places:
-==========================================
-```
 
 ### Log a new result for all models
 
