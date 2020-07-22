@@ -247,6 +247,8 @@ def run_model(
     force=False,
     session=None,
     reference=False,
+    verbose=True,
+    capture_output=False,
 ):
     """Run a model version's command to generate new metrics values with the specified
     dataset inputs.
@@ -268,7 +270,13 @@ def run_model(
         ModMon database session or None in which case one will be created, by default
         None
     reference : bool, optional
-        If True, do not add anything to the database, only setup env and run model
+        If True, do not add anything to the database, only setup env and run model, by
+        default False
+    verbose: bool, optional
+        If True print additional progress messages, by default True
+    capture_output: bool, optional
+        If True capture stdout and stderr of subprocess calls rather than printing to
+        console, by default False
 
     Raises
     ------
@@ -283,24 +291,30 @@ def run_model(
         close_session = False  # if session given, leave it open
 
     if not reference:
-        print("Creating dataset...")
+        if verbose:
+            print("Creating dataset...")
         dataset_id = create_dataset(session, start_date, end_date, database)
 
         # Check whether result already exists for this model version and dataset
         if not force and result_exists(
             session, model_version.modelid, model_version.modelversion, dataset_id
         ):
-            print(
-                f"DB already contains result for model {model_version.modelid}, version {model_version.modelversion} on dataset {dataset_id}. Skipping."
-            )
+            if verbose:
+                print(
+                    f"DB already contains result for model {model_version.modelid}, "
+                    f"version {model_version.modelversion} on dataset {dataset_id}. "
+                    "Skipping."
+                )
             return
 
-    print("Creating environment...")
+    if verbose:
+        print("Creating environment...")
     env_cmd = create_env(
         model_version.location, model_version.modelid, model_version.modelversion
     )
 
-    print("Running metrics script...")
+    if verbose:
+        print("Running metrics script...")
     # delete any pre-existing metrics file
     metrics_path = get_metrics_path(model_version)
     try:
@@ -314,11 +328,19 @@ def run_model(
 
     # run metrics script
     run_time = get_iso_time()
-    print("RUN_CMD", run_cmd)
-    subprocess.run(run_cmd, cwd=model_version.location, shell=True, check=True)
+    if verbose:
+        print("RUN_CMD", run_cmd)
+    subprocess.run(
+        run_cmd,
+        cwd=model_version.location,
+        shell=True,
+        check=True,
+        capture_output=capture_output,
+    )
 
     if not reference:
-        print("Adding results to database...")
+        if verbose:
+            print("Adding results to database...")
         if not os.path.exists(metrics_path):
             raise FileNotFoundError(
                 f"{metrics_path} not found. This should be created by running {run_cmd}."

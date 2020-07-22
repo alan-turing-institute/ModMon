@@ -176,6 +176,8 @@ def reference_result_is_reproducible(path, metadata):
             metadata["db_name"],
             reference=True,
             session=session,
+            verbose=False,
+            capture_output=True,
         )
 
         # Use repro-catalogue with new metrics just generated

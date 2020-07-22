@@ -353,11 +353,17 @@ def check_submission(path, create_envs=False, repro_check=False):
         print_fail("Environment: No conda or renv environment found")
 
     if repro_check:
-        print_info(f"Metrics: Checking reproducibility...")
-        if reference_result_is_reproducible(path, metadata):
-            print_success("Metrics: Reference metrics are reproducible")
-        else:
-            print_fail("Metrics: Reference metrics could not be reproduced")
+        print_info(f"Reproducibility: Checking reproducibility...")
+        try:
+            if reference_result_is_reproducible(path, metadata):
+                print_success("Reproducibility: Reference metrics are reproducible")
+            else:
+                print_fail("Reproducibility: Reference metrics could not be reproduced")
+        except subprocess.CalledProcessError as e:
+            print_fail(
+                "Reproducibility: Failed to run reproducibility check - "
+                f"{e} {e.returncode} {e.stderr}"
+            )
 
 
 def main():
