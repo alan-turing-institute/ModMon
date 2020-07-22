@@ -66,7 +66,7 @@ Where `path/to/model` is the path to the directory to be submitted to the databa
 of the metadata, database and metrics. To perform a more substantial check you can also pass the arguments:
 - `--create_envs` to test that any defined virtual environments can be created successfully.
 - `--repro_check` to verify that the command can be run successfully and the same metrics values are reproduced. The reproducibility
-  check on `metrics.csv` is done with `repro-catalogue` (see [docs](https://repro-catalogue.readthedocs.io/en/latest/example_use.html#run-analysis))
+  check on `metrics.csv` is done with `repro-catalogue` (see [docs](https://repro-catalogue.readthedocs.io/en/latest/example_use.html#run-analysis)) - in this case the virtual env will be created even if the `--create_envs` flag is not used.
 
 ### Set up a new model
 
