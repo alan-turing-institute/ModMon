@@ -35,19 +35,18 @@ start_date = args.start_date  # e.g. 2020-01-01
 end_date = args.end_date  # e.g. 2020-06-01
 
 # Set up synpuf db connection
-# TODO: modify this to be less specific to the local psql driver location
-server = "localhost,5432"
-driver = "/usr/local/lib/psqlodbcw.so"  # This is the location Homebrew saves psql driver on Mac
+# TODO: save this info in a config file
+server = "51.104.224.106,1433"
+driver = "/usr/local/lib/libmsodbcsql.17.dylib"  # This is the location Homebrew saves SQL-Server driver on Mac
+uid = "analysts"
+pwd = "An8lysts."
 cnxn = pyodbc.connect(
-    "DRIVER={"
-    + driver
-    + "};SERVER="
-    + server
-    + ";DATABASE="
-    + db_name
-    + ";Trusted_Connection=yes;"
+    "DRIVER={" + driver + "};" +
+    "SERVER=" + server + ";" +
+    "DATABASE=" + db_name + ";" +
+    "UID=" + uid + ";" +
+    "PWD=" + pwd
 )
-# cnxn = psycopg2.connect(host=server, database=db_name)
 
 #######################
 ### Calculate stuff ###
@@ -76,35 +75,37 @@ months = {
 ### Population Size ###
 #######################
 
-population_size = pd.read_sql("SELECT COUNT(person_id) FROM person", cnxn)["count"][0]
+population_size = pd.read_sql("SELECT COUNT(person_id) AS count FROM person", cnxn)["count"][0]
 
 #######################
 ###     Mean Age    ###
 #######################
 
-age_table = pd.read_sql(
-    "SELECT gender_concept_id,\
-                    year_of_birth ,\
-                    month_of_birth, \
-                    day_of_birth ,\
-                    observation_period_end_date,\
-                    observation_period_start_date, \
-                    concept_name \
-            FROM ( SELECT * from person p \
-            LEFT JOIN observation_period oe \
-                ON oe.person_id = p.person_id ) t \
-            LEFT JOIN concept c \
-                ON c.concept_id = t.gender_concept_id ",
-    cnxn,
-)
-age_table["birthdate"] = get_birthdate(
-    age_table["year_of_birth"], age_table["month_of_birth"], age_table["day_of_birth"],
-)
-age_table["age"] = compute_age(
-    start_date=age_table["birthdate"],
-    end_date=pd.to_datetime(age_table["observation_period_start_date"]),
-)
-mean_age = np.mean(age_table["age"])
+#TODO: the below code needs to be modified to work with SQL-Server
+
+# age_table = pd.read_sql(
+#     "SELECT gender_concept_id,\
+#                     year_of_birth ,\
+#                     month_of_birth, \
+#                     day_of_birth ,\
+#                     observation_period_end_date,\
+#                     observation_period_start_date, \
+#                     concept_name \
+#             FROM ( SELECT * from person p \
+#             LEFT JOIN observation_period oe \
+#                 ON oe.person_id = p.person_id ) t \
+#             LEFT JOIN concept c \
+#                 ON c.concept_id = t.gender_concept_id ",
+#     cnxn,
+# )
+# age_table["birthdate"] = get_birthdate(
+#     age_table["year_of_birth"], age_table["month_of_birth"], age_table["day_of_birth"],
+# )
+# age_table["age"] = compute_age(
+#     start_date=age_table["birthdate"],
+#     end_date=pd.to_datetime(age_table["observation_period_start_date"]),
+# )
+# mean_age = np.mean(age_table["age"])
 
 ################################
 ###     Patient Mortality    ###
@@ -112,7 +113,7 @@ mean_age = np.mean(age_table["age"])
 
 """Patient Mortality"""
 death_number = pd.read_sql(
-    "SELECT COUNT(person_id) \
+    "SELECT COUNT(person_id) AS count \
             FROM observation_period op \
             WHERE op.person_id \
                 IN (SELECT person_id FROM death)",
@@ -161,16 +162,16 @@ aug_births = month_counts[months["August"]]
 
 # Number of people born in 1983
 year_counts = person.groupby("year_of_birth").count().person_id
-born_83 = year_counts[1983]
+born_60 = year_counts[1960]
 
 # Create df of all metrics
 metrics = pd.DataFrame(
     [
         ["jan_births", jan_births],
         ["aug_births", aug_births],
-        ["born_83", born_83],
+        ["born_60", born_60],
         ["population_size", population_size],
-        ["mean_age", mean_age],
+        # ["mean_age", mean_age],
         ["mortality", mortality],
         ["average_onset_duration", avg_onset],
     ],
