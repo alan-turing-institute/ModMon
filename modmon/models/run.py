@@ -310,7 +310,10 @@ def run_model(
     if verbose:
         print("Creating environment...")
     env_cmd = create_env(
-        model_version.location, model_version.modelid, model_version.modelversion
+        model_version.location,
+        model_version.modelid,
+        model_version.modelversion,
+        capture_output=capture_output,
     )
 
     if verbose:
