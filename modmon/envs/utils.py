@@ -71,8 +71,9 @@ def create_env(model_path, model_id, model_version, capture_output=False):
     if env_types["renv"]:
         conda_env = create_renv_env(model_path, capture_output=capture_output)
         # create_renv_env returns conda environment with appropriate R version
-        #  (as well as setting up renv)
-        env_cmd = get_conda_activate_command(conda_env)
+        #  (as well as setting up renv), if set in config
+        if conda_env:
+            env_cmd = get_conda_activate_command(conda_env)
 
     if env_types["conda"]:
         env_name = build_model_identifier(model_id, model_version)
