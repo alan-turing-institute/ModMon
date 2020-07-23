@@ -337,7 +337,7 @@ def check_submission(path, create_envs=False, repro_check=False):
     if env_types["renv"]:
         print_success("Environment: renv found")
 
-        if create_envs:
+        if create_envs or repro_check:
             try:
                 print_info("Environment: Creating renv env...")
                 create_renv_env(path, capture_output=True)
