@@ -72,6 +72,26 @@ def copy_model_to_storage(
     model_identifier = build_model_identifier(model_id, model_version)
     model_target_dir = Path(storage_dir, model_identifier)
 
+    if os.path.exists(model_target_dir):
+        overwrite = ask_for_confirmation(
+            "A model already exists in storage with "
+            f"id {model_id} and "
+            f"version {model_version}, "
+            f"at path {model_target_dir}. This is likely to be "
+            "something that has been deleted from the database.\n"
+            "Would you like to delete and overwrite the "
+            "existing directory?"
+        )
+        if overwrite:
+            shutil.rmtree(model_target_dir)
+        else:
+            raise FileExistsError(
+                "Aborting model setup. A model already exists in "
+                f"storage with id {model_id} and "
+                f"version {model_version}. "
+                f"{model_target_dir}"
+            )
+
     shutil.copytree(model_source_dir, model_target_dir)
 
     return model_target_dir

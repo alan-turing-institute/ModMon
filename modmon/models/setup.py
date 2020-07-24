@@ -132,6 +132,11 @@ def main():
         for model in session.query(Modelversion).filter_by(modelid=model_id).all()
     ]
     if metadata["model_version"] not in model_versions:
+        # Copy model files to storage
+        modmon_model_path = copy_model_to_storage(
+            model_path, model_id, metadata["model_version"]
+        )
+
         # Training Dataset:
         training_dataset_id = get_unique_id(session, Dataset.datasetid)
         training_dataset = Dataset(
@@ -155,11 +160,6 @@ def main():
         )
         session.add(test_dataset)
         session.commit()
-
-        # Copy model files to storage
-        modmon_model_path = copy_model_to_storage(
-            model_path, model_id, metadata["model_version"]
-        )
 
         # Model Version
         model_version = Modelversion(
