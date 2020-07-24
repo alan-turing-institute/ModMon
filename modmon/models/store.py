@@ -127,3 +127,15 @@ def delete_model_from_storage(
 
     shutil.rmtree(model_dir)
     print(f"Deleted {model_dir}")
+
+
+def delete_all_models_from_storage(storage_dir=STORAGE_DIR, force=False):
+    if not force:
+        confirmed = ask_for_confirmation(
+            f"Delete all models in storage? This can't be undone!"
+        )
+        if not confirmed:
+            print("Not confirmed. Aborting.")
+            return
+
+    shutil.rmtree(storage_dir)
