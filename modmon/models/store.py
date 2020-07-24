@@ -130,6 +130,16 @@ def delete_model_from_storage(
 
 
 def delete_all_models_from_storage(storage_dir=STORAGE_DIR, force=False):
+    """Delete the ModMon storage directory.
+
+    Parameters
+    ----------
+    storage_dir : str or Path, optional
+        Path to the ModMon storage area, by default STORAGE_DIR
+    force : bool, optional
+        CAREFUL! If True delete everything without askinig for confirmation, by default
+        False
+    """
     if not force:
         confirmed = ask_for_confirmation(
             f"Delete all models in storage? This can't be undone!"

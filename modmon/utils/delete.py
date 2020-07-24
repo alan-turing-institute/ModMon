@@ -10,9 +10,17 @@ from ..models.store import delete_all_models_from_storage
 
 
 def delete_all_artefacts(force=False):
+    """Delete all ModMon related artefacts including the database, models in storage
+    and conda environments.
+
+    Parameters
+    ----------
+    force : bool, optional
+        If True delete without asking for confirmation, by default False
+    """
     if not force:
         confirmed = ask_for_confirmation(
-            "Deleta all ModMon data (database, models and environments)? "
+            "Delete all ModMon data (database, models and environments)? "
             "This can't be undone!"
         )
         if not confirmed:
@@ -34,6 +42,9 @@ def delete_all_artefacts(force=False):
 
 
 def main():
+    """Entry-point for delete_all_artefacts available from the command-line as
+    modmon_delete.
+    """
     parser = argparse.ArgumentParser(
         description="Delete all ModMon artefacts (database, model storage and environments)"
     )
