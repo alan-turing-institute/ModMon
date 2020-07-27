@@ -54,10 +54,10 @@ def create_renv_env(path, capture_output=False, rconda=None):
     renv_cmd = "Rscript -e 'renv::restore()' && Rscript -e 'renv::init()'"
 
     if rconda is None:
-        if "renv" in config and config["renv"].get("rconda") == "False":
-            rconda = False
-        else:
+        if "renv" in config and config["renv"].get("rconda") == "True":
             rconda = True
+        else:
+            rconda = False
 
     if rconda:
         r_version = get_r_version(path)

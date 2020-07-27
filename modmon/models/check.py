@@ -245,7 +245,7 @@ def check_db_for_duplicates(metadata):
                     print_fail("Database: Model name and version already exist")
 
     if new_values:
-        print_info(f"Database: New entries will be created for {new_values}")
+        print_warn(f"Database: New entries will be created for {new_values}")
     if dup_values:
         print_warn(f"Database: Entries already exist for {dup_values}")
 
@@ -337,7 +337,7 @@ def check_submission(path, create_envs=False, repro_check=False):
     if env_types["renv"]:
         print_success("Environment: renv found")
 
-        if create_envs:
+        if create_envs or repro_check:
             try:
                 print_info("Environment: Creating renv env...")
                 create_renv_env(path, capture_output=True)
