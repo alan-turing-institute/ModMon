@@ -71,7 +71,7 @@ def print_info(message):
     print(f"{Fore.WHITE}[ ] {message}")
 
 
-def check_metadata_keys(metadata):
+def check_metadata_keys(metadata, result_dict=None):
     """Check whether metadata contains all the expected keys.
 
     Parameters
@@ -79,6 +79,9 @@ def check_metadata_keys(metadata):
     metadata : dict
         Loaded metadata JSON as a dict
     """
+    if result_dict is None:
+        result_dict = {"success": 0, "error": 0, "warning": 0}
+    
     expected_keys = [
         "team",
         "contact",
@@ -104,16 +107,21 @@ def check_metadata_keys(metadata):
     opt_keys_present = [key in metadata.keys() for key in optional_keys]
     if all(exp_keys_present) and all(opt_keys_present):
         print_success("Metadata: All keys present")
+        result_dict["success"] += 1
     else:
         if not all(exp_keys_present):
             missing_keys = [key for key in expected_keys if key not in metadata.keys()]
             print_fail(f"Metadata: Missing required keys - {missing_keys}")
+            result_dict["error"] += 1
         if not all(opt_keys_present):
             missing_keys = [key for key in optional_keys if key not in metadata.keys()]
             print_warn(f"Metadata: Missing optional keys - {missing_keys}")
+            result_dict["warning"] += 1
+    
+    return result_dict
 
 
-def check_metadata_values(metadata):
+def check_metadata_values(metadata, result_dict=None):
     """Check whether fields in the metadata have the correct formats.
 
     Parameters
@@ -121,6 +129,9 @@ def check_metadata_values(metadata):
     metadata : dict
         Loaded metadata JSON as a dict
     """
+    if result_dict is None:
+        result_dict = {"success": 0, "error": 0, "warning": 0}
+    
     checked_values = {}
 
     # email address
@@ -174,12 +185,16 @@ def check_metadata_values(metadata):
 
     if all(checked_values.values()):
         print_success("Metadata: All keys have valid values")
+        result_dict["success"] += 1
     else:
         failed_checks = [key for key, check in checked_values.items() if check is False]
         print_fail(f"Metadata: Keys with invalid values - {failed_checks}")
+        result_dict["error"] += 1
+        
+    return result_dict
 
 
-def check_db_for_duplicates(metadata):
+def check_db_for_duplicates(metadata, result_dict=None):
     """Check whether the metadata defines entities that are already present in the
     modmon database.
 
@@ -188,9 +203,13 @@ def check_db_for_duplicates(metadata):
     metadata : dict
         Loaded metadata JSON as a dict
     """
+    if result_dict is None:
+        result_dict = {"success": 0, "error": 0, "warning": 0}
+
     ok, err = check_connection_ok()
     if not ok:
         print_fail(f"Database: Connection failed - {err}")
+        result_dict["error"] += 1
         return
 
     session = get_session()
@@ -240,17 +259,23 @@ def check_db_for_duplicates(metadata):
                 ):
                     new_values.append("model_version")
                     print_success("Database: Unique model name and version combination")
+                    result_dict["success"] += 1
                 else:
                     dup_values.append("model_version")
                     print_fail("Database: Model name and version already exist")
+                    result_dict["error"] += 1
 
     if new_values:
         print_warn(f"Database: New entries will be created for {new_values}")
+        result_dict["warning"] += 1
     if dup_values:
         print_warn(f"Database: Entries already exist for {dup_values}")
+        result_dict["warning"] += 1
+        
+    return result_dict
 
 
-def check_metrics_file(metrics_path):
+def check_metrics_file(metrics_path, result_dict=None):
     """Check that the metrics file can be loaded and has two columns called "metric" and
     "value".
 
@@ -259,21 +284,27 @@ def check_metrics_file(metrics_path):
     metrics_path : str
         Path to metrics file
     """
+    if result_dict is None:
+        result_dict = {"success": 0, "error": 0, "warning": 0}
+
     metrics = pd.read_csv(metrics_path)
     metrics.columns = metrics.columns.str.strip()
 
     exp_cols = ["metric", "value"]
     if all(metrics.columns == exp_cols):
         print_success("Metrics: Found expected columns")
+        result_dict["success"] += 1
     else:
         print_fail(
             f"Metrics: Incorrect columns - found {metrics.columns} instead of {exp_cols}"
         )
+        result_dict["error"] += 1
 
     # TODO check metrics values are numeric
+    return result_dict
 
 
-def check_submission(path, create_envs=False, repro_check=False):
+def check_submission(path, create_envs=False, repro_check=False, result_dict=None):
     """Run all submission checks on a model directory.
 
     Parameters
@@ -283,38 +314,47 @@ def check_submission(path, create_envs=False, repro_check=False):
     create_envs : bool, optional
         If True try to create any defined conda or renv environments, by default False
     """
+    if result_dict is None:
+        result_dict = {"success": 0, "error": 0, "warning": 0}
+
     print_info(f"Checking {path}...")
 
     # metadata file
     metadata_path = f"{path}/metadata.json"
     if os.path.exists(metadata_path):
         print_success("Metadata: File exists")
+        result_dict["success"] += 1
 
         try:
             with open(metadata_path, "r") as f:
                 metadata = json.load(f)
 
-            check_metadata_keys(metadata)
-            check_metadata_values(metadata)
-            check_db_for_duplicates(metadata)
+            result_dict = check_metadata_keys(metadata, result_dict=result_dict)
+            result_dict = check_metadata_values(metadata, result_dict=result_dict)
+            result_dict = check_db_for_duplicates(metadata, result_dict=result_dict)
 
         except json.decoder.JSONDecodeError as e:
             print_fail(f"Metadata: JSON Error - {e}")
+            result_dict["error"] += 1
 
     else:
         print_fail("Metadata: File not found")
+        result_dict["error"] += 1
 
     metrics_path = f"{path}/metrics.csv"
     if os.path.exists(metrics_path):
         print_success("Metrics: File exists")
-        check_metrics_file(metrics_path)
+        result_dict["success"] += 1
+        result_dict = check_metrics_file(metrics_path, result_dict=result_dict)
     else:
+        result_dict["error"] += 1
         print_fail("Metrics: File not found")
 
     # conda or renv environment
     env_types = get_model_env_types(path)
 
     if env_types["conda"]:
+        result_dict["success"] += 1
         print_success("Environment: conda found")
 
         if create_envs or repro_check:
@@ -328,42 +368,54 @@ def check_submission(path, create_envs=False, repro_check=False):
                     capture_output=True,
                     overwrite=True,
                 )
+                result_dict["success"] += 1
                 print_success("Environment: conda environment created")
             except subprocess.CalledProcessError as e:
+                result_dict["error"] += 1
                 print_fail(
                     f"Environment: conda creation failed - {e.returncode} {e.stderr}"
                 )
 
     if env_types["renv"]:
+        result_dict["success"] += 1
         print_success("Environment: renv found")
 
         if create_envs or repro_check:
             try:
                 print_info("Environment: Creating renv env...")
                 create_renv_env(path, capture_output=True)
+                result_dict["success"] += 1
                 print_success("Environment: renv environment created")
             except subprocess.CalledProcessError as e:
+                result_dict["error"] += 1
                 print_fail(
                     f"Environment: renv creation failed - {e.returncode} {e.stderr}"
                 )
 
     if env_types["conda"] and env_types["renv"]:
+        result_dict["warning"] += 1
         print_warn("Environment: Both conda and renv defined")
     elif not (env_types["conda"] or env_types["renv"]):
+        result_dict["error"] += 1
         print_fail("Environment: No conda or renv environment found")
 
     if repro_check:
         print_info(f"Reproducibility: Checking reproducibility...")
         try:
             if reference_result_is_reproducible(path, metadata):
+                result_dict["success"] += 1
                 print_success("Reproducibility: Reference metrics are reproducible")
             else:
+                result_dict["error"] += 1
                 print_fail("Reproducibility: Reference metrics could not be reproduced")
         except subprocess.CalledProcessError as e:
+            result_dict["error"] += 1
             print_fail(
                 "Reproducibility: Failed to run reproducibility check - "
                 f"{e} {e.returncode} {e.stderr}"
             )
+
+    return result_dict
 
 
 def main():
