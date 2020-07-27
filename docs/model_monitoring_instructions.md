@@ -93,3 +93,14 @@ Where `path/to/model` is the absolute path to the directory submitted by the ana
 ### Visualise model reults
 
 **_TODO_**
+
+### Delete All ModMon Data
+
+If you wish to delete everything created or stored by ModMon and start with a new system you can run:
+```bash
+> modmon_delete
+```
+**This cannot be undone!** It will delete:
+- The database
+- All models in storage
+- All ModMon related conda environments.
