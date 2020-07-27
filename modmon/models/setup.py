@@ -82,6 +82,9 @@ def main():
         )
         session.add(newteam)
         session.commit()
+        print(f"Team: Created: \"{metadata['team']}\"")
+    else:
+        print(f"Team: Already exists: \"{metadata['team']}\"")
 
     # Research Questions:
     research_questions = [q.description for q in session.query(Researchquestion).all()]
@@ -92,6 +95,10 @@ def main():
         )
         session.add(newquestion)
         session.commit()
+        print(
+            f"Research Question: Created with ID {question_id}: "
+            f"\"{metadata['research_question']}\""
+        )
     else:
         question = (
             session.query(Researchquestion)
@@ -99,6 +106,10 @@ def main():
             .first()
         )
         question_id = question.questionid
+        print(
+            f"Research Question: Already exists with ID {question_id}: "
+            f"\"{metadata['research_question']}\""
+        )
 
     # Metrics:
     metrics_in_db = [metric.metric for metric in session.query(Metric).all()]
@@ -122,9 +133,11 @@ def main():
         )
         session.add(newmodel)
         session.commit()
+        print(f"Model: Created with ID {model_id}: \"{metadata['model_name']}\"")
     else:
         model = session.query(Model).filter_by(name=metadata["model_name"]).first()
         model_id = model.modelid
+        print(f"Model: Already exists with ID {model_id}: \"{metadata['model_name']}\"")
 
     # Model version, training and testing datasets
     model_versions = [
@@ -136,6 +149,7 @@ def main():
         modmon_model_path = copy_model_to_storage(
             model_path, model_id, metadata["model_version"]
         )
+        print(f'Model Version: Copied to storage: "{modmon_model_path}"')
 
         # Training Dataset:
         training_dataset_id = get_unique_id(session, Dataset.datasetid)
@@ -174,6 +188,7 @@ def main():
         )
         session.add(model_version)
         session.commit()
+        print(f"Model Version: Created: \"{metadata['model_version']}\"")
 
         # Set any older versions of the same model as inactive
         old_versions_this_model = (
@@ -202,3 +217,6 @@ def main():
             )
             session.add(reference_result)
             session.commit()
+
+    else:
+        print(f"Model Version: Already exists: \"{metadata['model_version']}\"")
