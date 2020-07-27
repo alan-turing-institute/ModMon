@@ -21,25 +21,74 @@ from ..db.schema import (
     Result,
 )
 from .store import copy_model_to_storage
+from .check import check_submission
+from ..utils.utils import ask_for_confirmation
 
 
-def main():
-    """Add a model version to the monitoring database.
-    
-    Available from the command-line as modmon_model_setup
+def setup_model(
+    model_path,
+    check_first=True,
+    confirm=True,
+    force=False,
+    warnings_ok=True,
+    create_envs=True,
+    repro_check=True,
+):
+    """Add a model version to the ModMon monitoring system. Includes copying the
+    directory model_path to the ModMon storage area and creating database entries.
+
+    Parameters
+    ----------
+    model_path : str
+        Path to model version directory
+    check_first : bool, optional
+        Run model checks before attempting model version setup, by default True
+    confirm : bool, optional
+        Ask for user whether its ok to contitnue after performing model checks, by
+        default True
+    force : bool, optional
+        Continue with model setup even if checks fail. Only applies if confirm is False.
+        By default False
+    warnings_ok : bool, optional
+        Continue with model setup if warnings encountered during checks. Only applies
+        if confirm is False. By default True
+    create_envs : bool, optional
+        Check environment creation if performing model checks, by default True
+    repro_check : bool, optional
+        Check running the model and reproducing its results if performing model checks,
+        by default True
     """
+    if check_first:
+        check_result = check_submission(
+            model_path, create_envs=create_envs, repro_check=repro_check
+        )
+        if confirm:
+            message = "Add this model to the database?"
+            if check_result["error"] > 0:
+                message += " NOT RECOMMENDED WITH ERRORS ABOVE!"
+
+            confirmed = ask_for_confirmation(message)
+            if not confirmed:
+                print("Aborting model setup.")
+                return
+
+        elif not force:
+            if check_result["error"] > 0:
+                print("Model checks failed. Aborting model setup.")
+                return
+            elif check_result["warning"] > 0 and not warnings_ok:
+                print("Warnings during model checks. Aborting model setup.")
+                return
+
+    print("-" * 30)
+    print(f"Adding model {model_path}...")
+
     # Set up SQLAlchemy session
     session = get_session()
 
     #############
     # Files ###
     #############
-
-    parser = argparse.ArgumentParser(description="Save model run data to db.")
-    parser.add_argument("model")
-    args = parser.parse_args()
-    model_path = args.model
-
     metadata_json = model_path + "/metadata.json"
     training_metrics_csv = model_path + "/training_metrics.csv"
     prediction_metrics_csv = model_path + "/metrics.csv"
@@ -220,3 +269,56 @@ def main():
 
     else:
         print(f"Model Version: Already exists: \"{metadata['model_version']}\"")
+
+
+def main():
+    """Add a model version to the monitoring database.
+    
+    Available from the command-line as modmon_model_setup
+    """
+    parser = argparse.ArgumentParser(
+        description="Add a model version to the ModMon monitoring system."
+    )
+    parser.add_argument("model", help="Path to model directory to add")
+    parser.add_argument(
+        "--nocheck",
+        help="If set, setup model without performing pre-submission checks",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--quickcheck",
+        help="If set, don't perform environment or reproducibility checks",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--noconfirm",
+        help="If set, don't ask for user confirmation after checks",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--force",
+        help="If set, setup model even if checks fail",
+        action="store_true",
+    )
+
+    args = parser.parse_args()
+    model_path = args.model
+
+    if args.nocheck:
+        setup_model(model_path, check_first=False)
+    else:
+        if args.quickcheck:
+            create_envs = False
+            repro_check = False
+        else:
+            create_envs = True
+            repro_check = True
+
+        setup_model(
+            model_path,
+            check_first=True,
+            create_envs=create_envs,
+            repro_check=repro_check,
+            force=args.force,
+            confirm=not args.noconfirm,
+        )

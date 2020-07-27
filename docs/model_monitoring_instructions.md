@@ -76,6 +76,23 @@ To add a new model to the database:
 ```
 Where `path/to/model` is the absolute path to the directory submitted by the analyst.
 
+By default `modmon_model_setup` initially runs pre-submission checks (see above) and asks the user whether they want to continue with the setup based on the results of those checks. There are several arguments that can be used to configure this behaviour, to see these run `modmon_model_setup --help` from the command-line, which should give you something like this:
+```
+usage: modmon_model_setup [-h] [--nocheck] [--quickcheck] [--noconfirm] [--force] model
+
+Add a model version to the ModMon monitoring system.
+
+positional arguments:
+  model         Path to model directory to add
+
+optional arguments:
+  -h, --help    show this help message and exit
+  --nocheck     If set, setup model without performing pre-submission checks
+  --quickcheck  If set, don't perform environment or reproducibility checks
+  --noconfirm   If set, don't ask for user confirmation after checks
+  --force       If set, setup model even if checks fail
+```
+
 ### Log a new result for all models
 
 1. Run this command, replacing `<start_date>` and `<end_date>` with appropriate values (in `Y-m-d` format),
