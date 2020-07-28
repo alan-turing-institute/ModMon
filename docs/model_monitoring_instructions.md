@@ -86,9 +86,20 @@ Where `path/to/model` is the absolute path to the directory submitted by the ana
 
 2. New metric values for all active model versions will be added to the results table in the monitorinig database.
 
+### Delete All ModMon Data
+
+If you wish to delete everything created or stored by ModMon and start with a new system you can run:
+```bash
+> modmon_delete
+```
+**This cannot be undone!** It will delete:
+- The database
+- All models in storage
+- All ModMon related conda environments.
+
 ### Setup "Synpuf" dummy model appraisal dataset
 
-For testing purposes, a script has been added that will set up a model monitoring database called `ModMon` and add results for the example models found in `monitor/examples` which use the dummy OMOP database "Synpuf".
+For testing purposes, a script has been added that will set up a model monitoring database called `ModMon` and add results for the example models found in `monitor/examples` which use the dummy OMOP database "Synpuf". If an existing ModMon db exists, navigate to the examples dir and run `modmon_delete` first (see above).
 
 ```bash
 > bash synpuf_modmon_db_setup.sh
@@ -105,14 +116,3 @@ Multiple instances of this database have been set up on a remote server, that th
 ### Visualise model reults
 
 **_TODO_**
-
-### Delete All ModMon Data
-
-If you wish to delete everything created or stored by ModMon and start with a new system you can run:
-```bash
-> modmon_delete
-```
-**This cannot be undone!** It will delete:
-- The database
-- All models in storage
-- All ModMon related conda environments.
