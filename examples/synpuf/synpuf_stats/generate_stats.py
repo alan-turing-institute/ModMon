@@ -37,7 +37,7 @@ end_date = args.end_date  # e.g. 2020-06-01
 # Set up synpuf db connection
 # TODO: save this info in a config file
 server = "51.104.224.106,1433"
-driver = "/usr/local/lib/libmsodbcsql.17.dylib"  # This is the location Homebrew saves SQL-Server driver on Mac
+driver = "ODBC Driver 17 for SQL Server"
 uid = "analysts"
 pwd = "An8lysts."
 cnxn = pyodbc.connect(
