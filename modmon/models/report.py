@@ -81,9 +81,10 @@ class TestModMon(unittest.TestCase):
 def generate_report():
     """Generate a html report containing plots found in test_modmon.py"""
 
+    report_dir = config["reports"]["reportdir"]
+    print("Generating model appraisal report and saving to", report_dir)
     dev_null = open(devnull, "w")
 
-    report_dir = config["reports"]["reportdir"]
     with open(report_dir + "/test_modmon.py", "w+") as unittest_file:
         unittest_file.write(report_script)
 
