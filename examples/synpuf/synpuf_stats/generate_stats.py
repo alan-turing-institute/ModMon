@@ -77,36 +77,6 @@ months = {
 
 population_size = pd.read_sql("SELECT COUNT(person_id) AS count FROM person", cnxn)["count"][0]
 
-#######################
-###     Mean Age    ###
-#######################
-
-#TODO: the below code needs to be modified to work with SQL-Server
-
-# age_table = pd.read_sql(
-#     "SELECT gender_concept_id,\
-#                     year_of_birth ,\
-#                     month_of_birth, \
-#                     day_of_birth ,\
-#                     observation_period_end_date,\
-#                     observation_period_start_date, \
-#                     concept_name \
-#             FROM ( SELECT * from person p \
-#             LEFT JOIN observation_period oe \
-#                 ON oe.person_id = p.person_id ) t \
-#             LEFT JOIN concept c \
-#                 ON c.concept_id = t.gender_concept_id ",
-#     cnxn,
-# )
-# age_table["birthdate"] = get_birthdate(
-#     age_table["year_of_birth"], age_table["month_of_birth"], age_table["day_of_birth"],
-# )
-# age_table["age"] = compute_age(
-#     start_date=age_table["birthdate"],
-#     end_date=pd.to_datetime(age_table["observation_period_start_date"]),
-# )
-# mean_age = np.mean(age_table["age"])
-
 ################################
 ###     Patient Mortality    ###
 ################################
@@ -171,7 +141,6 @@ metrics = pd.DataFrame(
         ["aug_births", aug_births],
         ["born_60", born_60],
         ["population_size", population_size],
-        # ["mean_age", mean_age],
         ["mortality", mortality],
         ["average_onset_duration", avg_onset],
     ],
