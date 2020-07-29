@@ -6,8 +6,8 @@ from ..config import config
 from ..utils.utils import build_model_identifier, ask_for_confirmation
 
 
-def get_storage_dir(storage_config=config["storage"], create=True, exist_ok=True):
-    """Get the path to the ModMon stoorage directory as defined in the config file.
+def get_storage_dir(storage_config=config["models"], create=True, exist_ok=True):
+    """Get the path to the ModMon model storage directory as defined in the config file.
 
     Parameters
     ----------
@@ -15,7 +15,7 @@ def get_storage_dir(storage_config=config["storage"], create=True, exist_ok=True
         configparser section containing the key 'modeldir',
         by default modmon.config.config["storage"]
     create : bool, optional
-        Whether to create the storage directory, by default True
+        Whether to create the models storage directory, by default True
     exist_ok : bool, optional
         If False raise an error if trying to create the directory but it already
         exists, by default True
@@ -45,6 +45,47 @@ def get_storage_dir(storage_config=config["storage"], create=True, exist_ok=True
 
 
 STORAGE_DIR = get_storage_dir()
+
+
+def get_report_dir(storage_config=config["reports"], create=True, exist_ok=True):
+    """Get the path to the ModMon reports directory as defined in the config file.
+
+    Parameters
+    ----------
+    storage_config : configparser.SectionProxy, optional
+        configparser section containing the key 'modeldir',
+        by default modmon.config.config["storage"]
+    create : bool, optional
+        Whether to create the reports storage directory, by default True
+    exist_ok : bool, optional
+        If False raise an error if trying to create the directory but it already
+        exists, by default True
+
+    Returns
+    -------
+    str
+        Path to ModMon reports storage directory.
+
+    Raises
+    ------
+    KeyError
+        If storage_config does not contain the key 'reportdir'
+    """
+    if "reportdir" not in storage_config:
+        raise KeyError(
+            "storage_config must contain the key 'reportdir', containing "
+            "the path where all ModMon reports will be stored."
+        )
+
+    report_dir = storage_config["reportdir"]
+
+    if create:
+        os.makedirs(report_dir, exist_ok=True)
+
+    return report_dir
+
+
+REPORT_DIR = get_report_dir()
 
 
 def copy_model_to_storage(

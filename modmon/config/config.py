@@ -23,7 +23,7 @@ else:
 with open(config_path, "r") as f:
     config.read_file(f)
 
-error_sections = ["database", "storage"]
+error_sections = ["database", "models", "reports"]
 for section in error_sections:
     if section not in config:
         raise KeyError(

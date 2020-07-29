@@ -118,5 +118,5 @@ Multiple instances of this database have been set up on a remote server, that th
 Navigate to `monitor/modmon/report` and run the following command, which will generate `report.html`:
 
 ```bash
-> python -m unitreport
+> python -m unitreport --output_file $HOME/modmon/reports/model_appraisal.html
 ```
