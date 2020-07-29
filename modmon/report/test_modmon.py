@@ -20,6 +20,11 @@ class TestModMon(unittest.TestCase):
             database = "ModMon",
         )
 
+    @classmethod
+    def tearDownClass(cls):
+        """Close connection to database after completing and/or failing tests."""
+        cls.db_connection.close()
+
     @plotting
     def test_fig_results_per_model_plot(self):
         """Numbers of each model in results table"""
