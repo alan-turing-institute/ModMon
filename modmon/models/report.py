@@ -1,3 +1,10 @@
+from os import devnull
+import subprocess
+
+from ..config import config
+
+
+report_script = '''
 import matplotlib.pyplot as plt
 import psycopg2
 import pandas as pd
@@ -68,3 +75,22 @@ class TestModMon(unittest.TestCase):
         g.set_titles(col_template = "{col_name}", row_template = '{row_name}')
         for i, _ in enumerate(g.axes):
             g.axes[i][0].legend(title = "Models")
+'''
+
+
+def generate_report():
+    """Generate a html report containing plots found in test_modmon.py"""
+
+    dev_null = open(devnull, "w")
+
+    report_dir = config["reports"]["reportdir"]
+    with open(report_dir + "/test_modmon.py", "w+") as unittest_file:
+        unittest_file.write(report_script)
+
+    subprocess.run(
+        ["python", "-m", "unitreport", "--output_file", "model_appraisal.html"],
+        check=True,
+        cwd=report_dir,
+        stdout=dev_null,
+        stderr=dev_null,
+    )

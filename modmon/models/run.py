@@ -10,6 +10,8 @@ import pandas as pd
 import dateparser
 from sqlalchemy import func
 
+from .report import generate_report
+
 from ..db.connect import get_session
 from ..db.utils import get_unique_id
 from ..db.schema import Modelversion, Dataset, Result
@@ -427,3 +429,4 @@ def main():
     start_date = dateparser.parse(args.start_date).date()
     end_date = dateparser.parse(args.end_date).date()
     run_all_models(start_date, end_date, args.database, force=args.force)
+    generate_report()
