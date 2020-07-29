@@ -1,21 +1,10 @@
-import logging
 import matplotlib.pyplot as plt
-import numpy as np
-import os
-import pyodbc
 import psycopg2
 import pandas as pd
 import seaborn as sns
 import unittest
+from unitreport import plotting
 
-# import plotting and tabling decorators, and sql query function for caching
-from utils import plotting, table, check_statement, cached_sql_query
-
-# import global config file
-from configlib import config
-
-pd.plotting.register_matplotlib_converters()
-logger = logging.getLogger(__name__)
 
 class TestModMon(unittest.TestCase):
     """This report aims to provide readers with a summary of the model appraisal"""
@@ -26,22 +15,10 @@ class TestModMon(unittest.TestCase):
     def setUpClass(cls):
         """Set up database connection before running tests."""
         cls.db_connection = psycopg2.connect(
-            host=config["db_login"]["server"],
-            port=config["db_login"]["port"],
-            database=config["db_login"]["db_name"],
+            host = "localhost",
+            port = 5432,
+            database = "ModMon",
         )
-
-        logger.info("Connected to the database.")
-        logger.info("Saving outputs to %s", config["plots"]["save_dir"])
-        os.makedirs(config["plots"]["save_dir"], exist_ok=True)
-        with open(config["plots"]["save_dir"] + "/" + "intro.md", "w") as f:
-            f.write(cls.__doc__)
-
-    @classmethod
-    def tearDownClass(cls):
-        """Close connection to database after completing and/or failing tests."""
-        cls.db_connection.close()
-        logger.info("Closed connection to the database.")
 
     @plotting
     def test_fig_results_per_model_plot(self):
@@ -52,7 +29,7 @@ class TestModMon(unittest.TestCase):
         WHERE r.modelid = m.modelid
         GROUP BY m.name;
         """
-        model_runs = cached_sql_query(
+        model_runs = pd.read_sql(
             query,
             self.db_connection,
         )
@@ -71,7 +48,7 @@ class TestModMon(unittest.TestCase):
         AND m.questionid = q.questionid
         AND NOT r.isreferenceresult;
         """
-        results = cached_sql_query(
+        results = pd.read_sql(
             query,
             self.db_connection,
         )

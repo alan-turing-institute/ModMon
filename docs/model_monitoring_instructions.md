@@ -115,4 +115,8 @@ Multiple instances of this database have been set up on a remote server, that th
 
 ### Visualise model reults
 
-**_TODO_**
+Navigate to `monitor/modmon/report` and run the following command, which will generate `report.html`:
+
+```bash
+> python -m unitreport
+```
