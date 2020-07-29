@@ -1,11 +1,10 @@
 colorama
 dateparser
-jinja2
-markdown
 matplotlib
 pandas
 psycopg2
 pyodbc
 seaborn
 sqlalchemy
+unitreport
 repro-catalogue
