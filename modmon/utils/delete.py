@@ -13,11 +13,21 @@ from ..report.report import delete_all_reports_from_storage
 def delete_all_artefacts(
     db=False, envs=False, models=False, reports=False, all=False, force=False
 ):
-    """Delete all ModMon related artefacts including the database, models in storage
-    and conda environments.
+    """Delete ModMon artefacts: database, environments, models and reports.
 
     Parameters
     ----------
+    db : bool, optional
+        If True delete the database, by default False
+    envs : bool, optional
+        If True delete all ModMon conda environments, by default False
+    models : bool, optional
+        If True delete all models in storage, by default False
+    reports : bool, optional
+        If True delete all reports in storage, by default False
+    all : bool, optional
+        If True equivalent to setting db, envs, models and reports to True,
+        by default False
     force : bool, optional
         If True delete without asking for confirmation, by default False
     """

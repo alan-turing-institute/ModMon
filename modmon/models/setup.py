@@ -58,7 +58,7 @@ def setup_model(
     repro_check : bool, optional
         Check running the model and reproducing its results if performing model checks,
         by default True
-    set_previous_inactive : bool , optional
+    set_old_inactive : bool , optional
         If True, set all previous versions of this model to be inactive, by default True
     """
     if check_first:
