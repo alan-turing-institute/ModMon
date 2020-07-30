@@ -1,6 +1,6 @@
 # Model examples for the DECOVID model appraisal system
 
-This directory contains several example model folders that were used for testing the model appraisal system (see `monitor/docs/model_monitoring_instructions.md` for more details on how the system works).
+This directory contains several example model folders that were used for testing the model appraisal system, all of which follow the format outlined in `monitor/docs/analyst_guidance.md` (see `monitor/docs/model_monitoring_instructions.md` for more details on how the system works).
 
 - `wine-quality` models are trained on a [popular machine learning dataset](http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/)
 - `synpuf` models are trained on a dummy OMOP dataset called [synpuf](https://forums.ohdsi.org/t/synpuf/4936), for which the Turing REG team have set up multiple databases on a remote server, see below.
