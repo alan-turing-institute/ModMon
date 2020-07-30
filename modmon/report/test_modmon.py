@@ -3,7 +3,7 @@ import psycopg2
 import pandas as pd
 import seaborn as sns
 import unittest
-from unitreport import plotting
+from unitreport import plotting, tabling
 
 
 class TestModMon(unittest.TestCase):
@@ -25,21 +25,21 @@ class TestModMon(unittest.TestCase):
         """Close connection to database after completing and/or failing tests."""
         cls.db_connection.close()
 
-    @plotting
-    def test_fig_results_per_model_plot(self):
-        """Numbers of each model in results table"""
+    @tabling
+    def test_fig_metadata_table(self):
+        """Table showing the metadata for all the active models in the ModMon DB"""
         query = """
-        SELECT m.name, COUNT( DISTINCT r.runid )
-        FROM results AS r, models AS m
-        WHERE r.modelid = m.modelid
-        GROUP BY m.name;
+        SELECT m.name AS Model, mv.modelversion AS active_version, Q.description AS Question, m.teamName AS Team
+        FROM modelVersions as mv, models AS m, researchQuestions AS q
+        WHERE m.questionID = q.questionID
+        AND mv.modelid = m.modelid
+        AND mv.active;
         """
-        model_runs = pd.read_sql(
+        metadata = pd.read_sql(
             query,
             self.db_connection,
         )
-        bar = sns.barplot(x='name', y='count', data=model_runs)
-        bar.set(xlabel='Model', ylabel="Runs in ModMon DB")
+        return metadata.to_html()
 
     @plotting
     def test_fig_results_performance(self):
