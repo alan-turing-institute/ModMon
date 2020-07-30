@@ -99,7 +99,7 @@ If you wish to delete everything created or stored by ModMon and start with a ne
 
 ### Setup "Synpuf" dummy model appraisal dataset
 
-For testing purposes, a script has been added that will set up a model monitoring database called `ModMon` and add results for the example models found in `monitor/examples/synpuf` which use the dummy OMOP database "Synpuf". If an existing ModMon db exists, navigate to the examples dir and run `modmon_delete` first (see above).
+For testing purposes, a script has been added that will set up a model monitoring database called `ModMon` and add results for the example models found in `monitor/examples/synpuf` which use the dummy OMOP database "Synpuf". If an existing ModMon db exists first run `modmon_delete` (see above). Navigate to the `monitor/examples/synpuf` dir and run:
 
 ```bash
 > bash synpuf_modmon_db_setup.sh
