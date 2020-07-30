@@ -10,8 +10,7 @@ import pandas as pd
 import dateparser
 from sqlalchemy import func
 
-from .report import generate_report
-
+from ..report.report import generate_report
 from ..db.connect import get_session
 from ..db.utils import get_unique_id
 from ..db.schema import Modelversion, Dataset, Result
