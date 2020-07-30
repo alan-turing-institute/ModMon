@@ -5,7 +5,6 @@ import pandas as pd
 from sklearn.metrics import roc_auc_score
 
 from db import get_data
-from preprocess import preprocess
 
 # parse arguments
 parser = argparse.ArgumentParser()
@@ -20,9 +19,6 @@ df = get_data(args.database)
 # predict whether gender is male from condition
 y = df["gender"] == "MALE"
 X = df["condition"]
-
-# Preprocess condition strings
-X = preprocess(X)
 
 # load the classification pipeline
 pipe = joblib.load("pipeline.joblib")
