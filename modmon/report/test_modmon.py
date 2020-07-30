@@ -39,7 +39,7 @@ class TestModMon(unittest.TestCase):
             query,
             self.db_connection,
         )
-        return metadata.to_html()
+        return metadata.to_html(index=False)
 
     @plotting
     def test_fig_results_performance(self):
