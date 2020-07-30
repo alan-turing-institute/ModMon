@@ -74,6 +74,7 @@ def create_conda_env(
     ValueError
         If neither env_file nor dependencies is defined.
     """
+    
     if conda_env_exists(env_name):
         if overwrite:
             subprocess.run(
@@ -85,6 +86,15 @@ def create_conda_env(
             return
 
     if env_file:
+        # get name of environment file without directory
+        env_filename = Path(env_file).name
+        
+        # get environment file's directory
+        cwd = Path(env_file).parent
+        if not os.path.isabs(cwd):
+            # if a relative path was given convert it into an absolute path
+            cwd = Path(os.getcwd(), cwd)
+
         conda_create_cmd = [
             "conda",
             "env",
@@ -92,10 +102,10 @@ def create_conda_env(
             "-n",
             env_name,
             "-f",
-            env_file,
+            env_filename,
             "--force",
         ]
-        cwd = Path(env_file).parent
+
     elif dependencies:
         conda_create_cmd = [
             "conda",
@@ -110,6 +120,7 @@ def create_conda_env(
         # working directory doesn't matter if using a list of dependencies, but need
         #  something to pass to subprocess.run
         cwd = Path(__file__).parent
+
     else:
         raise ValueError("One of env_file and dependencies must be specified.")
 
