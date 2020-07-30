@@ -2,6 +2,7 @@
 modmon_db_create
 modmon_model_setup synpuf_stats/
 modmon_model_setup synpuf_R/
+modmon_model_setup synpuf_python/
 
 modmon_run --start_date 2020-01-01 --end_date 2020-07-01 --database 'WEEK_01'
 modmon_run --start_date 2020-01-01 --end_date 2020-07-01 --database 'WEEK_02'
