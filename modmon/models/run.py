@@ -61,20 +61,26 @@ def build_run_cmd(raw_cmd, start_date, end_date, database):
     )
 
 
-def get_model_versions(session):
+def get_model_versions(session, get_inactive=False):
     """Get a list of all active model versions from the database.
 
     Parameters
     ----------
     session : sqlalchemy.orm.session.Session
         ModMon database session
+    get_inactive : bool , optional
+        If True also return inactive model versions, by default False
 
     Returns
     -------
     list
         List of Modelversion objects including all active model versions.
     """
-    return session.query(Modelversion).filter_by(active=True).all()
+    query = session.query(Modelversion)
+    if not get_inactive:
+        query = query.filter_by(active=True)
+
+    return query.all()
 
 
 def get_iso_time():
@@ -357,7 +363,7 @@ def run_model(
         session.close()
 
 
-def run_all_models(start_date, end_date, database, force=False):
+def run_all_models(start_date, end_date, database, force=False, run_inactive=False):
     """Run all active model versions in the database to generate metrics values for a
     new dataset.
 
@@ -379,7 +385,7 @@ def run_all_models(start_date, end_date, database, force=False):
 
     # get active model versions from db
     print("Getting active model versions...", end=" ")
-    model_versions = get_model_versions(session)
+    model_versions = get_model_versions(session, get_inactive=run_inactive)
     print(f"found {len(model_versions)} model versions.")
 
     if len(model_versions) == 0:
@@ -422,10 +428,21 @@ def main():
         help="If set, run models even if results already exist in the database",
         action="store_true",
     )
+    parser.add_argument(
+        "--run_inactive",
+        help="If set, also run models marked as inactive",
+        action="store_true",
+    )
 
     args = parser.parse_args()
     # TODO currently only deal with dates, not times
     start_date = dateparser.parse(args.start_date).date()
     end_date = dateparser.parse(args.end_date).date()
-    run_all_models(start_date, end_date, args.database, force=args.force)
+    run_all_models(
+        start_date,
+        end_date,
+        args.database,
+        force=args.force,
+        run_inactive=args.run_inactive,
+    )
     generate_report()
