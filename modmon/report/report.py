@@ -14,7 +14,9 @@ def generate_report():
     dev_null = open(devnull, "w")
     date_str = str(datetime.datetime.now())
     subprocess.run(
-        ["python", "-m", "unitreport", "--output_file", report_dir + "/model_appraisal_" + date_str + ".html"],
+        ["python", "-m", "unitreport",
+         "--output_file", report_dir + "/model_appraisal" + date_str + ".html",
+         "--templates_dir", "templates"],
         check=True,
         cwd=Path(Path(__file__).parent),
         stdout=dev_null,
