@@ -33,6 +33,7 @@ def setup_model(
     warnings_ok=True,
     create_envs=True,
     repro_check=True,
+    set_old_inactive=True,
 ):
     """Add a model version to the ModMon monitoring system. Includes copying the
     directory model_path to the ModMon storage area and creating database entries.
@@ -57,6 +58,8 @@ def setup_model(
     repro_check : bool, optional
         Check running the model and reproducing its results if performing model checks,
         by default True
+    set_previous_inactive : bool , optional
+        If True, set all previous versions of this model to be inactive, by default True
     """
     if check_first:
         check_result = check_submission(
@@ -239,16 +242,17 @@ def setup_model(
         session.commit()
         print(f"Model Version: Created: \"{metadata['model_version']}\"")
 
-        # Set any older versions of the same model as inactive
-        old_versions_this_model = (
-            session.query(Modelversion)
-            .filter_by(modelid=model_id)
-            .filter(Modelversion.modelversion != metadata["model_version"])
-            .all()
-        )
-        for old_model_version in old_versions_this_model:
-            old_model_version.active = False
-            session.commit()
+        if set_old_inactive:
+            # Set any older versions of the same model as inactive
+            old_versions_this_model = (
+                session.query(Modelversion)
+                .filter_by(modelid=model_id)
+                .filter(Modelversion.modelversion != metadata["model_version"])
+                .all()
+            )
+            for old_model_version in old_versions_this_model:
+                old_model_version.active = False
+                session.commit()
 
         # Save analyst reference result for this model version
         run_id = get_unique_id(session, Result.runid)
@@ -300,12 +304,17 @@ def main():
         help="If set, setup model even if checks fail",
         action="store_true",
     )
+    parser.add_argument(
+        "--keepold",
+        help="If set, don't set previous versions of this model to be inactive",
+        action="store_true",
+    )
 
     args = parser.parse_args()
     model_path = args.model
 
     if args.nocheck:
-        setup_model(model_path, check_first=False)
+        setup_model(model_path, check_first=False, set_old_inactive=not args.keepold)
     else:
         if args.quickcheck:
             create_envs = False
@@ -321,4 +330,5 @@ def main():
             repro_check=repro_check,
             force=args.force,
             confirm=not args.noconfirm,
+            set_old_inactive=not args.keepold,
         )
