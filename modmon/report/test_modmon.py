@@ -27,9 +27,9 @@ class TestModMon(unittest.TestCase):
 
     @tabling
     def test_fig_metadata_table(self):
-        """Table showing the metadata for all the active models in the ModMon DB"""
+        """Models in the monitoring database (ModMon)"""
         query = """
-        SELECT m.name AS Model, mv.modelversion AS active_version, Q.description AS Question, m.teamName AS Team
+        SELECT m.name AS Model, mv.modelversion AS active_version, Q.description AS research_question, m.teamName AS Team
         FROM modelVersions as mv, models AS m, researchQuestions AS q
         WHERE m.questionID = q.questionID
         AND mv.modelid = m.modelid
@@ -43,8 +43,8 @@ class TestModMon(unittest.TestCase):
 
     @plotting
     def test_fig_results_performance(self):
-        """Scatter plots for each unique metric that measures model performance on a research question
-        across database versions for all models that answer that question and each model version"""
+        """Performance of ModMon DB models on across database versions. Each sub-plot shows the peformance of models on
+        a particular research question according to a given metric."""
         query = """
         SELECT m.name, r.metric, r.value, d.databasename, d.datasetid, m.modelid, r.modelversion, q.description
         FROM results AS r, datasets AS d, models AS m, researchQuestions AS q
