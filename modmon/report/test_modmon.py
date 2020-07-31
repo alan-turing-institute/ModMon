@@ -88,6 +88,6 @@ class TestModMon(unittest.TestCase):
 
         g1 = sns.FacetGrid(data=reduced_results, col='model_metric', col_wrap=3, sharey=False, sharex=False, hue='metric')
         g1.map(plt.bar, "databasename", "value").fig.subplots_adjust(hspace=.4)
-        g1.set(xlabel='Database Version', ylabel='Metric Value')
+        g1.set(xlabel='Database Version', ylabel=None)
         g1.set_titles(col_template = "{col_name}")
-        g1.add_legend()
+        g1.add_legend(title='Metrics')
