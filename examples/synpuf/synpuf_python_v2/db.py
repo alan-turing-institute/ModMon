@@ -1,14 +1,18 @@
 import pyodbc
 import pandas as pd
+import json
 
 
 def get_data(database):
+    with open("db_config.json", "r") as f:
+        config = json.load(f)
+
     cnxn = pyodbc.connect(
-        "Driver={ODBC Driver 17 for SQL Server};"
-        "Server=51.104.224.106,1433;"
+        "Driver={" + config["driver"] + "};"
+        f"Server={config['server']},{config['port']};"
         f"Database={database};"
-        "UID=analysts;"
-        "PWD=An8lysts."
+        f"UID={config['user']};"
+        f"PWD={config['password']}"
     )
 
     df = pd.read_sql(

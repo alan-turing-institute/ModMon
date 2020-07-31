@@ -103,16 +103,20 @@ optional arguments:
 
 2. New metric values for all active model versions will be added to the results table in the monitorinig database.
 
-### Delete All ModMon Data
+### Delete ModMon Data
 
-If you wish to delete everything created or stored by ModMon and start with a new system you can run:
+To delete ModMon artefacts (database, models, environments and reports) you can run:
 ```bash
 > modmon_delete
 ```
-**This cannot be undone!** It will delete:
-- The database
-- All models in storage
-- All ModMon related conda environments.
+With the following options:
+- `--all` - Delete everything!
+- `--envs` - Delete conda environments
+- `--models` - Delete models in storage
+- `--db` - Delete the database
+- `--reports` - Delete reports in storage
+
+**⚠️ This cannot be undone!** 
 
 ### Setup "Synpuf" dummy model appraisal dataset
 

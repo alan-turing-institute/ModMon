@@ -6,15 +6,18 @@ library(tokenizers)
 library(purrr)
 library(stopwords)
 library(glmnet)
+library(rjson)
 
-# Connect to the database
+# Connect to the database and get the data
+config <- fromJSON(file = "db_config.json")
+
 con <- dbConnect(odbc(),
-                 Driver = "ODBC Driver 17 for SQL Server",
-                 Server = "51.104.224.106",
-                 Database = "WEEK_00",
-                 UID = "analysts",
-                 PWD = "An8lysts.",
-                 Port = 1433)
+                 Driver = config$driver,
+                 Server = config$server,
+                 Database = db,
+                 UID = config$user,
+                 PWD = config$password,
+                 Port = config$port)
 
 # Get the data - condition and gender
 data <- dbGetQuery(con,

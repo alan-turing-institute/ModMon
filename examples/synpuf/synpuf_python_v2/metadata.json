@@ -14,5 +14,5 @@
 	"training_data_description": "The first 100 patients in the SynPUF data",
 	"model_run_datetime": "2020-07-29",
 	"test_data_description": "Not used",
-	"command": "python predict.py --database <database> --start_date <start_date> --end_date <end_date>"
+	"command": "python predict.py --database <database>"
 }

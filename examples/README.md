@@ -15,4 +15,6 @@ For testing purposes, a script has been added that will set up a model monitorin
 
 Multiple instances of this database have been set up on a remote server, that the models connect to. By changing the `--database` flag to one of `WEEK_01` through `WEEK_10`, different versions of the Synpuf data can be used by the models. This simulates the model appraisal scenario for DECOVID where the OMOP database is updated periodically with new patient data.
 
+The configuration of the database server is stored in `synpuf/db_config.json`. This filed is copied to all the example model directories as part of running `synpuf_modmon_db_setup.sh`.
+
 *NOTE: You will need to have activated the ModMon environment and installed ModMon to run this script - see `monitor/docs/model_monitoring_instructions.md`.*
