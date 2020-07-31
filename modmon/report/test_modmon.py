@@ -47,7 +47,16 @@ class TestModMon(unittest.TestCase):
     def test_fig_metadata_table(self):
         """Models in the monitoring database (ModMon)"""
         query = """
-        SELECT m.name AS Model, mv.modelversion AS active_version, Q.description AS research_question, m.teamName AS Team
+        SELECT modelid, count(modelid) AS versions
+        FROM modelVersions
+        GROUP BY modelid;
+        """
+        version_count = pd.read_sql(
+                    query,
+                    self.db_connection,
+                )
+        query = """
+        SELECT m.name AS Model, mv.modelid, mv.modelversion AS active_version, Q.description AS Question, m.teamName AS Team
         FROM modelVersions as mv, models AS m, researchQuestions AS q
         WHERE m.questionID = q.questionID
         AND mv.modelid = m.modelid
@@ -57,6 +66,7 @@ class TestModMon(unittest.TestCase):
             query,
             self.db_connection,
         )
+        metadata = pd.merge(metadata, version_count, on='modelid')[['model', 'versions', 'active_version', 'question', 'team']]
         return metadata.to_html(index=False)
 
     @plotting
