@@ -42,6 +42,7 @@ setup(
             "modmon_model_setup=modmon.models.setup:main",
             "modmon_run=modmon.models.run:main",
             "modmon_delete=modmon.utils.delete:main",
+            "modmon_report=modmon.report.report:main",
         ]
     },
 )

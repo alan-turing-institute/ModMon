@@ -48,4 +48,11 @@ def delete_all_reports_from_storage(
             return
 
     shutil.rmtree(report_dir)
-    
+
+
+def main():
+    """Generate the html report for existing data in the ModMon DB.
+
+    Available from the command-line as modmon_report
+    """
+    generate_report()

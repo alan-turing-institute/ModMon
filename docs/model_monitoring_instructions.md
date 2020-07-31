@@ -132,8 +132,10 @@ Multiple instances of this database have been set up on a remote server, that th
 
 ### Visualise model reults
 
-Navigate to `monitor/modmon/report` and run the following command, which will generate `report.html`:
+To generate a report that summarises the performance of all models in the ModMon DB that have been run, simply use the following command, which will save the report document to `reports` dir specified in `modmon.ini` (see above):
 
 ```bash
-> python -m unitreport --output_file $HOME/modmon/reports/model_appraisal.html
+> modmon_report
 ```
+
+The report will also be generated automatically as the final step in `modmon_run` (see above).
