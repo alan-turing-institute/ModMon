@@ -61,7 +61,7 @@ class TestModMon(unittest.TestCase):
 
     @plotting
     def test_fig_1_results_performance(self):
-        """Performance of ModMon DB models on across database versions. Each sub-plot shows the peformance of models on
+        """Performance of ModMon DB models on across OMOP database versions. Each sub-plot shows the peformance of models on
         a particular research question according to a given metric."""
         g = sns.FacetGrid(data=self.results, row='titles', sharey=False, sharex=False, aspect=3, hue='model')
         g.map(plt.scatter, "databasename", "value").fig.subplots_adjust(hspace=.4)
@@ -72,6 +72,7 @@ class TestModMon(unittest.TestCase):
 
     @plotting
     def test_fig_2_model_bars(self):
+        """Comparison between initial performance of each model and performance on most recent OMOP dataset"""
         reduced_results = self.results.loc[self.results['datasetid'].isin([max(self.results['datasetid']), min(self.results['datasetid'])])].copy()
         reduced_results['model_metric'] = reduced_results['model'] + '_' + reduced_results['metric']
 
