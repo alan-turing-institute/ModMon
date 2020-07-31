@@ -5,6 +5,7 @@ import subprocess
 import os
 from datetime import datetime
 import argparse
+import warnings
 
 import pandas as pd
 import dateparser
@@ -17,7 +18,7 @@ from ..db.schema import Modelversion, Dataset, Result
 from ..envs.utils import create_env
 
 
-def build_run_cmd(raw_cmd, start_date, end_date, database):
+def build_run_cmd(raw_cmd, start_date=None, end_date=None, database=None):
     """Replace placeholder inputs in the model command with given values.
 
     Parameters
@@ -25,40 +26,51 @@ def build_run_cmd(raw_cmd, start_date, end_date, database):
     raw_cmd : str
         Raw command as found in Modelversion.command (or the original metadata file).
         Should contain placeholders <start_date>, <end_date> and <database>.
-    start_date : str or datetime.datetimie
+    start_date : str or datetime.datetimie , optional
         Dataset start date to pass to command (metrics script should use this to modify
-        database queries to return data restricted to the given date range)
-    end_date : str or datetime.datetime
+        database queries to return data restricted to the given date range), by default
+        None
+    end_date : str or datetime.datetime , optional
         Dataset end date to pass to command (metrics script should use this to modify
-        database queries to return data restricted to the given date range)
-    database : str
+        database queries to return data restricted to the given date range), by default
+        None
+    database : str, optional
         Name of the database to pass to command (metrics script should use this to
-        modify the database it connects to)
+        modify the database it connects to), by default None
 
     Returns
     -------
     str
-        Command to run with <start_date>, <end_date> and <database> replaced by the
-        input values.
+        Command to run with at least one of the <start_date>, <end_date> and <database>
+        placeholders, to be replaced by the input values.
 
     Raises
     ------
     ValueError
-        If raw_cmd does not contain the <start_date>, <end_date> or <database>
-        placeholders.
+        If raw_cmd does not contain at least one of the <start_date>, <end_date> and
+        <database> placeholders.
     """
-    if "<start_date>" not in raw_cmd:
-        raise ValueError("Command does not contain <start_date> placeholder")
-    if "<end_date>" not in raw_cmd:
-        raise ValueError("Command does not contain <end_date> placeholder")
-    if "<database>" not in raw_cmd:
-        raise ValueError("Command does not contain <database> placeholder")
+    placeholders = {
+        "<start_date>": start_date,
+        "<end_date>": end_date,
+        "<database>": database,
+    }
 
-    return (
-        raw_cmd.replace("<start_date>", str(start_date))
-        .replace("<end_date>", str(end_date))
-        .replace("<database>", database)
-    )
+    no_placeholders_found = True
+    for key, value in placeholders.items():
+        if key in raw_cmd and value is None:
+            raise ValueError(f"No value given for {key}")
+        else:
+            no_placeholders_found = False
+            raw_cmd = raw_cmd.replace(key, str(value))
+
+    if no_placeholders_found:
+        raise ValueError(
+            "Command doesn't include any of the possible placeholders: "
+            f"{list(placeholders.keys())}"
+        )
+
+    return raw_cmd
 
 
 def get_model_versions(session, get_inactive=False):
@@ -94,7 +106,7 @@ def get_iso_time():
     return datetime.now().replace(microsecond=0).isoformat()
 
 
-def create_dataset(session, start_date, end_date, database):
+def create_dataset(session, start_date=None, end_date=None, database=None):
     """Create a new Dataset in the database. If a dataset already exists for the
     specified start_date, end_date and database, return the ID of that dataset instead.
 
@@ -102,27 +114,40 @@ def create_dataset(session, start_date, end_date, database):
     ----------
     session : sqlalchemy.orm.session.Session
         ModMon database session
-    start_date : str or datetime.datetime
-        Dataset start date
-    end_date : str or datetime.datetime
-        Dateaset end date
-    database : str
-        Dataset database name
+    start_date : str or datetime.datetime , optional
+        Dataset start date, by default None
+    end_date : str or datetime.datetime , optional
+        Dateaset end date, by default None
+    database : str , optional
+        Dataset database name, by default None
 
     Returns
     -------
     int
-        ID of the created dataset
+        ID of the created dataset (or the pre-existing dataset if a dataset matching
+        the inputs already exists)
+         
+    Raises
+    ------
+    ValueError
+        If none of the start_date, end_date and database are defined
     """
-    # check whether matching dataset already exists
+    if start_date is None and end_date is None and database is None:
+        raise ValueError(
+            "At least one of start_date, end_date and database " "must be defined"
+        )
+
+    # query database for a dataset that matches the given inputs
     # TODO currently only checks by date, not times
-    dataset = (
-        session.query(Dataset)
-        .filter_by(databasename=database)
-        .filter(func.date(Dataset.start_date) == start_date)
-        .filter(func.date(Dataset.end_date) == end_date)
-        .first()
-    )
+    query = session.query(Dataset)
+    if start_date is not None:
+        query = query.filter(func.date(Dataset.start_date) == start_date)
+    if end_date is not None:
+        query = query.filter(func.date(Dataset.end_date) == end_date)
+    if database is not None:
+        query = query.filter_by(databasename=database)
+
+    dataset = query.first()
 
     # if matching dataset exists return its id
     if dataset:
@@ -248,9 +273,9 @@ def add_results_from_file(session, model_version, dataset_id, run_time):
 
 def run_model(
     model_version,
-    start_date,
-    end_date,
-    database,
+    start_date=None,
+    end_date=None,
+    database=None,
     force=False,
     session=None,
     reference=False,
@@ -264,12 +289,12 @@ def run_model(
     ----------
     model_version : modmon.schema.db.Modelversion
         Model version object
-    start_date : str or datetime.datetime
-        Dataset start date
-    end_date : str or datetime.datetime
-        Dataset end date
-    database : str
-        Dataset database name
+    start_date : str or datetime.datetime , optional
+        Dataset start date, by default None
+    end_date : str or datetime.datetime , optional
+        Dataset end date, by default None
+    database : str , optional
+        Dataset database name, by default None
     force : bool, optional
         If True regenerate results for a model version even if they already exist in the
         database for the same dataset, by default False
@@ -363,18 +388,20 @@ def run_model(
         session.close()
 
 
-def run_all_models(start_date, end_date, database, force=False, run_inactive=False):
+def run_all_models(
+    start_date=None, end_date=None, database=None, force=False, run_inactive=False
+):
     """Run all active model versions in the database to generate metrics values for a
     new dataset.
 
     Parameters
     ----------
-    start_date : str or datetime.datetime
-        Dataset start date
-    end_date : str or datetime.datetime
-        Dataset end date
-    database : str
-        Dataset database name
+    start_date : str or datetime.datetime , optional
+        Dataset start date, by default None
+    end_date : str or datetime.datetime , optional
+        Dataset end date, by default None
+    database : str, optional
+        Dataset database name, by default None
     force : bool, optional
         If True regenerate results for a model version even if they already exist in the
         database for the same dataset, by default False
@@ -406,6 +433,8 @@ def run_all_models(start_date, end_date, database, force=False, run_inactive=Fal
             print(f"FAILED: subprocess error: {e}")
         except FileNotFoundError as e:
             print(f"FAILED: File not found: {e}")
+        except ValueError as e:
+            print(f"FAILED: ValueError: {e}")
 
     session.close()
 
@@ -418,11 +447,9 @@ def main():
     parser = argparse.ArgumentParser(
         description="Automatically run all active model versions in the monitoring database"
     )
-    parser.add_argument("--start_date", help="Start date of dataset", required=True)
-    parser.add_argument("--end_date", help="End date of dataset", required=True)
-    parser.add_argument(
-        "--database", help="Name of the database to connect to", required=True,
-    )
+    parser.add_argument("--start_date", help="Start date of dataset")
+    parser.add_argument("--end_date", help="End date of dataset")
+    parser.add_argument("--database", help="Name of the database to connect to")
     parser.add_argument(
         "--force",
         help="If set, run models even if results already exist in the database",
@@ -436,8 +463,15 @@ def main():
 
     args = parser.parse_args()
     # TODO currently only deal with dates, not times
-    start_date = dateparser.parse(args.start_date).date()
-    end_date = dateparser.parse(args.end_date).date()
+    if args.start_date is not None:
+        start_date = dateparser.parse(args.start_date).date()
+    else:
+        start_date = None
+    if args.end_date is not None:
+        end_date = dateparser.parse(args.end_date).date()
+    else:
+        end_date = None
+
     run_all_models(
         start_date,
         end_date,

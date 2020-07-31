@@ -4,22 +4,23 @@ library(tokenizers)
 library(stopwords)
 library(glmnet)
 library(Metrics)
+library(rjson)
 
 # Parse command line arguments for database
 args <- commandArgs(trailingOnly=TRUE)
 db <- args[1]
-start_date <- args[2] # NOT USED!
-end_date <- args[3] # NOT USED!
 print(paste("DB: ", db))
 
 # Connect to the database and get the data
+config <- fromJSON(file = "db_config.json")
+
 con <- dbConnect(odbc(),
-                 Driver = "ODBC Driver 17 for SQL Server",
-                 Server = "51.104.224.106",
+                 Driver = config$driver,
+                 Server = config$server,
                  Database = db,
-                 UID = "analysts",
-                 PWD = "An8lysts.",
-                 Port = 1433)
+                 UID = config$user,
+                 PWD = config$password,
+                 Port = config$port)
 
 test <- dbGetQuery(con,
                    "SELECT con.concept_name AS condition, gen.concept_name AS gender

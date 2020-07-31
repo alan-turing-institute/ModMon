@@ -9,8 +9,6 @@ from db import get_data
 # parse arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("--database")
-parser.add_argument("--start_date")  # unused
-parser.add_argument("--end_date")  # unused
 args = parser.parse_args()
 
 # Set up synpuf db connection

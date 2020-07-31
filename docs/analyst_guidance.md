@@ -80,7 +80,7 @@ Template `metadata.json`:
 }
 ```
 
-- **command:** Must contain the placeholders `<database>`, `<start_date>` and `<end_date>` (case sensitive but in any order). In automated runs of your model these will be replaced by:
+- **command:** Must contain at least one of the placeholders `<database>`, `<start_date>` and `<end_date>` (case sensitive but in any order). In automated runs of your model these will be replaced by:
 
   - `<database>`: The OMOP database the monitoring system has access to.
   - `<start_date>`: The date of the earliest row to extract from the database (`Y-m-d` format)

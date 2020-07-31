@@ -26,7 +26,7 @@ class Dataset(Base):
     __tablename__ = "datasets"
 
     datasetid = Column(Integer, primary_key=True)
-    databasename = Column(String(20), nullable=False)
+    databasename = Column(String(20))
     description = Column(String(500))
     start_date = Column(DateTime)
     end_date = Column(DateTime)

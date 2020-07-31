@@ -14,5 +14,5 @@
 	"training_data_description": "Not applicable",
 	"model_run_datetime": "2020-01-01",
 	"test_data_description": "Synpuf database, entire date range",
-	"command": "python generate_stats.py <database> <start_date> <end_date>"
+	"command": "python generate_stats.py <database>"
 }

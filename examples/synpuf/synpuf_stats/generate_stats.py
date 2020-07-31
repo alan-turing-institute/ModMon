@@ -4,19 +4,7 @@ import pyodbc
 import pandas as pd
 import psycopg2
 import numpy as np
-
-
-def get_birthdate(year, month, day):
-    birthdate = pd.to_datetime(
-        (year * 10000 + month * 100 + day).apply(str), format="%Y%m%d",
-    )
-    return birthdate
-
-
-def compute_age(start_date, end_date):
-    age = np.floor(end_date.subtract(start_date).dt.days / 365.25).astype("int")
-    return age
-
+import json
 
 #############
 ### Setup ###
@@ -25,27 +13,20 @@ def compute_age(start_date, end_date):
 # Get the database name, start and end of date range to use for the model
 parser = argparse.ArgumentParser()
 parser.add_argument("db_name")
-parser.add_argument("start_date", type=lambda s: datetime.strptime(s, "%Y-%m-%d"))
-parser.add_argument("end_date", type=lambda s: datetime.strptime(s, "%Y-%m-%d"))
 args = parser.parse_args()
-
-# TODO: in the versioned SQL-Server implementation of the db, the dates will be used within the query(s) below
 db_name = args.db_name  # e.g. "synpuf"
-start_date = args.start_date  # e.g. 2020-01-01
-end_date = args.end_date  # e.g. 2020-06-01
 
 # Set up synpuf db connection
 # TODO: save this info in a config file
-server = "51.104.224.106,1433"
-driver = "ODBC Driver 17 for SQL Server"
-uid = "analysts"
-pwd = "An8lysts."
+with open("db_config.json", "r") as f:
+    config = json.load(f)
+
 cnxn = pyodbc.connect(
-    "DRIVER={" + driver + "};" +
-    "SERVER=" + server + ";" +
-    "DATABASE=" + db_name + ";" +
-    "UID=" + uid + ";" +
-    "PWD=" + pwd
+    "Driver={" + config["driver"] + "};"
+    f"Server={config['server']},{config['port']};"
+    f"Database={db_name};"
+    f"UID={config['user']};"
+    f"PWD={config['password']}"
 )
 
 #######################

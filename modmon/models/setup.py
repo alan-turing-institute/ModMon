@@ -300,9 +300,7 @@ def main():
         action="store_true",
     )
     parser.add_argument(
-        "--force",
-        help="If set, setup model even if checks fail",
-        action="store_true",
+        "--force", help="If set, setup model even if checks fail", action="store_true",
     )
     parser.add_argument(
         "--keepold",
