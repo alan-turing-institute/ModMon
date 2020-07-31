@@ -13,12 +13,30 @@ class TestModMon(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Set up database connection before running tests."""
+        """Set up database connection and extract plot data before running tests."""
         cls.db_connection = psycopg2.connect(
             host = "localhost",
             port = 5432,
             database = "ModMon",
         )
+
+        query = """
+        SELECT m.name, r.metric, r.value, d.databasename, d.datasetid, m.modelid, r.modelversion, q.description
+        FROM results AS r, datasets AS d, models AS m, researchQuestions AS q
+        WHERE r.testdatasetid = d.datasetid
+        AND r.modelid = m.modelid
+        AND m.questionid = q.questionid
+        AND NOT r.isreferenceresult;
+        """
+        results = pd.read_sql(
+            query,
+            cls.db_connection,
+        )
+        results = results.sort_values(by=['modelid', 'datasetid'])
+
+        results['model'] = results['name'] + '_' + results['modelversion']
+        results['titles'] = results['metric'] + ' (' + results['description'] + ')'
+        cls.results = results
 
     @classmethod
     def tearDownClass(cls):
@@ -42,29 +60,23 @@ class TestModMon(unittest.TestCase):
         return metadata.to_html(index=False)
 
     @plotting
-    def test_fig_results_performance(self):
+    def test_fig_1_results_performance(self):
         """Performance of ModMon DB models on across database versions. Each sub-plot shows the peformance of models on
         a particular research question according to a given metric."""
-        query = """
-        SELECT m.name, r.metric, r.value, d.databasename, d.datasetid, m.modelid, r.modelversion, q.description
-        FROM results AS r, datasets AS d, models AS m, researchQuestions AS q
-        WHERE r.testdatasetid = d.datasetid
-        AND r.modelid = m.modelid
-        AND m.questionid = q.questionid
-        AND NOT r.isreferenceresult;
-        """
-        results = pd.read_sql(
-            query,
-            self.db_connection,
-        )
-        results = results.sort_values(by=['modelid', 'datasetid'])
-
-        results['model'] = results['name'] + '_' + results['modelversion']
-        results['titles'] = results['metric'] + ' (' + results['description'] + ')'
-
-        g = sns.FacetGrid(data=results, row='titles', sharey=False, sharex=False, aspect=3, hue='model')
+        g = sns.FacetGrid(data=self.results, row='titles', sharey=False, sharex=False, aspect=3, hue='model')
         g.map(plt.scatter, "databasename", "value").fig.subplots_adjust(hspace=.4)
         g.set(xlabel='Database Version', ylabel='Metric Value')
         g.set_titles(col_template = "{col_name}", row_template = '{row_name}')
         for i, _ in enumerate(g.axes):
             g.axes[i][0].legend(title = "Models")
+
+    @plotting
+    def test_fig_2_model_bars(self):
+        reduced_results = self.results.loc[self.results['datasetid'].isin([max(self.results['datasetid']), min(self.results['datasetid'])])].copy()
+        reduced_results['model_metric'] = reduced_results['model'] + '_' + reduced_results['metric']
+
+        g1 = sns.FacetGrid(data=reduced_results, col='model_metric', col_wrap=3, sharey=False, sharex=False, hue='metric')
+        g1.map(plt.bar, "databasename", "value").fig.subplots_adjust(hspace=.4)
+        g1.set(xlabel='Database Version', ylabel='Metric Value')
+        g1.set_titles(col_template = "{col_name}")
+        g1.add_legend()
