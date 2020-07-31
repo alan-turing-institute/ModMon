@@ -5,6 +5,8 @@
 * conda: [Linux](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html), [Mac](https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html)
 * PostgreSQL: [Linux](https://www.postgresql.org/download/linux/), [Mac](https://wiki.postgresql.org/wiki/Homebrew)
 * Git: [link](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+* python 3 (developed on 3.8)
+* R
 
 ## Conda Environment
 

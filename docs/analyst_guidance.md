@@ -1,4 +1,10 @@
-# Analyst guidance
+# Model/Code Format guidance
+
+ModMon is designed to work with any workflow whilst placing as few modifications to your code as possible. The main requirements are:
+- All code and artefacts required to run the model must be in a single parent directory.
+- It must be runnable with a single command from the command-line.
+- The command can have up to 3 arguments used to modify the dataset - a start date, end date and database name.
+- The output must be a CSV file `metrics.csv` with two columns - the name of a metric and its value.
 
 ## Files
 
