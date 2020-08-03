@@ -1,4 +1,4 @@
-# ModMon Installation and Configuration
+# ModMon Installation and Configuration
 
 ## Pre-requisites
 
