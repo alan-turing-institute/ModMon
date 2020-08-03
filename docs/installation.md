@@ -57,7 +57,7 @@ This should print a list of tables and columns. Or you can connect directly to t
 > psql -h localhost -p 5432 ModMon
 ```
 
-### Delete ModMon Data
+## Delete ModMon Data
 
 To delete ModMon artefacts (database, models, environments and reports) you can run:
 ```bash
