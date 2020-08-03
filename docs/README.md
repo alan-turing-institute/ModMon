@@ -1,4 +1,4 @@
-## ModMon Docs
+## ModMon Docs
 
 - [Installation and configuration](installation.md)
 - [Required project/code structure](project_structure.md)
