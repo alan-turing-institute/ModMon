@@ -20,3 +20,9 @@ Model monitoring framework for DECOVID. A way for analysts to automate the calcu
 - [Related issues with the "Model Appraisal" label](https://github.com/alan-turing-institute/DECOVID-dataaccess/issues?q=is%3Aopen+is%3Aissue+label%3A%22Model+Appraisal%22).
 
 - [modmon-dev](https://github.com/alan-turing-institute/DECOVID-dataaccess/tree/modmon-dev) branch for latest development.
+
+## Contacts
+
+- Jack Roberts (@jack89roberts)
+- Ed Chalstrey (@edwardchalstrey1)
+- May Yong (@myyong)

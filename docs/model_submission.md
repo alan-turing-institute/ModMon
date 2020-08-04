@@ -1,10 +1,10 @@
-## Model Submission
+# Model Submission
 
 To add a model to the monitoring system you should first ensure it's in the necessary format (see project structure docs). In particular, it must be a contained within a single directory including (at its top level):
 - `metadata.json` file defining the command to run your model, and other metadata.
 - `metrics.csv` file containing the results of running your code on known inputs.
 
-### Check a model before submission
+## Check a model before submission
 
 To check the code, environments, metadata and metrics files of a model are in the expected formats you can run the command:
 ```bash
@@ -33,7 +33,7 @@ A successful run of `modmon_model_check` will give output similar to this:
 ```
 In all cases `modmon_model_check` will show warnings about entries in the database that will be newly created or referred to. For example, the output above indicates that we already have a model in the database from the same team that made the model we're checking. You should check these are what you expect and change the values in the metadata file if not.
 
-### Add a Model to the Database
+## Add a Model to the Database
 
 To add a new model to the database:
 ```bash
