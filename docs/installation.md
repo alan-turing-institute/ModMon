@@ -5,8 +5,8 @@
 * conda: [Linux](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html), [Mac](https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html)
 * PostgreSQL: [Linux](https://www.postgresql.org/download/linux/), [Mac](https://wiki.postgresql.org/wiki/Homebrew)
 * Git: [link](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-* python 3 (developed on 3.8)
-* R
+* python 3 (developed on 3.8): [link](https://www.python.org/downloads/)
+* R: [link](https://www.r-project.org/)
 
 ## Conda Environment
 
@@ -30,16 +30,14 @@ For ModMon development you can add the `-e` flag to install the package in edita
 
 ## Configure ModMon
 
-To configure database and some environoment settings ModMon uses a configuration file in
-.ini format. By default this is the file in `modmon/config/defaults.ini`. This defines:
+To configure database and some environoment settings ModMon uses a configuration file in .ini format. By default this is the file in [modmon/config/defaults.ini](../modmon/config/defaults.ini). This defines:
 * The ModMon database to be a postgresql database on localhost, without a username and password.
 * conda environments to install dependencies via the internet.
 * R models to be run in a conda environment with the R version specified by the renv.lock file.
 * Submitted models to be stored in the user's home directory at `$HOME/modmon/models`.
 * Reports to be stored in the user's home directory at `$HOME/modmon/reports`.
 
-To change the default values you should copy `modmon/config/defaults.ini` to the file
-`$HOME/.modmon.ini`, where `$HOME` is the path to your home directory.
+To change the default values you should copy [modmon/config/defaults.ini](../modmon/config/defaults.ini) to the file `$HOME/.modmon.ini`, where `$HOME` is the path to your home directory.
 
 ## Setup ModMon Database
 
