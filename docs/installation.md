@@ -50,8 +50,8 @@ To check the database exists and is functioning normally run:
 ```bash
 > modmon_db_check
 ```
-This should print a list of tables and columns. Or you can connect directly to the database with the psql command line tool:
-```basH
+This should print a list of tables and columns. Or you can connect directly to the database with the psql command line tool (assuming the default database configuration):
+```bash
 > psql -h localhost -p 5432 ModMon
 ```
 

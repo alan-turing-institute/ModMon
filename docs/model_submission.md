@@ -1,6 +1,6 @@
 # Model Submission
 
-To add a model to the monitoring system you should first ensure it's in the necessary format (see project structure docs). In particular, it must be a contained within a single directory including (at its top level):
+To add a model to the monitoring system you should first ensure it's in the necessary format (see project structure docs). In particular, it must be contained within a single directory including (at its top level):
 - `metadata.json` file defining the command to run your model, and other metadata.
 - `metrics.csv` file containing the results of running your code on known inputs.
 
@@ -10,11 +10,11 @@ To check the code, environments, metadata and metrics files of a model are in th
 ```bash
 > modmon_model_check path/to/model
 ```
-Where `path/to/model` is the path to the directory to be submitted to the database. This command runs general sanity checks of the metadata, database and metrics. To perform a more substantial check you can also pass the arguments:
-- `--create_envs` to test that any defined virtual environments can be created successfully.
-- `--repro_check` to verify that the command can be run successfully and the same metrics values are reproduced. The reproducibility check on `metrics.csv` is done with `repro-catalogue` (see [docs](https://repro-catalogue.readthedocs.io/en/latest/example_use.html#run-analysis)) - in this case the virtual env will be created even if the `--create_envs` flag is not used.
+Where `path/to/model` is the path to the directory to be submitted to the database. By default, this command runs general sanity checks of the metadata, database and metrics. To perform a more substantial check you can also pass the arguments:
+- `--create_envs` to test that any defined virtual environments (conda or renv) can be created successfully.
+- `--repro_check` to verify that the command can be run successfully and the same metrics values are reproduced (in this case the virtual environment will be created even if the `--create_envs` flag is not used). The newly generated `metrics.csv` file must be _identical_ to the submitted file to pass this check. The reproducibility check on `metrics.csv` is done with `repro-catalogue` (see [docs](https://repro-catalogue.readthedocs.io/en/latest/example_use.html#run-analysis)).
 
-A successful run of `modmon_model_check` will give output similar to this:
+A successful run of `modmon_model_check --repro_check` will give output similar to this:
 ```
 [ ] Checking wine-quality/sklearn_basic...
 [✓] Metadata: File exists
