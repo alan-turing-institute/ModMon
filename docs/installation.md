@@ -37,7 +37,7 @@ To configure database and some environoment settings ModMon uses a configuration
 * Submitted models to be stored in the user's home directory at `$HOME/modmon/models`.
 * Reports to be stored in the user's home directory at `$HOME/modmon/reports`.
 
-To change the default values you should copy [modmon/config/defaults.ini](../modmon/config/defaults.ini) to the file `$HOME/.modmon.ini`, where `$HOME` is the path to your home directory.
+To change the default values you should copy [modmon/config/defaults.ini](../modmon/config/defaults.ini) to the file `$HOME/.modmon.ini`, where `$HOME` is the path to your home directory. You can then edit the file in your home directory as you wish.
 
 ## Setup ModMon Database
 

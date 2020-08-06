@@ -9,37 +9,24 @@ This page gives the general context and motivation for developing ModMon, how it
 
 ## Context
 
-Models represent the data they were trained on
+Predictive models, and any type of analysis, represent the data they were trained on and developed with. Over time it's likely that aspects of the data will change, and the performance of the original model may drop as a result.
 
-If aspects of the data change the performance of a deployed model may drop
+DECOVID is happening in an uncertain, rapidly developing environment:
+- Changing status of the pandemic: Number and severity of cases being treated, development of new treatments, different government response & lockdown measures etc. 
+- The project is developing: Data from new hospitals will be added, new types of data or measurements will become available, old data may have corrections made etc.
 
-DECOVID happening in an uncertain, rapidly developing environment:
-- pandemic changing (number of cases being treated, new treatments/improving practices, different lockdown measures in place etc.)
-- project developing (data from new hospitals, new types of data/measurements added etc.)
+DECOVID is therefore a prime example of a project where the models or analyses developed at one time may not necessarily continue to perform as expected (or at least not as well as possible), and the timescale over which those changes happen and performance drops occur may be quite short.
 
-DECOVID is therefore a prime example where the models or analyses developed at one time may not necessarily continue to perform as expected (or at least not as well as possible), and the timescale over which those changes happen and performance drops may be quite short.
-
-As DECOVID outputs may be used to make clinical decisions for patients, it's critical to ensure that they stay relevant, or in other words to validate that any model being used still reflects the current status of the data.
+As DECOVID outputs are intended to be used to make clinical decisions for patients, it's critical to ensure that they stay relevant, or in other words to validate that any model being used still reflects the current status of the data. Therefore, it's critical to have practices, infrastructure and tools in place to test DECOVID models and other outputs on the latest data.
 
 
-## DECOVID Model Appraisal Proposal
+## ModMon: A model appraisal system for DECOVID
 
-Have a system to run all developed models on new data
+The ModMon package aims to provide a system where analysts can submit their models (or other analyses) to be easily run on new data as it arrives, and to compare the results to previous runs. It will reduce the burden on analysts of needing to revalidate and appraise their models.
 
-benefits:
-- confidence in DECOVID outputs
-- reproducibility
-- guarantee your model is runnable by someone else
-- quickly re-validate your model on new data
+DECOVID teams will be answering many different research questions, with different programming languages (mostly python and R), packages (though limitied to what's available in the secure research environment) and workflows. Being able to run models of completely different formats in one automated system requires some standardisation of the code that's provided.
 
-
-## ModMon
-
-We aim to provide a system where analysts can submit their models (or other analyses) to be easily run on new data as it arrives, and compare the results to previous runs. This is the ModMon package.
-
-DECOVID teams will be answering many different research questions, with different programming languages (mostly python and R), packages (though limitied to what's available in the secure research environment) and workflows.
-
-Being able to run models of completely different formats in one automated system requires some standardisation of the code that's provided. We have developed ModMon to be as workflow-agnostic as possible, with the main requirement being to provide a single command to run your model with several known inputs defining the dataset to use. The output of this command must be a CSV file containing the values of the metrics for evaluating the performance of your model (these metrics must be single-valued, but can be anything you choose to define).
+We have developed ModMon to be as workflow-agnostic as possible, with the main requirement being to provide a single command to run your model with several known inputs defining the dataset to use. The output of this command must be a CSV file containing the values of the metrics for evaluating the performance of your model (these metrics must be single-valued, but can be anything you choose to define).
 
 In summary:
 
@@ -57,9 +44,13 @@ In summary:
 
 ## ModMon and Reproducibility
 
-Before your model/code is added to the ModMon system it will be run through checks to ensure it is compatible. This also includes a reprooducibility check on previously calculated metrics from a known dataset. If ModMon is unable to setup your code environment and reproduce identical metrics values the checks will fail. Reproducibility is another core value of DECOVID and it is our intention that all models added to the ModMon system should be known entities proven to produce expected results. Reproducibility checks are performed with the [repro-catalogue package](https://github.com/alan-turing-institute/repro-catalogue).
+Before your model/code is added to the ModMon system it will be run through checks to ensure it is compatible. This also includes a reprooducibility check on previously calculated metrics from a known dataset. If ModMon is unable to setup your code environment and reproduce identical metric values the checks will fail. Reproducibility is another core value of DECOVID and it is our intention that all models added to the ModMon system should be known entities proven to produce expected results. Reproducibility checks are performed with the [repro-catalogue package](https://github.com/alan-turing-institute/repro-catalogue).
 
 ## Performance Reports and Feedback
+
+The results (metric values) of all model runs on each different dataset are stored in the ModMon database. Building off the [descriptive stats work](../../analysis/plotting) for DECOVID, ModMon uses the database and [unitreport](https://github.com/annahadji/unitreport) to automatically generate formatted reports showing how the performance of each model has changed with subsequent runs. These can be used by analysts to quickly determine whether a model is giving questionable results and needs to be investigated in more detail.
+
+If an analysis team intervenes and improves their model it can be resubmitted to ModMon with a new version number. In this way ModMon keeps a version history of each model group, and can optionally monitor either only the latest version of each model or all versions of each model.
 
 ## Data Source
 
