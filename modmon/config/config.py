@@ -7,7 +7,7 @@ from .interpolate import EnvInterpolation
 config = configparser.ConfigParser(interpolation=EnvInterpolation())
 
 # search for .modmon.ini in home directory, if not present use defaults.ini
-user_config_path = Path(Path.home(), ".modmom.ini")
+user_config_path = Path(Path.home(), ".modmon.ini")
 default_config_path = Path(Path(__file__).parent, "defaults.ini")
 
 if user_config_path.exists():
