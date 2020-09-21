@@ -99,7 +99,7 @@ def get_session():
 def main():
     """Check connection to the ModMon database and, if successful, print the tables and
     columns it contains.
-    
+
     To be used from command line as modmon_db_check
     """
     ok, error = check_connection_ok()

@@ -54,7 +54,10 @@ y_pred = pipe.predict_proba(X)
 auc = roc_auc_score(y, y_pred[:, 1])
 
 # Create df of test metrics
-metrics = pd.DataFrame([["accuracy", acc], ["AUC", auc]], columns=["metric", "value"],)
+metrics = pd.DataFrame(
+    [["accuracy", acc], ["AUC", auc]],
+    columns=["metric", "value"],
+)
 
 # Save the metrics to csv:
 metrics.to_csv("metrics.csv", index=False, float_format="%.3f")

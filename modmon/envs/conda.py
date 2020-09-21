@@ -74,7 +74,7 @@ def create_conda_env(
     ValueError
         If neither env_file nor dependencies is defined.
     """
-    
+
     if conda_env_exists(env_name):
         if overwrite:
             subprocess.run(
@@ -88,7 +88,7 @@ def create_conda_env(
     if env_file:
         # get name of environment file without directory
         env_filename = Path(env_file).name
-        
+
         # get environment file's directory
         cwd = Path(env_file).parent
         if not os.path.isabs(cwd):
@@ -134,7 +134,10 @@ def create_conda_env(
         conda_create_cmd.append("--offline")
 
     subprocess.run(
-        conda_create_cmd, check=True, capture_output=capture_output, cwd=cwd,
+        conda_create_cmd,
+        check=True,
+        capture_output=capture_output,
+        cwd=cwd,
     )
 
 

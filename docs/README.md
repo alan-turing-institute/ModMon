@@ -56,7 +56,7 @@ If an analysis team intervenes and improves their model it can be resubmitted to
 
 For DECOVID, clinical data from the partner hospitals will be converted to the OMOP database format (see [DECOVID-datamgmt repo](https://github.com/alan-turing-institute/DECOVID-datamgmt)), and all analyst teams will have access to an OMOP database derived from this source.
 
-DECOVID has considered two main approaches for updating the analyst database  with new data (or corrected data) when it arrives:
+DECOVID has considered two main approaches for updating the analyst database with new data (or corrected data) when it arrives:
 
 - **Temporal Tables:** The history of values for all rows is stored in the database. When a new row is added (or a value updated) to the database it is added with a timestamp of the update time. Using these timestamps, analysts can query the database to return data in the state it was in at any point in its history.
 

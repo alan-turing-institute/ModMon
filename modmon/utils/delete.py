@@ -36,7 +36,7 @@ def delete_all_artefacts(
         envs = True
         models = True
         reports = True
-  
+
     if not (db or envs or models or reports):
         print("Nothing set to delete")
         return
@@ -52,7 +52,7 @@ def delete_all_artefacts(
         if reports:
             message += "reports, "
         message = message[:-2] + "? This can't be undone!"
-        
+
         confirmed = ask_for_confirmation(message)
         if not confirmed:
             print("Not confirmed. Aborting.")
@@ -87,7 +87,9 @@ def main():
         description="Delete all ModMon artefacts (database, model storage and environments)"
     )
     parser.add_argument(
-        "--db", help="Delete the ModMon database", action="store_true",
+        "--db",
+        help="Delete the ModMon database",
+        action="store_true",
     )
     parser.add_argument(
         "--envs",
@@ -105,7 +107,9 @@ def main():
         action="store_true",
     )
     parser.add_argument(
-        "--all", help="Delete everything", action="store_true",
+        "--all",
+        help="Delete everything",
+        action="store_true",
     )
     parser.add_argument(
         "--force",

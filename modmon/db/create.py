@@ -119,7 +119,7 @@ def delete_schema(force=False, checkfirst=True):
 
 def main():
     """Delete and re-create the model monitoring database.
-    
+
     To be used from command-line as modmon_db_create
     """
     parser = argparse.ArgumentParser(

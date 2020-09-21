@@ -56,7 +56,9 @@ months = {
 ### Population Size ###
 #######################
 
-population_size = pd.read_sql("SELECT COUNT(person_id) AS count FROM person", cnxn)["count"][0]
+population_size = pd.read_sql("SELECT COUNT(person_id) AS count FROM person", cnxn)[
+    "count"
+][0]
 
 ################################
 ###     Patient Mortality    ###

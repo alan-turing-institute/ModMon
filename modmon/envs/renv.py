@@ -68,7 +68,12 @@ def create_renv_env(path, capture_output=False, rconda=None):
         conda_name = None
 
     subprocess.run(
-        renv_cmd, cwd=path, shell=True, check=True, capture_output=capture_output
+        renv_cmd,
+        cwd=path,
+        shell=True,
+        check=True,
+        capture_output=capture_output,
+        executable="/bin/bash",
     )
 
     return conda_name

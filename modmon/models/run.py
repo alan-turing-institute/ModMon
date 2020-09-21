@@ -126,7 +126,7 @@ def create_dataset(session, start_date=None, end_date=None, database=None):
     int
         ID of the created dataset (or the pre-existing dataset if a dataset matching
         the inputs already exists)
-         
+
     Raises
     ------
     ValueError
@@ -371,6 +371,7 @@ def run_model(
         shell=True,
         check=True,
         capture_output=capture_output,
+        executable="/bin/bash",
     )
 
     if not reference:

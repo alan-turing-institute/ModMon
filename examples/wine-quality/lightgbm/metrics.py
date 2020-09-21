@@ -9,8 +9,7 @@ def get_labels(idx):
 
 
 def correct_class(predictions, true_values):
-    """Fraction of predictions that exactly matched the correct quality score.
-    """
+    """Fraction of predictions that exactly matched the correct quality score."""
     pred_labels = predictions.idxmax(axis=1)
     df = pd.DataFrame({"true": true_values, "predicted": pred_labels})
     return (df["true"] == df["predicted"]).mean()

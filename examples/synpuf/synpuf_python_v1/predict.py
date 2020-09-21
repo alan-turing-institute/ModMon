@@ -27,7 +27,13 @@ y_pred = pipe.predict_proba(X)
 auc = roc_auc_score(y, y_pred[:, 1])
 
 # Create df of metrics
-metrics = pd.DataFrame([["accuracy", acc], ["AUC", auc],], columns=["metric", "value"])
+metrics = pd.DataFrame(
+    [
+        ["accuracy", acc],
+        ["AUC", auc],
+    ],
+    columns=["metric", "value"],
+)
 print(metrics)
 
 # Save the metrics to csv:

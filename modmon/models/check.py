@@ -103,7 +103,7 @@ def check_metadata_keys(metadata, result_dict=None):
     result_dict : dict, optional
         Dictionary to store counts of check results with keys "success", "warning" and
         "error", by default None which initialises a new dict with zero counts.
-    
+
     Returns
     -------
     dict
@@ -161,7 +161,7 @@ def check_metadata_values(metadata, result_dict=None):
     result_dict : dict, optional
         Dictionary to store counts of check results with keys "success", "warning" and
         "error", by default None which initialises a new dict with zero counts.
-    
+
     Returns
     -------
     dict
@@ -243,7 +243,7 @@ def check_db_for_duplicates(metadata, result_dict=None):
     result_dict : dict, optional
         Dictionary to store counts of check results with keys "success", "warning" and
         "error", by default None which initialises a new dict with zero counts.
-    
+
     Returns
     -------
     dict
@@ -332,7 +332,7 @@ def check_metrics_file(metrics_path, result_dict=None):
     result_dict : dict, optional
         Dictionary to store counts of check results with keys "success", "warning" and
         "error", by default None which initialises a new dict with zero counts.
-    
+
     Returns
     -------
     dict
@@ -370,7 +370,7 @@ def check_submission(path, create_envs=False, repro_check=False, result_dict=Non
     result_dict : dict, optional
         Dictionary to store counts of check results with keys "success", "warning" and
         "error", by default None which initialises a new dict with zero counts.
-    
+
     Returns
     -------
     dict

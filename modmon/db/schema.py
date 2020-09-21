@@ -20,8 +20,7 @@ metadata = Base.metadata
 
 
 class Dataset(Base):
-    """Unique combination of a start date, end date and database.
-    """
+    """Unique combination of a start date, end date and database."""
 
     __tablename__ = "datasets"
 
@@ -44,8 +43,7 @@ class Metric(Base):
 
 
 class Researchquestion(Base):
-    """Question the model is trying to answer.
-    """
+    """Question the model is trying to answer."""
 
     __tablename__ = "researchquestions"
 
@@ -54,8 +52,7 @@ class Researchquestion(Base):
 
 
 class Team(Base):
-    """Details of the team submitting the model.
-    """
+    """Details of the team submitting the model."""
 
     __tablename__ = "teams"
 
