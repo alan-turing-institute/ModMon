@@ -36,7 +36,7 @@ class DummyModelversion:
         self.command = command
 
 
-def catalogue_metrics(model_dir, repro_dir, dev_null):
+def catalogue_metrics(model_dir, repro_dir):
     """Use the repro-catalogue package to create a directory called catalogue_results
     inside repro_dir containing hashed versions of the data, code and results dirs,
     which in this case are empty except for metrics.csv in results
@@ -47,8 +47,6 @@ def catalogue_metrics(model_dir, repro_dir, dev_null):
         Path to model directory
     repro_dir : str
         Path to directory to store repro-catalogue results
-    dev_null : _io.TextIOWrapper
-        Opened reference to /dev/null for stdout and stderr
     """
     shutil.copyfile(model_dir + "/metrics.csv", repro_dir + "/results/metrics.csv")
 
@@ -56,16 +54,14 @@ def catalogue_metrics(model_dir, repro_dir, dev_null):
         ["git", "add", "metrics.csv"],
         check=True,
         cwd=repro_dir + "/results",
-        stdout=dev_null,
-        stderr=dev_null,
+        capture_output=True,
     )
     try:
         subprocess.run(
             ["git", "commit", "-m", "'add reference result'"],
             check=True,
             cwd=repro_dir,
-            stdout=dev_null,
-            stderr=dev_null,
+            capture_output=True,
         )
     except subprocess.CalledProcessError:  # Commit will fail when metrics.csv is added unchanged
         pass
@@ -74,8 +70,7 @@ def catalogue_metrics(model_dir, repro_dir, dev_null):
         ["catalogue", "engage", "--input_data", "data", "--code", "code"],
         check=True,
         cwd=repro_dir,
-        stdout=dev_null,
-        stderr=dev_null,
+        capture_output=True,
     )
     subprocess.run(
         [
@@ -90,8 +85,7 @@ def catalogue_metrics(model_dir, repro_dir, dev_null):
         ],
         check=True,
         cwd=repro_dir,
-        stdout=dev_null,
-        stderr=dev_null,
+        capture_output=True,
     )
 
 
@@ -168,7 +162,7 @@ def reference_result_is_reproducible(path, metadata):
         mkdir(tmp_repro_path + "/results")
 
         # Use repro-catalogue with reference metrics supplied by analyst
-        catalogue_metrics(tmp_model_path, tmp_repro_path, dev_null)
+        catalogue_metrics(tmp_model_path, tmp_repro_path)
 
         # Create a dummy model version to mimic one from the database
         model_version = DummyModelversion(tmp_model_path, metadata["command"])
@@ -187,7 +181,7 @@ def reference_result_is_reproducible(path, metadata):
         )
 
         # Use repro-catalogue with new metrics just generated
-        catalogue_metrics(tmp_model_path, tmp_repro_path, dev_null)
+        catalogue_metrics(tmp_model_path, tmp_repro_path)
 
         match_bool = results_match(tmp_repro_path)
     return match_bool
