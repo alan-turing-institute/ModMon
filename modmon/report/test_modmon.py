@@ -5,6 +5,8 @@ import seaborn as sns
 import unittest
 from unitreport import plotting, tabling
 
+from modmon.db.connect import get_connection
+
 
 class TestModMon(unittest.TestCase):
     """This report aims to provide readers with a summary of the model appraisal"""
@@ -14,11 +16,7 @@ class TestModMon(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Set up database connection and extract plot data before running tests."""
-        cls.db_connection = psycopg2.connect(
-            host="localhost",
-            port=5432,
-            database="ModMon",
-        )
+        cls.db_connection = get_connection()
 
         query = """
         SELECT m.name, r.metric, r.value, d.databasename, d.datasetid, m.modelid, r.modelversion, q.description

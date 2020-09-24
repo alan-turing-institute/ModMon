@@ -96,6 +96,17 @@ def get_session():
     return DBSession()
 
 
+def get_connection():
+    """Get a connection to the ModMon database
+
+    Returns
+    -------
+    psycopg2 connection
+        ModMon database connection
+    """
+    return ENGINE.connect()
+
+
 def main():
     """Check connection to the ModMon database and, if successful, print the tables and
     columns it contains.
