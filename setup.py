@@ -45,4 +45,5 @@ setup(
             "modmon_report=modmon.report.report:main",
         ]
     },
+    package_data={"modmon": ["config/defaults.ini", "report/templates/*"]},
 )

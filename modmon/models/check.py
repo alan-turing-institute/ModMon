@@ -256,7 +256,7 @@ def check_db_for_duplicates(metadata, result_dict=None):
     if not ok:
         print_error(f"Database: Connection failed - {err}")
         result_dict["error"] += 1
-        return
+        return result_dict
 
     session = get_session()
     new_values = []

@@ -1,6 +1,6 @@
 import argparse
 import json
-from os import listdir, devnull, mkdir
+from os import listdir, mkdir
 import shutil
 import subprocess
 import tempfile
@@ -146,7 +146,6 @@ def reference_result_is_reproducible(path, metadata):
         True if the hashes of the original and generated metrics.csv files match.
     """
     session = get_session()
-    dev_null = open(devnull, "w")
 
     with tempfile.TemporaryDirectory() as tmpdirname:
         # copy model to temporary directory to avoid overwriting source files
@@ -161,8 +160,7 @@ def reference_result_is_reproducible(path, metadata):
             ["git", "init"],
             check=True,
             cwd=tmp_repro_path,
-            stdout=dev_null,
-            stderr=dev_null,
+            capture_output=True,
         )
 
         mkdir(tmp_repro_path + "/data")

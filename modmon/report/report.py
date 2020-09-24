@@ -1,5 +1,4 @@
 import datetime
-from os import devnull
 from pathlib import Path
 import subprocess
 import shutil
@@ -10,10 +9,8 @@ from ..utils.utils import ask_for_confirmation
 
 def generate_report():
     """Generate a html report containing plots found in test_modmon.py"""
-
     report_dir = config["reports"]["reportdir"]
     print("Generating model appraisal report and saving to", report_dir)
-    dev_null = open(devnull, "w")
     date_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     subprocess.run(
         [
@@ -26,9 +23,8 @@ def generate_report():
             "templates",
         ],
         check=True,
-        cwd=Path(Path(__file__).parent),
-        stdout=dev_null,
-        stderr=dev_null,
+        cwd=Path(__file__).parent,
+        capture_output=True,
     )
 
 
