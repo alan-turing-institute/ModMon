@@ -8,6 +8,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 ## Make directory for jupyter configuration file
 RUN mkdir /root/.jupyter
 COPY jupyter_notebook_config.py /root/.jupyter/.
+ENV PATH $PATH:/usr/local/conda/bin
 
 ## Download and install required Linux packages
 RUN apt-get -qq update && apt-get -qq -y install curl wget bzip2 git gcc vim unixodbc-dev python3-dev g++ postgresql-client r-base r-base-core r-base-dev \
@@ -28,6 +29,7 @@ RUN mkdir /monitor/examples
 RUN mkdir /monitor/modmon 
 RUN mkdir /monitor/notebooks
 COPY requirements.txt /monitor/
+COPY dockerrequirements.txt /monitor/
 COPY README.md /monitor/
 COPY setup.py /monitor/
 COPY examples/ /monitor/examples/
