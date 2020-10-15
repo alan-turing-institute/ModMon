@@ -14,5 +14,5 @@
 	"training_data_description": "This is 50% of the wine quality dataset",
 	"model_run_datetime": "2020-07-11",
 	"test_data_description": "This is the 50% of the wine quality dataset that was not used for training the model",
-	"command": "python run_prediction_model.py <database> <start_date> <end_date>"
+	"score_command": "python run_prediction_model.py <database> <start_date> <end_date>"
 }

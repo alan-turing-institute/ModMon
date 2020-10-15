@@ -14,5 +14,5 @@
 	"training_data_description": "Part of the wine quality dataset",
 	"model_run_datetime": "11/07/2020",
 	"test_data_description": "[Add description]",
-	"command": "Rscript predict.R <start_date> <end_date> <database>"
+	"score_command": "Rscript predict.R <start_date> <end_date> <database>"
 }

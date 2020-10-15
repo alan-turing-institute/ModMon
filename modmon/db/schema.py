@@ -33,7 +33,7 @@ class Dataset(Base):
 
 class Metric(Base):
     """Unique name and a description for each metric to be tracked. Names will come from
-    the saved metrics.csv files after model runs.
+    the saved scores.csv files after model runs.
     """
 
     __tablename__ = "metrics"
@@ -81,7 +81,7 @@ class Model(Base):
 
 class Modelversion(Base):
     """Version of a specified model. Each model version specifies the path to (location)
-    its files and the command needed to run it. The command must conotain placeholder
+    its files and the commands needed to run it. The commands must contain placeholder
     arguments <start_date>, <end_date> and <database> which are replaced with
     appropriate values at run time.
     """
@@ -93,7 +93,7 @@ class Modelversion(Base):
     trainingdatasetid = Column(ForeignKey("datasets.datasetid"), nullable=False)
     referencetestdatasetid = Column(ForeignKey("datasets.datasetid"), nullable=False)
     location = Column(String(500))
-    command = Column(String(500))
+    score_command = Column(String(500))
     modeltraintime = Column(DateTime)
     active = Column(Boolean)
 
@@ -107,12 +107,12 @@ class Modelversion(Base):
     )
 
 
-class Result(Base):
-    """Each row in the Result table is a value for a single metric from a run of a model
+class Score(Base):
+    """Each row in the Scores table is a value for a single metric from a run of a model
     version on a certain dataset.
     """
 
-    __tablename__ = "results"
+    __tablename__ = "scores"
     __table_args__ = (
         ForeignKeyConstraint(
             ["modelid", "modelversion"],
@@ -125,13 +125,13 @@ class Result(Base):
     testdatasetid = Column(
         ForeignKey("datasets.datasetid"), primary_key=True, nullable=False
     )
-    isreferenceresult = Column(Boolean, nullable=False)
+    isreference = Column(Boolean, nullable=False)
     runtime = Column(DateTime, nullable=False)
     runid = Column(Integer, primary_key=True, nullable=False)
     metric = Column(ForeignKey("metrics.metric"), primary_key=True, nullable=False)
     value = Column(Float(53), nullable=False)
     valueerror = Column(Float(53))
-    resultmessage = Column(String(500))
+    message = Column(String(500))
 
     metric1 = relationship("Metric")
     modelversion1 = relationship("Modelversion")

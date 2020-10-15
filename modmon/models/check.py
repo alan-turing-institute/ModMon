@@ -7,6 +7,7 @@ import os
 import json
 import subprocess
 import re
+import sys
 
 import colorama
 from colorama import Fore
@@ -124,7 +125,7 @@ def check_metadata_keys(metadata, result_dict=None):
         "data_window_end",
         "model_train_datetime",
         "model_run_datetime",
-        "command",
+        "score_command",
     ]
     optional_keys = [
         "team_description",
@@ -214,12 +215,12 @@ def check_metadata_values(metadata, result_dict=None):
                 checked_values[key] = True
 
     # command string - check for placeholders
-    if "command" in metadata.keys():
+    if "score_command" in metadata.keys():
         try:
-            build_run_cmd(metadata["command"], "2000-1-1", "2000-1-1", "TEST")
-            checked_values["command"] = True
+            build_run_cmd(metadata["score_command"], "2000-1-1", "2000-1-1", "TEST")
+            checked_values["score_command"] = True
         except ValueError:
-            checked_values["command"] = False
+            checked_values["score_command"] = False
 
     if all(checked_values.values()):
         print_success("Metadata: All keys have valid values")
@@ -380,6 +381,10 @@ def check_submission(path, create_envs=False, repro_check=False, result_dict=Non
         result_dict = {"success": 0, "error": 0, "warning": 0}
 
     print_info(f"Checking {path}...")
+    # directory
+    if not os.path.exists(path):
+        print_error(f"{path} does not exist")
+        raise FileNotFoundError(f"{path} does not exist")
 
     # metadata file
     metadata_path = f"{path}/metadata.json"
@@ -403,7 +408,7 @@ def check_submission(path, create_envs=False, repro_check=False, result_dict=Non
         print_error("Metadata: File not found")
         result_dict["error"] += 1
 
-    metrics_path = f"{path}/metrics.csv"
+    metrics_path = f"{path}/scores.csv"
     if os.path.exists(metrics_path):
         print_success("Metrics: File exists")
         result_dict["success"] += 1
@@ -503,6 +508,10 @@ def main():
         action="store_true",
     )
     args = parser.parse_args()
-    check_submission(
-        args.path, create_envs=args.create_envs, repro_check=args.repro_check
-    )
+    try:
+        check_submission(
+            args.path, create_envs=args.create_envs, repro_check=args.repro_check
+        )
+    except FileNotFoundError:
+        print("hi")
+        sys.exit(1)

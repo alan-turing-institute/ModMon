@@ -37,4 +37,4 @@ metrics = pd.DataFrame(
 print(metrics)
 
 # Save the metrics to csv:
-metrics.to_csv("metrics.csv", index=False, float_format="%.3f")
+metrics.to_csv("scores.csv", index=False, float_format="%.3f")

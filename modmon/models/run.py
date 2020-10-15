@@ -14,7 +14,7 @@ from sqlalchemy import func
 from ..report.report import generate_report
 from ..db.connect import get_session
 from ..db.utils import get_unique_id
-from ..db.schema import Modelversion, Dataset, Result
+from ..db.schema import Modelversion, Dataset, Score
 from ..envs.utils import create_env
 
 
@@ -172,8 +172,8 @@ def create_dataset(session, start_date=None, end_date=None, database=None):
         return dataset_id
 
 
-def result_exists(session, model_id, model_version, dataset_id):
-    """Check whether the database already contains results for a model version on a
+def score_exists(session, model_id, model_version, dataset_id):
+    """Check whether the database already contains scores for a model version on a
     given dataset.
 
     Parameters
@@ -190,18 +190,18 @@ def result_exists(session, model_id, model_version, dataset_id):
     Returns
     -------
     bool
-        True if the database contains a result for the specifed model version and
+        True if the database contains scores for the specifed model version and
         dataset.
     """
-    result = (
-        session.query(Result)
+    score = (
+        session.query(Score)
         .filter_by(modelid=model_id)
         .filter_by(modelversion=model_version)
         .filter_by(testdatasetid=dataset_id)
         .first()
     )
 
-    if result:
+    if score:
         return True
     else:
         return False
@@ -221,10 +221,10 @@ def get_metrics_path(model_version):
     str
         Expected path to metrics file
     """
-    return f"{model_version.location}/metrics.csv"
+    return f"{model_version.location}/scores.csv"
 
 
-def add_results_from_file(session, model_version, dataset_id, run_time):
+def add_scores_from_file(session, model_version, dataset_id, run_time):
     """Add the values from a model version's metrics file to the database after a new
     run.
 
@@ -242,27 +242,27 @@ def add_results_from_file(session, model_version, dataset_id, run_time):
     Raises
     ------
     FileNotFoundError
-        If the file model_version.location/metrics.csv does not exist
+        If the file model_version.location/scores.csv does not exist
     """
     metrics_path = get_metrics_path(model_version)
 
     if not os.path.exists(metrics_path):
         raise FileNotFoundError(
-            f"{metrics_path} not found. This should be created by running {model_version.command}."
+            f"{metrics_path} not found. This should be created by running {model_version.score_command}."
         )
 
-    run_id = get_unique_id(session, Result.runid)
+    run_id = get_unique_id(session, Score.runid)
 
     metrics = pd.read_csv(metrics_path)
 
     for _, row in metrics.iterrows():
         metric_name, metric_value = row
 
-        dataset = Result(
+        dataset = Score(
             modelid=model_version.modelid,
             modelversion=model_version.modelversion,
             testdatasetid=dataset_id,
-            isreferenceresult=False,
+            isreference=False,
             runtime=run_time,
             runid=run_id,
             metric=metric_name,
@@ -282,8 +282,8 @@ def run_model(
     verbose=True,
     capture_output=False,
 ):
-    """Run a model version's command to generate new metrics values with the specified
-    dataset inputs.
+    """Run a model version's score_command to generate new metrics values with the
+    specified dataset inputs.
 
     Parameters
     ----------
@@ -314,7 +314,7 @@ def run_model(
     ------
     FileNotFoundError
         If the metrics file is not successfully created at
-        model_version.location/metrics.csv after the model run.
+        model_version.location/scores.csv after the model run.
     """
     if not session:
         session = get_session()
@@ -327,13 +327,13 @@ def run_model(
             print("Creating dataset...")
         dataset_id = create_dataset(session, start_date, end_date, database)
 
-        # Check whether result already exists for this model version and dataset
-        if not force and result_exists(
+        # Check whether scores already exists for this model version and dataset
+        if not force and score_exists(
             session, model_version.modelid, model_version.modelversion, dataset_id
         ):
             if verbose:
                 print(
-                    f"DB already contains result for model {model_version.modelid}, "
+                    f"DB already contains scores for model {model_version.modelid}, "
                     f"version {model_version.modelversion} on dataset {dataset_id}. "
                     "Skipping."
                 )
@@ -357,7 +357,7 @@ def run_model(
     except FileNotFoundError:
         pass
 
-    run_cmd = build_run_cmd(model_version.command, start_date, end_date, database)
+    run_cmd = build_run_cmd(model_version.score_command, start_date, end_date, database)
     if env_cmd is not None:
         run_cmd = f"{env_cmd} && {run_cmd}"
 
@@ -382,7 +382,7 @@ def run_model(
                 f"{metrics_path} not found. This should be created by running {run_cmd}."
             )
 
-        add_results_from_file(session, model_version, dataset_id, run_time)
+        add_scores_from_file(session, model_version, dataset_id, run_time)
     session.commit()
 
     if close_session:

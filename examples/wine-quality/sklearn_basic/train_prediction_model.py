@@ -20,4 +20,4 @@ pickle.dump(model, open(filename, "wb"))
 
 # Output metrics as csv
 metrics = pd.DataFrame([["training_time", training_time]], columns=["metric", "value"])
-metrics.to_csv("training_metrics.csv", index=False)
+metrics.to_csv("training_scores.csv", index=False)

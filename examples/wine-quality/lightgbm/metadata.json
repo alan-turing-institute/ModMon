@@ -14,5 +14,5 @@
 	"training_data_description": "This is the first 2500 rows of the wine quality dataset",
 	"model_run_datetime": "2020-07-11",
 	"test_data_description": "[Add description]",
-	"command": "make clean; make START_DATE=<start_date> END_DATE=<end_date> DATABASE=<database>"
+	"score_command": "make clean; make START_DATE=<start_date> END_DATE=<end_date> DATABASE=<database>"
 }

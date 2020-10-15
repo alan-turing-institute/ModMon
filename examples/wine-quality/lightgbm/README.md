@@ -21,7 +21,7 @@ conda activate wine-lightgbm
 ### Create a new metrics file
 
 Defined in `Makefile`. Note that files won't be regenerated correctly if `predictions.csv` or
-`metrics.csv` already exist. These must be deleted first by running `make clean`. The
+`scores.csv` already exist. These must be deleted first by running `make clean`. The
 environment must also be activated before running these commands.
 
 Full command:

@@ -131,6 +131,6 @@ metrics = pd.DataFrame(
 )
 
 # Save the metrics to csv:
-metrics.to_csv("metrics.csv", index=False)
+metrics.to_csv("scores.csv", index=False)
 
 print(metrics)
