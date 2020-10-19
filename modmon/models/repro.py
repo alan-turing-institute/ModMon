@@ -8,13 +8,13 @@ import tempfile
 import pandas as pd
 
 from ..db.connect import get_session
-from ..db.schema import Modelversion, Model
-from .run import run_model
+from ..db.schema import ModelVersion, Model
+from .run import run_model_scoring
 
 
-class DummyModelversion:
+class DummyModelVersion:
     """
-    Dummy Modelversion class to use to pass a model to run functions without needing a
+    Dummy ModelVersion class to use to pass a model to run functions without needing a
     database entry.
     """
 
@@ -22,7 +22,7 @@ class DummyModelversion:
     modelversion = "TMP"
 
     def __init__(self, location, score_command):
-        """Initialise an instance of DummyModelversion
+        """Initialise an instance of DummyModelVersion
 
         Parameters
         ----------
@@ -165,11 +165,11 @@ def reference_result_is_reproducible(path, metadata):
         catalogue_metrics(tmp_model_path, tmp_repro_path)
 
         # Create a dummy model version to mimic one from the database
-        model_version = DummyModelversion(tmp_model_path, metadata["score_command"])
+        model_version = DummyModelVersion(tmp_model_path, metadata["score_command"])
 
         # Run the model in reference mode (do not add results to db)
         # This overwrites scores.csv within the dir supplied to modmon_model_check
-        run_model(
+        run_model_scoring(
             model_version,
             metadata["data_window_start"],
             metadata["data_window_end"],

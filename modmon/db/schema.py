@@ -11,6 +11,7 @@ from sqlalchemy import (
     ForeignKeyConstraint,
     Integer,
     String,
+    JSON,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -22,9 +23,10 @@ metadata = Base.metadata
 class Dataset(Base):
     """Unique combination of a start date, end date and database."""
 
-    __tablename__ = "datasets"
+    __tablename__ = "dataset"
 
     datasetid = Column(Integer, primary_key=True)
+
     databasename = Column(String(20))
     description = Column(String(500))
     start_date = Column(DateTime)
@@ -36,27 +38,30 @@ class Metric(Base):
     the saved scores.csv files after model runs.
     """
 
-    __tablename__ = "metrics"
+    __tablename__ = "metric"
 
     metric = Column(String(50), primary_key=True)
+
     description = Column(String(500))
 
 
-class Researchquestion(Base):
+class ResearchQuestion(Base):
     """Question the model is trying to answer."""
 
-    __tablename__ = "researchquestions"
+    __tablename__ = "research_question"
 
     questionid = Column(Integer, primary_key=True)
+
     description = Column(String(500), nullable=False)
 
 
 class Team(Base):
     """Details of the team submitting the model."""
 
-    __tablename__ = "teams"
+    __tablename__ = "team"
 
     teamname = Column(String(50), primary_key=True)
+
     contactname = Column(String(100), nullable=False)
     contactemail = Column(String(100), nullable=False)
     description = Column(String(500))
@@ -64,34 +69,38 @@ class Team(Base):
 
 class Model(Base):
     """Model table stores groups of unique question, team and model name combinations.
-    Each model may have multiple Model Versionos (see Modelversioni table)
+    Each model may have multiple Model Versionos (see ModelVersioni table)
     """
 
-    __tablename__ = "models"
+    __tablename__ = "model"
 
     modelid = Column(Integer, primary_key=True)
-    teamname = Column(ForeignKey("teams.teamname"), nullable=False)
-    questionid = Column(ForeignKey("researchquestions.questionid"), nullable=False)
+
+    teamname = Column(ForeignKey("team.teamname"), nullable=False)
+    questionid = Column(ForeignKey("research_question.questionid"), nullable=False)
+
     name = Column(String(20), nullable=False)
     description = Column(String(500))
 
-    researchquestion = relationship("Researchquestion")
+    researchquestion = relationship("ResearchQuestion")
     team = relationship("Team")
 
 
-class Modelversion(Base):
+class ModelVersion(Base):
     """Version of a specified model. Each model version specifies the path to (location)
     its files and the commands needed to run it. The commands must contain placeholder
     arguments <start_date>, <end_date> and <database> which are replaced with
     appropriate values at run time.
     """
 
-    __tablename__ = "modelversions"
+    __tablename__ = "model_version"
 
-    modelid = Column(ForeignKey("models.modelid"), primary_key=True, nullable=False)
+    modelid = Column(ForeignKey("model.modelid"), primary_key=True, nullable=False)
     modelversion = Column(String(10), primary_key=True, nullable=False)
-    trainingdatasetid = Column(ForeignKey("datasets.datasetid"), nullable=False)
-    referencetestdatasetid = Column(ForeignKey("datasets.datasetid"), nullable=False)
+
+    trainingdatasetid = Column(ForeignKey("dataset.datasetid"), nullable=False)
+    testdatasetid = Column(ForeignKey("dataset.datasetid"), nullable=False)
+
     location = Column(String(500))
     score_command = Column(String(500))
     modeltraintime = Column(DateTime)
@@ -100,11 +109,39 @@ class Modelversion(Base):
     model = relationship("Model")
     dataset = relationship(
         "Dataset",
-        primaryjoin="Modelversion.referencetestdatasetid == Dataset.datasetid",
+        primaryjoin="ModelVersion.testdatasetid == Dataset.datasetid",
     )
     dataset1 = relationship(
-        "Dataset", primaryjoin="Modelversion.trainingdatasetid == Dataset.datasetid"
+        "Dataset", primaryjoin="ModelVersion.trainingdatasetid == Dataset.datasetid"
     )
+
+
+class Prediction(Base):
+    """Each row in the Scores table is a value for a single metric from a run of a model
+    version on a certain dataset.
+    """
+
+    __tablename__ = "prediction"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["modelid", "modelversion"],
+            ["model_version.modelid", "model_version.modelversion"],
+        ),
+    )
+
+    modelid = Column(Integer, primary_key=True, nullable=False)
+    modelversion = Column(String(10), primary_key=True, nullable=False)
+    datasetid = Column(
+        ForeignKey("dataset.datasetid"), primary_key=True, nullable=False
+    )
+    runid = Column(Integer, primary_key=True, nullable=False)
+    recordid = Column(Integer, primary_key=True, nullable=False)
+
+    runtime = Column(DateTime, nullable=False)
+    values = Column(JSON, nullable=False)
+
+    modelversion1 = relationship("ModelVersion")
+    dataset = relationship("Dataset")
 
 
 class Score(Base):
@@ -112,27 +149,26 @@ class Score(Base):
     version on a certain dataset.
     """
 
-    __tablename__ = "scores"
+    __tablename__ = "score"
     __table_args__ = (
         ForeignKeyConstraint(
             ["modelid", "modelversion"],
-            ["modelversions.modelid", "modelversions.modelversion"],
+            ["model_version.modelid", "model_version.modelversion"],
         ),
     )
 
     modelid = Column(Integer, primary_key=True, nullable=False)
     modelversion = Column(String(10), primary_key=True, nullable=False)
-    testdatasetid = Column(
-        ForeignKey("datasets.datasetid"), primary_key=True, nullable=False
+    datasetid = Column(
+        ForeignKey("dataset.datasetid"), primary_key=True, nullable=False
     )
+    runid = Column(Integer, primary_key=True, nullable=False)
+    metric = Column(ForeignKey("metric.metric"), primary_key=True, nullable=False)
+    
     isreference = Column(Boolean, nullable=False)
     runtime = Column(DateTime, nullable=False)
-    runid = Column(Integer, primary_key=True, nullable=False)
-    metric = Column(ForeignKey("metrics.metric"), primary_key=True, nullable=False)
     value = Column(Float(53), nullable=False)
-    valueerror = Column(Float(53))
-    message = Column(String(500))
 
     metric1 = relationship("Metric")
-    modelversion1 = relationship("Modelversion")
+    modelversion1 = relationship("ModelVersion")
     dataset = relationship("Dataset")

@@ -43,3 +43,4 @@ if __name__ == "__main__":
     preds = pd.DataFrame(preds, index=data.index)
     preds.index.name = "idx"
     preds.to_csv("predictions.csv")
+    preds.to_json("predictions.json", orient="index")

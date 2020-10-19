@@ -17,9 +17,9 @@ from ..db.schema import (
     Team,
     Dataset,
     Metric,
-    Researchquestion,
+    ResearchQuestion,
     Model,
-    Modelversion,
+    ModelVersion,
     Score,
 )
 from .store import copy_model_to_storage
@@ -144,10 +144,10 @@ def setup_model(
         print(f"Team: Already exists: \"{metadata['team']}\"")
 
     # Research Questions:
-    research_questions = [q.description for q in session.query(Researchquestion).all()]
+    research_questions = [q.description for q in session.query(ResearchQuestion).all()]
     if metadata["research_question"] not in research_questions:
-        question_id = get_unique_id(session, Researchquestion.questionid)
-        newquestion = Researchquestion(
+        question_id = get_unique_id(session, ResearchQuestion.questionid)
+        newquestion = ResearchQuestion(
             questionid=question_id, description=metadata["research_question"]
         )
         session.add(newquestion)
@@ -158,7 +158,7 @@ def setup_model(
         )
     else:
         question = (
-            session.query(Researchquestion)
+            session.query(ResearchQuestion)
             .filter_by(description=metadata["research_question"])
             .first()
         )
@@ -199,7 +199,7 @@ def setup_model(
     # Model version, training and testing datasets
     model_versions = [
         model.modelversion
-        for model in session.query(Modelversion).filter_by(modelid=model_id).all()
+        for model in session.query(ModelVersion).filter_by(modelid=model_id).all()
     ]
     if metadata["model_version"] not in model_versions:
         # Copy model files to storage
@@ -233,11 +233,11 @@ def setup_model(
         session.commit()
 
         # Model Version
-        model_version = Modelversion(
+        model_version = ModelVersion(
             modelid=model_id,
             modelversion=metadata["model_version"],
             trainingdatasetid=training_dataset_id,
-            referencetestdatasetid=test_dataset_id,
+            testdatasetid=test_dataset_id,
             location=str(modmon_model_path),
             score_command=metadata["score_command"],
             modeltraintime=metadata["model_train_datetime"],
@@ -250,9 +250,9 @@ def setup_model(
         if set_old_inactive:
             # Set any older versions of the same model as inactive
             old_versions_this_model = (
-                session.query(Modelversion)
+                session.query(ModelVersion)
                 .filter_by(modelid=model_id)
-                .filter(Modelversion.modelversion != metadata["model_version"])
+                .filter(ModelVersion.modelversion != metadata["model_version"])
                 .all()
             )
             for old_model_version in old_versions_this_model:
@@ -266,7 +266,7 @@ def setup_model(
             reference_result = Score(
                 modelid=model_id,
                 modelversion=metadata["model_version"],
-                testdatasetid=test_dataset_id,
+                datasetid=test_dataset_id,
                 isreference=True,
                 runtime=metadata["model_run_datetime"],
                 runid=run_id,

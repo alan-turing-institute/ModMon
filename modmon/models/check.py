@@ -16,7 +16,7 @@ import pandas as pd
 from pandas.api.types import is_numeric_dtype
 
 from ..db.connect import get_session, check_connection_ok
-from ..db.schema import Team, Model, Modelversion, Researchquestion, Dataset
+from ..db.schema import Team, Model, ModelVersion, ResearchQuestion, Dataset
 from ..envs.utils import get_model_env_types
 from ..envs.conda import create_conda_env
 from ..envs.renv import create_renv_env
@@ -271,7 +271,7 @@ def check_db_for_duplicates(metadata, result_dict=None):
 
     if "research_question" in metadata.keys():
         if (
-            session.query(Researchquestion)
+            session.query(ResearchQuestion)
             .filter_by(description=metadata["research_question"])
             .count()
             == 0
@@ -298,7 +298,7 @@ def check_db_for_duplicates(metadata, result_dict=None):
 
             if "model_version" in metadata.keys():
                 if (
-                    session.query(Modelversion)
+                    session.query(ModelVersion)
                     .filter_by(model=model)
                     .filter_by(modelversion=metadata["model_version"])
                     .count()

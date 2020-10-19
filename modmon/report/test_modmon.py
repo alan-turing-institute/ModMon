@@ -19,12 +19,12 @@ class TestModMon(unittest.TestCase):
         cls.db_connection = get_connection()
 
         query = """
-        SELECT m.name, r.metric, r.value, d.databasename, d.datasetid, m.modelid, r.modelversion, q.description
-        FROM scores AS r, datasets AS d, models AS m, researchQuestions AS q
-        WHERE r.testdatasetid = d.datasetid
-        AND r.modelid = m.modelid
+        SELECT m.name, s.metric, s.value, d.databasename, d.datasetid, m.modelid, s.modelversion, q.description
+        FROM score AS s, dataset AS d, model AS m, research_question AS q
+        WHERE s.datasetid = d.datasetid
+        AND s.modelid = m.modelid
         AND m.questionid = q.questionid
-        AND NOT r.isreference;
+        AND NOT s.isreference;
         """
         scores = pd.read_sql(
             query,
@@ -46,7 +46,7 @@ class TestModMon(unittest.TestCase):
         """Models in the monitoring database (ModMon)"""
         query = """
         SELECT modelid, count(modelid) AS versions
-        FROM modelVersions
+        FROM model_version
         GROUP BY modelid;
         """
         version_count = pd.read_sql(
@@ -55,7 +55,7 @@ class TestModMon(unittest.TestCase):
         )
         query = """
         SELECT m.name AS Model, mv.modelid, mv.modelversion AS active_version, Q.description AS Question, m.teamName AS Team
-        FROM modelVersions as mv, models AS m, researchQuestions AS q
+        FROM model_version as mv, model AS m, research_question AS q
         WHERE m.questionID = q.questionID
         AND mv.modelid = m.modelid
         AND mv.active;

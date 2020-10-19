@@ -6,7 +6,7 @@
 
 all: scores.csv
 
-predictions.csv:
+predictions.csv predictions.json:
 	python predict.py --start_date $(START_DATE) --end_date $(END_DATE) --database $(DATABASE)
 
 scores.csv: predictions.csv
@@ -15,3 +15,4 @@ scores.csv: predictions.csv
 clean:
 	rm -f scores.csv
 	rm -f predictions.csv
+	rm -f predictions.json
