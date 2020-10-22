@@ -43,7 +43,7 @@ def delete_all_reports_from_storage(
     """
     if not force:
         confirmed = ask_for_confirmation(
-            f"Delete all models in storage? This can't be undone!"
+            "Delete all models in storage? This can't be undone!"
         )
         if not confirmed:
             print("Not confirmed. Aborting.")

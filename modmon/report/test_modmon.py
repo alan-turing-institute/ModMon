@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import psycopg2
 import pandas as pd
 import seaborn as sns
 import unittest
@@ -19,7 +18,8 @@ class TestModMon(unittest.TestCase):
         cls.db_connection = get_connection()
 
         query = """
-        SELECT m.name, s.metric, s.value, d.databasename, d.datasetid, m.modelid, s.modelversion, q.description
+        SELECT m.name, s.metric, s.value, d.databasename, d.datasetid, m.modelid,
+        s.modelversion, q.description
         FROM score AS s, dataset AS d, model AS m, research_question AS q
         WHERE s.datasetid = d.datasetid
         AND s.modelid = m.modelid
@@ -54,7 +54,8 @@ class TestModMon(unittest.TestCase):
             self.db_connection,
         )
         query = """
-        SELECT m.name AS Model, mv.modelid, mv.modelversion AS active_version, Q.description AS Question, m.teamName AS Team
+        SELECT m.name AS Model, mv.modelid, mv.modelversion AS active_version,
+        Q.description AS Question, m.teamName AS Team
         FROM model_version as mv, model AS m, research_question AS q
         WHERE m.questionID = q.questionID
         AND mv.modelid = m.modelid
@@ -71,8 +72,9 @@ class TestModMon(unittest.TestCase):
 
     @plotting
     def test_fig_1_scores_performance(self):
-        """Performance of ModMon DB models on across OMOP database versions. Each sub-plot shows the peformance of models on
-        a particular research question according to a given metric."""
+        """Performance of ModMon DB models on across OMOP database versions.
+        Each sub-plot shows the peformance of models on a particular research question
+        according to a given metric."""
         g = sns.FacetGrid(
             data=self.scores,
             row="titles",
@@ -89,7 +91,8 @@ class TestModMon(unittest.TestCase):
 
     @plotting
     def test_fig_2_model_bars(self):
-        """Comparison between initial performance of each model and performance on most recent OMOP dataset"""
+        """Comparison between initial performance of each model and performance on
+        most recent OMOP dataset"""
         reduced_scores = self.scores.loc[
             self.scores["datasetid"].isin(
                 [max(self.scores["datasetid"]), min(self.scores["datasetid"])]

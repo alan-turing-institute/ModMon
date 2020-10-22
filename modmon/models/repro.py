@@ -1,14 +1,10 @@
-import argparse
 import json
 from os import listdir, mkdir
 import shutil
 import subprocess
 import tempfile
 
-import pandas as pd
-
 from ..db.connect import get_session
-from ..db.schema import ModelVersion, Model
 from .score import run_model_scoring
 
 
@@ -63,7 +59,8 @@ def catalogue_metrics(model_dir, repro_dir):
             cwd=repro_dir,
             capture_output=True,
         )
-    except subprocess.CalledProcessError:  # Commit will fail when scores.csv is added unchanged
+    except subprocess.CalledProcessError:
+        # Commit will fail when scores.csv is added unchanged
         pass
 
     subprocess.run(

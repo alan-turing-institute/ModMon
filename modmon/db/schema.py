@@ -165,7 +165,7 @@ class Score(Base):
     )
     runid = Column(Integer, primary_key=True, nullable=False)
     metric = Column(ForeignKey("metric.metric"), primary_key=True, nullable=False)
-    
+
     isreference = Column(Boolean, nullable=False)
     runtime = Column(DateTime, nullable=False)
     value = Column(Float(53), nullable=False)

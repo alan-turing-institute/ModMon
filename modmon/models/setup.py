@@ -65,7 +65,7 @@ def setup_model(
     """
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"{model_path} does not exist")
-    
+
     if check_first:
         check_result = check_submission(
             model_path, create_envs=create_envs, repro_check=repro_check
@@ -318,7 +318,7 @@ def main():
 
     args = parser.parse_args()
     model_path = args.model
-    
+
     if not os.path.exists(model_path):
         print(f"{model_path} does not exist")
         sys.exit(1)

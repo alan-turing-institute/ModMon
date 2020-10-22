@@ -13,7 +13,6 @@ import colorama
 from colorama import Fore
 import dateparser
 import pandas as pd
-from pandas.api.types import is_numeric_dtype
 
 from ..db.connect import get_session, check_connection_ok
 from ..db.schema import Team, Model, ModelVersion, ResearchQuestion, Dataset
@@ -353,7 +352,8 @@ def check_metrics_file(metrics_path, result_dict=None):
         result_dict["success"] += 1
     else:
         print_error(
-            f"Metrics: Incorrect columns - found {metrics.columns} instead of {exp_cols}"
+            "Metrics: Incorrect columns - "
+            f"found {metrics.columns} instead of {exp_cols}"
         )
         result_dict["error"] += 1
 
@@ -469,7 +469,7 @@ def check_submission(path, create_envs=False, repro_check=False, result_dict=Non
         print_error("Environment: No conda or renv environment found")
 
     if repro_check:
-        print_info(f"Reproducibility: Checking reproducibility...")
+        print_info("Reproducibility: Checking reproducibility...")
         try:
             if reference_result_is_reproducible(path, metadata):
                 result_dict["success"] += 1

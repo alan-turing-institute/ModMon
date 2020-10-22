@@ -84,7 +84,9 @@ def main():
     modmon_delete.
     """
     parser = argparse.ArgumentParser(
-        description="Delete all ModMon artefacts (database, model storage and environments)"
+        description=(
+            "Delete all ModMon artefacts (database, model storage and environments)"
+        )
     )
     parser.add_argument(
         "--db",

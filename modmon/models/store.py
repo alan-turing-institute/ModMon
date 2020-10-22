@@ -183,7 +183,7 @@ def delete_all_models_from_storage(storage_dir=STORAGE_DIR, force=False):
     """
     if not force:
         confirmed = ask_for_confirmation(
-            f"Delete all models in storage? This can't be undone!"
+            "Delete all models in storage? This can't be undone!"
         )
         if not confirmed:
             print("Not confirmed. Aborting.")
