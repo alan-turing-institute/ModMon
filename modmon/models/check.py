@@ -20,7 +20,7 @@ from ..envs.utils import get_model_env_types
 from ..envs.conda import create_conda_env
 from ..envs.renv import create_renv_env
 from .repro import reference_result_is_reproducible
-from .score import build_run_cmd
+from .run import build_run_cmd
 
 # reset print colour to default after each use of colorama
 colorama.init(autoreset=True)

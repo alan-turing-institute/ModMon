@@ -41,6 +41,7 @@ setup(
             "modmon_model_check=modmon.models.check:main",
             "modmon_model_setup=modmon.models.setup:main",
             "modmon_score=modmon.models.score:main",
+            "modmon_predict=modmon.models.predict:main",
             "modmon_delete=modmon.utils.delete:main",
             "modmon_report=modmon.report.report:main",
         ]

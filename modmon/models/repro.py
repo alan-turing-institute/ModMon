@@ -5,7 +5,7 @@ import subprocess
 import tempfile
 
 from ..db.connect import get_session
-from .score import run_model_scoring
+from .score import score_model
 
 
 class DummyModelVersion:
@@ -166,7 +166,7 @@ def reference_result_is_reproducible(path, metadata):
 
         # Run the model in reference mode (do not add results to db)
         # This overwrites scores.csv within the dir supplied to modmon_model_check
-        run_model_scoring(
+        score_model(
             model_version,
             metadata["data_window_start"],
             metadata["data_window_end"],
