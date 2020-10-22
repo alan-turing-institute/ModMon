@@ -240,6 +240,7 @@ def setup_model(
             testdatasetid=test_dataset_id,
             location=str(modmon_model_path),
             score_command=metadata["score_command"],
+            predict_command=metadata["predict_command"],
             modeltraintime=metadata["model_train_datetime"],
             active=True,
         )

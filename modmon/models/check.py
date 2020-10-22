@@ -21,7 +21,7 @@ from ..envs.utils import get_model_env_types
 from ..envs.conda import create_conda_env
 from ..envs.renv import create_renv_env
 from .repro import reference_result_is_reproducible
-from .run import build_run_cmd
+from .score import build_run_cmd
 
 # reset print colour to default after each use of colorama
 colorama.init(autoreset=True)
@@ -126,6 +126,7 @@ def check_metadata_keys(metadata, result_dict=None):
         "model_train_datetime",
         "model_run_datetime",
         "score_command",
+        "predict_command",
     ]
     optional_keys = [
         "team_description",
@@ -215,12 +216,13 @@ def check_metadata_values(metadata, result_dict=None):
                 checked_values[key] = True
 
     # command string - check for placeholders
-    if "score_command" in metadata.keys():
-        try:
-            build_run_cmd(metadata["score_command"], "2000-1-1", "2000-1-1", "TEST")
-            checked_values["score_command"] = True
-        except ValueError:
-            checked_values["score_command"] = False
+    for cmd in ["score_command", "predict_command"]:
+        if cmd in metadata.keys():
+            try:
+                build_run_cmd(cmd, "2000-1-1", "2000-1-1", "TEST")
+                checked_values[cmd] = True
+            except ValueError:
+                checked_values[cmd] = False
 
     if all(checked_values.values()):
         print_success("Metadata: All keys have valid values")

@@ -487,7 +487,7 @@ def score_all_models(
 def main():
     """Run all active model versions in the datbase on a new model version.
 
-    Available from the command-line as modmon_run
+    Available from the command-line as modmon_score
     """
     parser = argparse.ArgumentParser(
         description="Automatically run all active model versions in the monitoring database"

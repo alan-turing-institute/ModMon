@@ -9,7 +9,7 @@ import pandas as pd
 
 from ..db.connect import get_session
 from ..db.schema import ModelVersion, Model
-from .run import run_model_scoring
+from .score import run_model_scoring
 
 
 class DummyModelVersion:

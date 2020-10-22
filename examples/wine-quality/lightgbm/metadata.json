@@ -15,5 +15,5 @@
 	"model_run_datetime": "2020-07-11",
 	"test_data_description": "[Add description]",
 	"score_command": "make clean; make scores.csv START_DATE=<start_date> END_DATE=<end_date> DATABASE=<database>",
-	"predict_command": "make clean; make predictions.json START_DATE=<start_date> END_DATE=<end_date> DATABASE=<database>",
+	"predict_command": "make clean; make predictions.json START_DATE=<start_date> END_DATE=<end_date> DATABASE=<database>"
 }

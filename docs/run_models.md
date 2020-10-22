@@ -4,11 +4,11 @@
 
 To run all active model versions in the database on a new dataset, run this command, replacing `<start_date>` and `<end_date>` with appropriate values (in `Y-m-d` format), and `<database>` with the name of the database to connect to:
 ```bash
-> modmon_run --start_date <start_date> --end_date <end_date> --database <database>
+> modmon_score --start_date <start_date> --end_date <end_date> --database <database>
 ```
 At least one of `--start_date`, `--end_date` and `--database` must be given.
 
-`modmon_run` then performs the following steps:
+`modmon_score` then performs the following steps:
 - Gets all active model versions from the database (unless the `--run_inactive` flag is set, in which case inactive models are obtained too).
 - For each model: 
   - Checks whether a result already exists on the dataset (defined by the input start date, end date and database). If so skips running this model unless the `--force` flag is set.
@@ -24,7 +24,7 @@ To generate a report that summarises the performance of all models in the ModMon
 > modmon_report
 ```
 
-The report will also be generated automatically as the final step in `modmon_run` (see above).
+The report will also be generated automatically as the final step in `modmon_score` (see above).
 
 ## Synpuf Example
 

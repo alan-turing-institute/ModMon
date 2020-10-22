@@ -103,6 +103,7 @@ class ModelVersion(Base):
 
     location = Column(String(500))
     score_command = Column(String(500))
+    predict_command = Column(String(500))
     modeltraintime = Column(DateTime)
     active = Column(Boolean)
 
