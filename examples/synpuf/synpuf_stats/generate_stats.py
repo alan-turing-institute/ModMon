@@ -1,14 +1,11 @@
 import argparse
-from datetime import datetime
 import pyodbc
 import pandas as pd
-import psycopg2
-import numpy as np
 import json
 
-#############
-### Setup ###
-#############
+# -----------
+# Setup
+# -----------
 
 # Get the database name, start and end of date range to use for the model
 parser = argparse.ArgumentParser()
@@ -29,9 +26,9 @@ cnxn = pyodbc.connect(
     f"PWD={config['password']}"
 )
 
-#######################
-### Calculate stuff ###
-######################
+# ---------------------
+# Calculate stuff
+# ---------------------
 
 person = pd.read_sql("SELECT * FROM person;", cnxn)
 
@@ -52,17 +49,18 @@ months = {
     "December": 12,
 }
 
-#######################
-### Population Size ###
-#######################
+# ---------------------
+# Population Size
+# ---------------------
+
 
 population_size = pd.read_sql("SELECT COUNT(person_id) AS count FROM person", cnxn)[
     "count"
 ][0]
 
-################################
-###     Patient Mortality    ###
-################################
+# ---------------------
+# Patient Mortality
+# ---------------------
 
 """Patient Mortality"""
 death_number = pd.read_sql(
@@ -75,9 +73,9 @@ death_number = pd.read_sql(
 
 mortality = death_number["count"][0] / population_size * 100
 
-################################
-###  Average Onset Duration  ###
-################################
+# -----------------------
+# Average Onset Duration
+# -----------------------
 
 """Mean duration in days from admission to first condition onset"""
 obs_cdn_table = pd.read_sql(
@@ -103,9 +101,9 @@ obs_cdn_table["duration"] = (
 avg_onset = obs_cdn_table.duration.mean().days
 
 
-#########################################################
-### Metrics (replace with actually interesting stats) ###
-#########################################################
+# ----------------------------------------------------
+# Metrics (replace with actually interesting stats)
+# ----------------------------------------------------
 
 # Number of people born in January
 jan_births = month_counts[months["January"]]
