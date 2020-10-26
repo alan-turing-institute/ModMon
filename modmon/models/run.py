@@ -231,6 +231,7 @@ def run_model_command(
     output_file=None,
     verbose=True,
     capture_output=False,
+    run_dir=None,
 ):
     """
     run a command for a model_version in its environment
@@ -242,10 +243,13 @@ def run_model_command(
     elif command_attr is not None:
         command = getattr(model_version, command_attr)
 
+    if run_dir is None:
+        run_dir = model_version.location
+
     if verbose:
         print("Creating environment...")
     env_cmd = create_env(
-        model_version.location,
+        run_dir,
         model_version.modelid,
         model_version.modelversion,
         capture_output=capture_output,
@@ -272,7 +276,7 @@ def run_model_command(
         print("--- start subprocess ---")
     subprocess.run(
         run_cmd,
-        cwd=model_version.location,
+        cwd=run_dir,
         shell=True,
         check=True,
         capture_output=capture_output,

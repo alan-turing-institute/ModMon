@@ -6,6 +6,9 @@
 
 all: scores.csv
 
+model.txt:
+	python train.py --start_date $(START_DATE) --end_date $(END_DATE) --database $(DATABASE)
+
 predictions.csv predictions.json:
 	python predict.py --start_date $(START_DATE) --end_date $(END_DATE) --database $(DATABASE)
 
@@ -16,3 +19,6 @@ clean:
 	rm -f scores.csv
 	rm -f predictions.csv
 	rm -f predictions.json
+
+cleanmodel:
+	rm -f model.txt
