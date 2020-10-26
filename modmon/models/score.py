@@ -73,6 +73,7 @@ def score_model(
     save_to_db=True,
     verbose=True,
     capture_output=False,
+    run_dir=None,
 ):
     """Run a model version's score_command to generate new metrics values with the
     specified dataset inputs.
@@ -124,6 +125,7 @@ def score_model(
         save_to_db=save_to_db,
         verbose=verbose,
         capture_output=capture_output,
+        run_dir=run_dir,
     )
 
 

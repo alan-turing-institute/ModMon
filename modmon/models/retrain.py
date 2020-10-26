@@ -1,13 +1,17 @@
+import argparse
 from datetime import datetime
 import json
 import os
 from pathlib import Path
 import shutil
+import subprocess
 import tempfile
+
+import dateparser
 
 from ..db.connect import get_session
 from ..db.schema import ModelVersion
-from .run import run_model_command, create_dataset, result_exists, get_iso_time
+from .run import run_model_command, create_dataset, result_exists, get_iso_time, get_model_versions
 from .score import score_model
 from .setup import setup_model
 
@@ -37,7 +41,9 @@ def update_metadata(metadata_dir, start_date, end_date, database):
         json.dump(metadata, f)
 
 
-def retrain(model_version, start_date=None, end_date=None, database=None, force=False):
+def retrain_model(
+    model_version, start_date=None, end_date=None, database=None, force=False
+):
     session = get_session()
 
     dataset_id = create_dataset(
@@ -48,8 +54,8 @@ def retrain(model_version, start_date=None, end_date=None, database=None, force=
         result_exists(
             session,
             ModelVersion,
-            model_version.model_id,
-            model_version.model_version,
+            model_version.modelid,
+            model_version.modelversion,
             dataset_id,
         )
         and not force
@@ -60,7 +66,7 @@ def retrain(model_version, start_date=None, end_date=None, database=None, force=
     with tempfile.TemporaryDirectory() as tmp_dir:
         # copy model version to a temporary directory
         print("Copying model to temporary directory...")
-        shutil.copytree(model_version.location, tmp_dir)
+        shutil.copytree(model_version.location, tmp_dir, dirs_exist_ok=True)
 
         # delete old outputs
         # TODO delete old model files
@@ -93,6 +99,7 @@ def retrain(model_version, start_date=None, end_date=None, database=None, force=
             force=True,
             session=session,
             save_to_db=False,
+            run_dir=tmp_dir,
         )
 
         # create new metadata file
@@ -103,3 +110,111 @@ def retrain(model_version, start_date=None, end_date=None, database=None, force=
         print("Adding new model to database...")
         setup_model(tmp_dir, check_first=False, set_old_inactive=True)
 
+
+def retrain_all_models(
+    start_date=None,
+    end_date=None,
+    database=None,
+    force=False,
+    retrain_inactive=False,
+):
+    """Retrain all models in the database for the specified dataset and save
+    the new models to the database.
+
+    Parameters
+    ----------
+    start_date : str or datetime.datetime , optional
+        Dataset start date, by default None
+    end_date : str or datetime.datetime , optional
+        Dataset end date, by default None
+    database : str, optional
+        Dataset database name, by default None
+    force : bool, optional
+        If True regenerate results for a model version even if they already exist in the
+        database for the same dataset, by default False
+    """
+    # Set up db connection
+    print("Connecting to monitoring database...")
+    session = get_session()
+
+    # get active model versions from db
+    print("Getting model versions...", end=" ")
+    model_versions = get_model_versions(session, get_inactive=retrain_inactive)
+    print(f"found {len(model_versions)} model versions.")
+
+    if len(model_versions) == 0:
+        print("No model versions found. Returning.")
+        return
+
+    # run metrics script for all model versions
+    for i, mv in enumerate(model_versions):
+        print("=" * 30)
+        print(
+            f"MODEL {i + 1} OUT OF {len(model_versions)}: "
+            f"ID {mv.modelid} VERSION {mv.modelversion}"
+        )
+        print("=" * 30)
+
+        try:
+            retrain_model(
+                mv,
+                start_date=start_date,
+                end_date=end_date,
+                database=database,
+                force=force,
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"FAILED: subprocess error: {e}")
+        except FileNotFoundError as e:
+            print(f"FAILED: File not found: {e}")
+        except ValueError as e:
+            print(f"FAILED: ValueError: {e}")
+
+    session.close()
+
+
+def main():
+    """Run predictions for all active model versions in the datbase on a new dataset.
+
+    Available from the command-line as modmon_prediction
+    """
+    parser = argparse.ArgumentParser(
+        description=(
+            "Automatically retrain all active model versions in the monitoring database"
+        )
+    )
+    parser.add_argument("--start_date", help="Start date of dataset")
+    parser.add_argument("--end_date", help="End date of dataset")
+    parser.add_argument("--database", help="Name of the database to connect to")
+    parser.add_argument(
+        "--force",
+        help=(
+            "If set, retrain models even if they were trained on the " 
+            "same dataset previously"
+        ),
+        action="store_true",
+    )
+    parser.add_argument(
+        "--run_inactive",
+        help="If set, also retrain models marked as inactive",
+        action="store_true",
+    )
+
+    args = parser.parse_args()
+    # TODO currently only deal with dates, not times
+    if args.start_date is not None:
+        start_date = dateparser.parse(args.start_date).date()
+    else:
+        start_date = None
+    if args.end_date is not None:
+        end_date = dateparser.parse(args.end_date).date()
+    else:
+        end_date = None
+
+    retrain_all_models(
+        start_date=start_date,
+        end_date=end_date,
+        database=args.database,
+        force=args.force,
+        retrain_inactive=args.run_inactive,
+    )

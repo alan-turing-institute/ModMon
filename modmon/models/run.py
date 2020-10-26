@@ -305,6 +305,7 @@ def run_model(
     save_to_db=True,
     verbose=True,
     capture_output=False,
+    run_dir=None,
 ):
     """Run a model version's command to generate new results with the specified dataset
     inputs.
@@ -342,6 +343,9 @@ def run_model(
     capture_output: bool, optional
         If True capture stdout and stderr of subprocess calls rather than printing to
         console, by default False
+    run_dir: str or Path, optional
+        If set the directory containing the model code and outputs, otherwise uses
+        model_versioin.location, by default None
 
     Raises
     ------
@@ -379,7 +383,11 @@ def run_model(
     if verbose:
         print("Running script...")
     # delete any pre-existing metrics file
-    results_path = get_model_version_file(model_version, results_file)
+    
+    if run_dir is None:
+        results_path = get_model_version_file(model_version, results_file)
+    else:
+        results_path = Path(run_dir, results_file)
     try:
         os.remove(results_path)
     except FileNotFoundError:
@@ -397,6 +405,7 @@ def run_model(
         output_file=results_path,
         verbose=verbose,
         capture_output=capture_output,
+        run_dir=run_dir,
     )
 
     if save_to_db:
