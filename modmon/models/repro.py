@@ -171,7 +171,7 @@ def reference_result_is_reproducible(path, metadata):
             metadata["data_window_start"],
             metadata["data_window_end"],
             metadata["db_name"],
-            reference=True,
+            save_to_db=False,
             session=session,
             verbose=False,
             capture_output=True,

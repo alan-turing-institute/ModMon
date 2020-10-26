@@ -34,15 +34,20 @@ def result_exists(session, table, model_id, model_version, dataset_id):
         True if the database contains results for the specifed model version and
         dataset.
     """
-    pred = (
+
+    query = (
         session.query(table)
         .filter_by(modelid=model_id)
         .filter_by(modelversion=model_version)
-        .filter_by(datasetid=dataset_id)
-        .first()
     )
 
-    if pred:
+    if table is ModelVersion:
+        query = query.filter_by(trainingdatasetid=dataset_id)
+    else:
+        query = query.filter_by(datasetid=dataset_id)
+
+    result = query.first()
+    if result:
         return True
     else:
         return False
@@ -297,7 +302,7 @@ def run_model(
     database=None,
     force=False,
     session=None,
-    reference=False,
+    save_to_db=True,
     verbose=True,
     capture_output=False,
 ):
@@ -330,9 +335,8 @@ def run_model(
     session : sqlalchemy.orm.session.Session, optional
         ModMon database session or None in which case one will be created, by default
         None
-    reference : bool, optional
-        If True, do not add anything to the database, only setup env and run model, by
-        default False
+    save_to_db : bool, optional
+        If True add results to database, by default True
     verbose: bool, optional
         If True print additional progress messages, by default True
     capture_output: bool, optional
@@ -351,7 +355,7 @@ def run_model(
     else:
         close_session = False  # if session given, leave it open
 
-    if not reference:
+    if save_to_db:
         if verbose:
             print("Creating dataset...")
         dataset_id = create_dataset(session, start_date, end_date, database)
@@ -395,7 +399,7 @@ def run_model(
         capture_output=capture_output,
     )
 
-    if not reference:
+    if save_to_db:
         if verbose:
             print("Adding results to database...")
         if not os.path.exists(results_path):
@@ -425,6 +429,7 @@ def run_all_models(
     database=None,
     force=False,
     run_inactive=False,
+    save_to_db=True,
 ):
     """Run a command for all models in the database for the specified dataset and save
     them to the database.
@@ -485,7 +490,7 @@ def run_all_models(
                 database=database,
                 force=force,
                 session=session,
-                reference=False,
+                save_to_db=save_to_db,
                 verbose=True,
                 capture_output=False,
             )

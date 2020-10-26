@@ -126,6 +126,7 @@ def check_metadata_keys(metadata, result_dict=None):
         "model_run_datetime",
         "score_command",
         "predict_command",
+        "retrain_command",
     ]
     optional_keys = [
         "team_description",

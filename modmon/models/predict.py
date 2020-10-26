@@ -67,7 +67,7 @@ def prediction_model(
     database=None,
     force=False,
     session=None,
-    reference=False,
+    save_to_db=True,
     verbose=True,
     capture_output=False,
 ):
@@ -90,9 +90,8 @@ def prediction_model(
     session : sqlalchemy.orm.session.Session, optional
         ModMon database session or None in which case one will be created, by default
         None
-    reference : bool, optional
-        If True, do not add anything to the database, only setup env and run model, by
-        default False
+    save_to_db : bool, optional
+        If True, add results to the database, by default True
     verbose: bool, optional
         If True print additional progress messages, by default True
     capture_output: bool, optional
@@ -119,7 +118,7 @@ def prediction_model(
         database=database,
         force=force,
         session=session,
-        reference=reference,
+        save_to_db=save_to_db,
         verbose=verbose,
         capture_output=capture_output,
     )
