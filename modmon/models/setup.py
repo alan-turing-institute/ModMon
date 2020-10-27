@@ -6,6 +6,8 @@ new version of a model)
 """
 import argparse
 import json
+import os
+import sys
 
 import pandas as pd
 
@@ -15,10 +17,10 @@ from ..db.schema import (
     Team,
     Dataset,
     Metric,
-    Researchquestion,
+    ResearchQuestion,
     Model,
-    Modelversion,
-    Result,
+    ModelVersion,
+    Score,
 )
 from .store import copy_model_to_storage
 from .check import check_submission
@@ -61,6 +63,9 @@ def setup_model(
     set_old_inactive : bool , optional
         If True, set all previous versions of this model to be inactive, by default True
     """
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"{model_path} does not exist")
+
     if check_first:
         check_result = check_submission(
             model_path, create_envs=create_envs, repro_check=repro_check
@@ -93,8 +98,8 @@ def setup_model(
     # Files ###
     #############
     metadata_json = model_path + "/metadata.json"
-    training_metrics_csv = model_path + "/training_metrics.csv"
-    prediction_metrics_csv = model_path + "/metrics.csv"
+    training_metrics_csv = model_path + "/training_scores.csv"
+    prediction_metrics_csv = model_path + "/scores.csv"
 
     #####################
     # Load metadata ###
@@ -139,10 +144,10 @@ def setup_model(
         print(f"Team: Already exists: \"{metadata['team']}\"")
 
     # Research Questions:
-    research_questions = [q.description for q in session.query(Researchquestion).all()]
+    research_questions = [q.description for q in session.query(ResearchQuestion).all()]
     if metadata["research_question"] not in research_questions:
-        question_id = get_unique_id(session, Researchquestion.questionid)
-        newquestion = Researchquestion(
+        question_id = get_unique_id(session, ResearchQuestion.questionid)
+        newquestion = ResearchQuestion(
             questionid=question_id, description=metadata["research_question"]
         )
         session.add(newquestion)
@@ -153,7 +158,7 @@ def setup_model(
         )
     else:
         question = (
-            session.query(Researchquestion)
+            session.query(ResearchQuestion)
             .filter_by(description=metadata["research_question"])
             .first()
         )
@@ -194,7 +199,7 @@ def setup_model(
     # Model version, training and testing datasets
     model_versions = [
         model.modelversion
-        for model in session.query(Modelversion).filter_by(modelid=model_id).all()
+        for model in session.query(ModelVersion).filter_by(modelid=model_id).all()
     ]
     if metadata["model_version"] not in model_versions:
         # Copy model files to storage
@@ -228,13 +233,15 @@ def setup_model(
         session.commit()
 
         # Model Version
-        model_version = Modelversion(
+        model_version = ModelVersion(
             modelid=model_id,
             modelversion=metadata["model_version"],
             trainingdatasetid=training_dataset_id,
-            referencetestdatasetid=test_dataset_id,
+            testdatasetid=test_dataset_id,
             location=str(modmon_model_path),
-            command=metadata["command"],
+            score_command=metadata["score_command"],
+            predict_command=metadata["predict_command"],
+            retrain_command=metadata["retrain_command"],
             modeltraintime=metadata["model_train_datetime"],
             active=True,
         )
@@ -245,24 +252,24 @@ def setup_model(
         if set_old_inactive:
             # Set any older versions of the same model as inactive
             old_versions_this_model = (
-                session.query(Modelversion)
+                session.query(ModelVersion)
                 .filter_by(modelid=model_id)
-                .filter(Modelversion.modelversion != metadata["model_version"])
+                .filter(ModelVersion.modelversion != metadata["model_version"])
                 .all()
             )
             for old_model_version in old_versions_this_model:
                 old_model_version.active = False
                 session.commit()
 
-        # Save analyst reference result for this model version
-        run_id = get_unique_id(session, Result.runid)
+        # Save analyst reference scores for this model version
+        run_id = get_unique_id(session, Score.runid)
         for index, row in metrics.iterrows():
             metric, value = row
-            reference_result = Result(
+            reference_result = Score(
                 modelid=model_id,
                 modelversion=metadata["model_version"],
-                testdatasetid=test_dataset_id,
-                isreferenceresult=True,
+                datasetid=test_dataset_id,
+                isreference=True,
                 runtime=metadata["model_run_datetime"],
                 runid=run_id,
                 metric=metric,
@@ -312,6 +319,10 @@ def main():
 
     args = parser.parse_args()
     model_path = args.model
+
+    if not os.path.exists(model_path):
+        print(f"{model_path} does not exist")
+        sys.exit(1)
 
     if args.nocheck:
         setup_model(model_path, check_first=False, set_old_inactive=not args.keepold)

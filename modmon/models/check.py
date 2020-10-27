@@ -7,15 +7,15 @@ import os
 import json
 import subprocess
 import re
+import sys
 
 import colorama
 from colorama import Fore
 import dateparser
 import pandas as pd
-from pandas.api.types import is_numeric_dtype
 
 from ..db.connect import get_session, check_connection_ok
-from ..db.schema import Team, Model, Modelversion, Researchquestion, Dataset
+from ..db.schema import Team, Model, ModelVersion, ResearchQuestion, Dataset
 from ..envs.utils import get_model_env_types
 from ..envs.conda import create_conda_env
 from ..envs.renv import create_renv_env
@@ -124,7 +124,9 @@ def check_metadata_keys(metadata, result_dict=None):
         "data_window_end",
         "model_train_datetime",
         "model_run_datetime",
-        "command",
+        "score_command",
+        "predict_command",
+        "retrain_command",
     ]
     optional_keys = [
         "team_description",
@@ -214,12 +216,13 @@ def check_metadata_values(metadata, result_dict=None):
                 checked_values[key] = True
 
     # command string - check for placeholders
-    if "command" in metadata.keys():
-        try:
-            build_run_cmd(metadata["command"], "2000-1-1", "2000-1-1", "TEST")
-            checked_values["command"] = True
-        except ValueError:
-            checked_values["command"] = False
+    for cmd in ["score_command", "predict_command"]:
+        if cmd in metadata.keys():
+            try:
+                build_run_cmd(cmd, "2000-1-1", "2000-1-1", "TEST")
+                checked_values[cmd] = True
+            except ValueError:
+                checked_values[cmd] = False
 
     if all(checked_values.values()):
         print_success("Metadata: All keys have valid values")
@@ -270,7 +273,7 @@ def check_db_for_duplicates(metadata, result_dict=None):
 
     if "research_question" in metadata.keys():
         if (
-            session.query(Researchquestion)
+            session.query(ResearchQuestion)
             .filter_by(description=metadata["research_question"])
             .count()
             == 0
@@ -297,7 +300,7 @@ def check_db_for_duplicates(metadata, result_dict=None):
 
             if "model_version" in metadata.keys():
                 if (
-                    session.query(Modelversion)
+                    session.query(ModelVersion)
                     .filter_by(model=model)
                     .filter_by(modelversion=metadata["model_version"])
                     .count()
@@ -350,7 +353,8 @@ def check_metrics_file(metrics_path, result_dict=None):
         result_dict["success"] += 1
     else:
         print_error(
-            f"Metrics: Incorrect columns - found {metrics.columns} instead of {exp_cols}"
+            "Metrics: Incorrect columns - "
+            f"found {metrics.columns} instead of {exp_cols}"
         )
         result_dict["error"] += 1
 
@@ -380,6 +384,10 @@ def check_submission(path, create_envs=False, repro_check=False, result_dict=Non
         result_dict = {"success": 0, "error": 0, "warning": 0}
 
     print_info(f"Checking {path}...")
+    # directory
+    if not os.path.exists(path):
+        print_error(f"{path} does not exist")
+        raise FileNotFoundError(f"{path} does not exist")
 
     # metadata file
     metadata_path = f"{path}/metadata.json"
@@ -403,7 +411,7 @@ def check_submission(path, create_envs=False, repro_check=False, result_dict=Non
         print_error("Metadata: File not found")
         result_dict["error"] += 1
 
-    metrics_path = f"{path}/metrics.csv"
+    metrics_path = f"{path}/scores.csv"
     if os.path.exists(metrics_path):
         print_success("Metrics: File exists")
         result_dict["success"] += 1
@@ -462,7 +470,7 @@ def check_submission(path, create_envs=False, repro_check=False, result_dict=Non
         print_error("Environment: No conda or renv environment found")
 
     if repro_check:
-        print_info(f"Reproducibility: Checking reproducibility...")
+        print_info("Reproducibility: Checking reproducibility...")
         try:
             if reference_result_is_reproducible(path, metadata):
                 result_dict["success"] += 1
@@ -503,6 +511,10 @@ def main():
         action="store_true",
     )
     args = parser.parse_args()
-    check_submission(
-        args.path, create_envs=args.create_envs, repro_check=args.repro_check
-    )
+    try:
+        check_submission(
+            args.path, create_envs=args.create_envs, repro_check=args.repro_check
+        )
+    except FileNotFoundError:
+        print("hi")
+        sys.exit(1)

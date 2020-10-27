@@ -14,7 +14,8 @@ def get_data(test=False):
         data = pd.read_csv(csv_url, sep=";")
     except Exception as e:
         logger.exception(
-            "Unable to download training & test CSV, check your internet connection. Error: %s",
+            "Unable to download training & test CSV, check your internet connection. "
+            "Error: %s",
             e,
         )
 

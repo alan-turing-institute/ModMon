@@ -65,7 +65,8 @@ def create_env(model_path, model_id, model_version, capture_output=False):
 
     if env_types["renv"] and env_types["conda"]:
         warnings.warn(
-            "Both conda and renv environment detected - conda environment will be given priority."
+            "Both conda and renv environment detected - "
+            "conda environment will be given priority."
         )
 
     if env_types["renv"]:

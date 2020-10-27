@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     metrics = {"correct_class": cc_score, "mean_log_loss": ll_score}
 
-    with open("metrics.csv", "w") as f:
+    with open("scores.csv", "w") as f:
         f.write("metric, value\n")
         f.write(f"correct_class, {cc_score}\n")
         f.write(f"mean_log_loss, {ll_score}\n")

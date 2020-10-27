@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import psycopg2
 import pandas as pd
 import seaborn as sns
 import unittest
@@ -19,22 +18,23 @@ class TestModMon(unittest.TestCase):
         cls.db_connection = get_connection()
 
         query = """
-        SELECT m.name, r.metric, r.value, d.databasename, d.datasetid, m.modelid, r.modelversion, q.description
-        FROM results AS r, datasets AS d, models AS m, researchQuestions AS q
-        WHERE r.testdatasetid = d.datasetid
-        AND r.modelid = m.modelid
+        SELECT m.name, s.metric, s.value, d.databasename, d.datasetid, m.modelid,
+        s.modelversion, q.description
+        FROM score AS s, dataset AS d, model AS m, research_question AS q
+        WHERE s.datasetid = d.datasetid
+        AND s.modelid = m.modelid
         AND m.questionid = q.questionid
-        AND NOT r.isreferenceresult;
+        AND NOT s.isreference;
         """
-        results = pd.read_sql(
+        scores = pd.read_sql(
             query,
             cls.db_connection,
         )
-        results = results.sort_values(by=["modelid", "datasetid"])
+        scores = scores.sort_values(by=["modelid", "datasetid"])
 
-        results["model"] = results["name"] + "_" + results["modelversion"]
-        results["titles"] = results["metric"] + " (" + results["description"] + ")"
-        cls.results = results
+        scores["model"] = scores["name"] + "_" + scores["modelversion"]
+        scores["titles"] = scores["metric"] + " (" + scores["description"] + ")"
+        cls.scores = scores
 
     @classmethod
     def tearDownClass(cls):
@@ -46,7 +46,7 @@ class TestModMon(unittest.TestCase):
         """Models in the monitoring database (ModMon)"""
         query = """
         SELECT modelid, count(modelid) AS versions
-        FROM modelVersions
+        FROM model_version
         GROUP BY modelid;
         """
         version_count = pd.read_sql(
@@ -54,8 +54,9 @@ class TestModMon(unittest.TestCase):
             self.db_connection,
         )
         query = """
-        SELECT m.name AS Model, mv.modelid, mv.modelversion AS active_version, Q.description AS Question, m.teamName AS Team
-        FROM modelVersions as mv, models AS m, researchQuestions AS q
+        SELECT m.name AS Model, mv.modelid, mv.modelversion AS active_version,
+        Q.description AS Question, m.teamName AS Team
+        FROM model_version as mv, model AS m, research_question AS q
         WHERE m.questionID = q.questionID
         AND mv.modelid = m.modelid
         AND mv.active;
@@ -70,11 +71,12 @@ class TestModMon(unittest.TestCase):
         return metadata.to_html(index=False)
 
     @plotting
-    def test_fig_1_results_performance(self):
-        """Performance of ModMon DB models on across OMOP database versions. Each sub-plot shows the peformance of models on
-        a particular research question according to a given metric."""
+    def test_fig_1_scores_performance(self):
+        """Performance of ModMon DB models on across OMOP database versions.
+        Each sub-plot shows the peformance of models on a particular research question
+        according to a given metric."""
         g = sns.FacetGrid(
-            data=self.results,
+            data=self.scores,
             row="titles",
             sharey=False,
             sharex=False,
@@ -89,18 +91,19 @@ class TestModMon(unittest.TestCase):
 
     @plotting
     def test_fig_2_model_bars(self):
-        """Comparison between initial performance of each model and performance on most recent OMOP dataset"""
-        reduced_results = self.results.loc[
-            self.results["datasetid"].isin(
-                [max(self.results["datasetid"]), min(self.results["datasetid"])]
+        """Comparison between initial performance of each model and performance on
+        most recent OMOP dataset"""
+        reduced_scores = self.scores.loc[
+            self.scores["datasetid"].isin(
+                [max(self.scores["datasetid"]), min(self.scores["datasetid"])]
             )
         ].copy()
-        reduced_results["model_metric"] = (
-            reduced_results["model"] + "_" + reduced_results["metric"]
+        reduced_scores["model_metric"] = (
+            reduced_scores["model"] + "_" + reduced_scores["metric"]
         )
 
         g1 = sns.FacetGrid(
-            data=reduced_results,
+            data=reduced_scores,
             col="model_metric",
             col_wrap=3,
             sharey=False,

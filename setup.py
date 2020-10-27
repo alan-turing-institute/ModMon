@@ -40,7 +40,9 @@ setup(
             "modmon_db_check=modmon.db.connect:main",
             "modmon_model_check=modmon.models.check:main",
             "modmon_model_setup=modmon.models.setup:main",
-            "modmon_run=modmon.models.run:main",
+            "modmon_score=modmon.models.score:main",
+            "modmon_predict=modmon.models.predict:main",
+            "modmon_retrain=modmon.models.retrain:main",
             "modmon_delete=modmon.utils.delete:main",
             "modmon_report=modmon.report.report:main",
         ]

@@ -5,7 +5,7 @@ Largely inspired by this tutorial: http://www.sthda.com/english/articles/37-mode
 2 scripts:
 * `train.R`: Train a ridge regression model, save it as `model.rds`:
   - `Rscript train.R`
-* `predict.R`: Calculate metrics for all rows between `start_date` and `run_date`, in database `database` (not used), saves results as `metrics.csv`.
+* `predict.R`: Calculate metrics for all rows between `start_date` and `run_date`, in database `database` (not used), saves results as `scores.csv`.
   - `Rscript predict.R <START_DATE> <END_DATE> <DATABASE>`
   - `<START_DATE>` and `<END_DATE>` should be in `%Y-%m-%d` format, with the year being interpreted as a row index (the month and day are ignored). E.g. a `<START_DATE>` of `2500-1-1` means the first row used in the predictions will be row 2500.
 

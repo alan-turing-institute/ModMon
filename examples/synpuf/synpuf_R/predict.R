@@ -57,4 +57,4 @@ df <- data.frame(
 print(df)
 
 # Save metrics to file
-write.csv(df, "metrics.csv", row.names=FALSE)
+write.csv(df, "scores.csv", row.names=FALSE)

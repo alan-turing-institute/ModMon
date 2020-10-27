@@ -14,13 +14,13 @@ modmon_model_setup synpuf_python_v2/ --nocheck --keepold
 modmon_model_setup synpuf_stats/ --nocheck
 
 # Run models on all databases
-modmon_run --database 'WEEK_01'
-modmon_run --database 'WEEK_02'
-modmon_run --database 'WEEK_03'
-modmon_run --database 'WEEK_04'
-modmon_run --database 'WEEK_05'
-modmon_run --database 'WEEK_06'
-modmon_run --database 'WEEK_07'
-modmon_run --database 'WEEK_08'
-modmon_run --database 'WEEK_09'
-modmon_run --database 'WEEK_10'
+modmon_score --database 'WEEK_01'
+modmon_score --database 'WEEK_02'
+modmon_score --database 'WEEK_03'
+modmon_score --database 'WEEK_04'
+modmon_score --database 'WEEK_05'
+modmon_score --database 'WEEK_06'
+modmon_score --database 'WEEK_07'
+modmon_score --database 'WEEK_08'
+modmon_score --database 'WEEK_09'
+modmon_score --database 'WEEK_10'

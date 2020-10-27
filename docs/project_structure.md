@@ -4,7 +4,7 @@ ModMon is designed to require as few modifications to your code as possible and 
 - All code and artefacts required to run the model must be in a single parent directory.
 - It must be runnable with a single command from the command-line.
 - The command can have up to 3 arguments used to modify a dataset query - a start date, end date and database name.
-- The output must be a CSV file `metrics.csv` with two columns - the name of a metric and its value.
+- The output must be a CSV file `scores.csv` with two columns - the name of a metric and its value.
 - A metadata JSON file is required containing details and descriptions of your model. 
 - Python and R are the supported languages. Others should work as long as they follow the requirememts above and are are available where ModMon is installed, but there will be no management of virtual environments (unless you can use a conda environment).
 
@@ -16,14 +16,14 @@ A simple example of a directory ready to submit to ModMon may look something lik
 ```
 |-- model/
 |  |-- run_model.py                <- Required: Metrics calculation script (language of choice e.g. run_model.R)
-|  |-- metrics.csv                 <- Required: Output from a run of run_model.py on known inputs
+|  |-- scores.csv                 <- Required: Output from a run of run_model.py on known inputs
 |  |-- metadata.json               <- Required: Manually compiled metadata
 |  |-- environment.yml             <- Recommended: Sets up environment needed for model to run
 |  |-- data/			   <- Sub-directories are fine too
 |  |  |-- model.sav                <- Optional: Artefacts, such as a pre-trained model
 ```
 
-This is one example, but only the metrics calculation script (`run_model.py` or whichever name and language you choose), `metrics.csv` and `metadata.json` are essential. The metrics and metadata files must always be in the parent directory and have the names above.
+This is one example, but only the metrics calculation script (`run_model.py` or whichever name and language you choose), `scores.csv` and `metadata.json` are essential. The metrics and metadata files must always be in the parent directory and have the names above.
 
 ## Specifying a Virtual Environment
 
@@ -82,7 +82,7 @@ python run_model.py <database>
 
 ## Metrics Files
 
-The `metrics.csv` file created by your run command must have two columns: "metric" (a string representing the name of the metric that has been calculated) and "value" (the value of that metric), and should look something like this:
+The `scores.csv` file created by your run command must have two columns: "metric" (a string representing the name of the metric that has been calculated) and "value" (the value of that metric), and should look something like this:
 
 ```cs
 metric,value
@@ -92,7 +92,7 @@ r2,0.9
 
 The column headings ("metric,value") are required.
 
-When you submit your model (see model submission guidelines) you must also provide a `metrics.csv` file containing the result of running your model on known inputs (with the inputs used to create that metrics file defined in the metadata, see below). Before adding your model to the ModMon database its reproducibility will be checked by validating that a metrics file with exactly the same format and contents is produced by running your command with the inputs specified in the metadata file.
+When you submit your model (see model submission guidelines) you must also provide a `scores.csv` file containing the result of running your model on known inputs (with the inputs used to create that metrics file defined in the metadata, see below). Before adding your model to the ModMon database its reproducibility will be checked by validating that a metrics file with exactly the same format and contents is produced by running your command with the inputs specified in the metadata file.
 
 ## Metadata Files
 
@@ -121,4 +121,4 @@ The metadata file must be called `metadata.json`, be in the parent directory of 
 
 The contents of this file are used to produce unique identifiiers for your project in the monitoring database, for defining the command to run your code, and for giving reference values to use for reproducibility checks.
 
-- **`<data_window_start>`, `<data_window_end>` and `<db_name>`:** The date range and database used to produce the values in the `metrics.csv` file you provide. Running your specified command with `data_window_start` as `<start_date>`, `data_window_end` as `<end_date>` and `db_name` as `<database>` should exactly reproduce the values in `metrics.csv`. This will be tested before adding a model to the monitoring system.
+- **`<data_window_start>`, `<data_window_end>` and `<db_name>`:** The date range and database used to produce the values in the `scores.csv` file you provide. Running your specified command with `data_window_start` as `<start_date>`, `data_window_end` as `<end_date>` and `db_name` as `<database>` should exactly reproduce the values in `scores.csv`. This will be tested before adding a model to the monitoring system.

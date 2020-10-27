@@ -1,21 +1,75 @@
-"""
-Functions to run models in the ModMon database.
-"""
-import subprocess
-import os
 from datetime import datetime
-import argparse
-import warnings
+import os
+import subprocess
+from pathlib import Path
 
-import pandas as pd
-import dateparser
 from sqlalchemy import func
 
-from ..report.report import generate_report
 from ..db.connect import get_session
+from ..db.schema import ModelVersion, Dataset
 from ..db.utils import get_unique_id
-from ..db.schema import Modelversion, Dataset, Result
 from ..envs.utils import create_env
+
+
+def result_exists(session, table, model_id, model_version, dataset_id):
+    """Check whether the database already contains results in table for the given
+    model version and dataset.
+
+    Parameters
+    ----------
+    session : sqlalchemy.orm.session.Session
+        ModMon database session
+    table: class
+        Table class from modmon.db.schema
+    model_id : int
+        ID of the model to check
+    model_version : str
+        Version of the model to check
+    dataset_id : int
+        ID of the dataset to check
+
+    Returns
+    -------
+    bool
+        True if the database contains results for the specifed model version and
+        dataset.
+    """
+
+    query = (
+        session.query(table)
+        .filter_by(modelid=model_id)
+        .filter_by(modelversion=model_version)
+    )
+
+    if table is ModelVersion:
+        query = query.filter_by(trainingdatasetid=dataset_id)
+    else:
+        query = query.filter_by(datasetid=dataset_id)
+
+    result = query.first()
+    if result:
+        return True
+    else:
+        return False
+
+
+def get_model_version_file(model_version, file_path):
+    """Build the path to the expected location of a model_version file.
+
+    Parameters
+    ----------
+    model_version : modmon.schema.db.ModelVersion
+        Model version object
+
+    file_path : str
+        Path to file (relative to model_version location)
+
+    Returns
+    -------
+    str
+        Expected path to metrics file
+    """
+    return Path(model_version.location, file_path)
 
 
 def build_run_cmd(raw_cmd, start_date=None, end_date=None, database=None):
@@ -24,8 +78,8 @@ def build_run_cmd(raw_cmd, start_date=None, end_date=None, database=None):
     Parameters
     ----------
     raw_cmd : str
-        Raw command as found in Modelversion.command (or the original metadata file).
-        Should contain placeholders <start_date>, <end_date> and <database>.
+        Raw command, whichs hould contain placeholders <start_date>, <end_date> and
+        <database>.
     start_date : str or datetime.datetimie , optional
         Dataset start date to pass to command (metrics script should use this to modify
         database queries to return data restricted to the given date range), by default
@@ -86,9 +140,9 @@ def get_model_versions(session, get_inactive=False):
     Returns
     -------
     list
-        List of Modelversion objects including all active model versions.
+        List of ModelVersion objects including all active model versions.
     """
-    query = session.query(Modelversion)
+    query = session.query(ModelVersion)
     if not get_inactive:
         query = query.filter_by(active=True)
 
@@ -172,123 +226,104 @@ def create_dataset(session, start_date=None, end_date=None, database=None):
         return dataset_id
 
 
-def result_exists(session, model_id, model_version, dataset_id):
-    """Check whether the database already contains results for a model version on a
-    given dataset.
-
-    Parameters
-    ----------
-    session : sqlalchemy.orm.session.Session
-        ModMon database session
-    model_id : int
-        ID of the model to check
-    model_version : str
-        Version of the model to check
-    dataset_id : int
-        ID of the dataset to check
-
-    Returns
-    -------
-    bool
-        True if the database contains a result for the specifed model version and
-        dataset.
+def run_model_command(
+    model_version,
+    command=None,
+    command_attr=None,
+    start_date=None,
+    end_date=None,
+    database=None,
+    output_file=None,
+    verbose=True,
+    capture_output=False,
+    run_dir=None,
+):
     """
-    result = (
-        session.query(Result)
-        .filter_by(modelid=model_id)
-        .filter_by(modelversion=model_version)
-        .filter_by(testdatasetid=dataset_id)
-        .first()
+    run a command for a model_version in its environment
+    """
+    if command is None and command_attr is None:
+        raise ValueError("Either the 'command' or 'command_attr' argument must be set")
+    elif command is not None and command_attr is not None:
+        raise ValueError("Only one of 'command' and 'command_attr' must be set")
+    elif command_attr is not None:
+        command = getattr(model_version, command_attr)
+
+    if run_dir is None:
+        run_dir = model_version.location
+
+    if verbose:
+        print("Creating environment...")
+    env_cmd = create_env(
+        run_dir,
+        model_version.modelid,
+        model_version.modelversion,
+        capture_output=capture_output,
     )
 
-    if result:
-        return True
-    else:
-        return False
+    # delete old outputs
+    if output_file is not None:
+        try:
+            os.remove(output_file)
+            print(f"Deleted old outputs at {output_file}")
+        except FileNotFoundError:
+            pass
 
+    run_cmd = build_run_cmd(command, start_date, end_date, database)
+    # run command
+    if verbose:
+        print(f"Running this command:\n{run_cmd}")
+    if env_cmd is not None:
+        run_cmd = f"{env_cmd} && {run_cmd}"
+        if verbose:
+            print(f"Running in this environment:\n{env_cmd}")
 
-def get_metrics_path(model_version):
-    """Build the path to the expected location of the metrics file.
-
-    Parameters
-    ----------
-    model_version : modmon.schema.db.Modelversion
-        Model version object
-
-
-    Returns
-    -------
-    str
-        Expected path to metrics file
-    """
-    return f"{model_version.location}/metrics.csv"
-
-
-def add_results_from_file(session, model_version, dataset_id, run_time):
-    """Add the values from a model version's metrics file to the database after a new
-    run.
-
-    Parameters
-    ----------
-    session : sqlalchemy.orm.session.Session
-        ModMon database session
-    model_version : modmon.schema.db.Modelversion
-        Model version object
-    dataset_id : int
-        ID of the dataset the metrics were calculated for
-    run_time : str or datetime.datetime
-        Time the model version was run to generate the metrics
-
-    Raises
-    ------
-    FileNotFoundError
-        If the file model_version.location/metrics.csv does not exist
-    """
-    metrics_path = get_metrics_path(model_version)
-
-    if not os.path.exists(metrics_path):
-        raise FileNotFoundError(
-            f"{metrics_path} not found. This should be created by running {model_version.command}."
-        )
-
-    run_id = get_unique_id(session, Result.runid)
-
-    metrics = pd.read_csv(metrics_path)
-
-    for _, row in metrics.iterrows():
-        metric_name, metric_value = row
-
-        dataset = Result(
-            modelid=model_version.modelid,
-            modelversion=model_version.modelversion,
-            testdatasetid=dataset_id,
-            isreferenceresult=False,
-            runtime=run_time,
-            runid=run_id,
-            metric=metric_name,
-            value=metric_value,
-        )
-        session.add(dataset)
+    if verbose:
+        print("--- start subprocess ---")
+    subprocess.run(
+        run_cmd,
+        cwd=run_dir,
+        shell=True,
+        check=True,
+        capture_output=capture_output,
+        executable="/bin/bash",
+    )
+    if verbose:
+        print("--- end subprocess ---")
 
 
 def run_model(
     model_version,
+    command_attr,
+    results_file,
+    results_table,
+    file_to_db=None,
     start_date=None,
     end_date=None,
     database=None,
     force=False,
     session=None,
-    reference=False,
+    save_to_db=True,
     verbose=True,
     capture_output=False,
+    run_dir=None,
 ):
-    """Run a model version's command to generate new metrics values with the specified
-    dataset inputs.
+    """Run a model version's command to generate new results with the specified dataset
+    inputs.
 
     Parameters
     ----------
-    model_version : modmon.schema.db.Modelversion
+    model_version : modmon.schema.db.ModelVersion
         Model version object
+    command_attr: str
+        Attribute of model_version that contains the model command to run
+    results_file : str or Path
+        Path to file that will be created by running model command
+    results_table : class
+        Table to save results to from modmon.db.schema
+    file_to_db : function , optional
+        Function to load results from results_file and add them to the results_table
+        table. Must be defined if reference is False. Must take arguments session,
+        model_version, results_path, dataset_id, run_time, run_id. By default None.
     start_date : str or datetime.datetime , optional
         Dataset start date, by default None
     end_date : str or datetime.datetime , optional
@@ -301,20 +336,22 @@ def run_model(
     session : sqlalchemy.orm.session.Session, optional
         ModMon database session or None in which case one will be created, by default
         None
-    reference : bool, optional
-        If True, do not add anything to the database, only setup env and run model, by
-        default False
+    save_to_db : bool, optional
+        If True add results to database, by default True
     verbose: bool, optional
         If True print additional progress messages, by default True
     capture_output: bool, optional
         If True capture stdout and stderr of subprocess calls rather than printing to
         console, by default False
+    run_dir: str or Path, optional
+        If set the directory containing the model code and outputs, otherwise uses
+        model_versioin.location, by default None
 
     Raises
     ------
     FileNotFoundError
         If the metrics file is not successfully created at
-        model_version.location/metrics.csv after the model run.
+        model_version.location/scores.csv after the model run.
     """
     if not session:
         session = get_session()
@@ -322,67 +359,69 @@ def run_model(
     else:
         close_session = False  # if session given, leave it open
 
-    if not reference:
+    if save_to_db:
         if verbose:
             print("Creating dataset...")
         dataset_id = create_dataset(session, start_date, end_date, database)
 
-        # Check whether result already exists for this model version and dataset
+        # Check whether scores already exists for this model version and dataset
         if not force and result_exists(
-            session, model_version.modelid, model_version.modelversion, dataset_id
+            session,
+            results_table,
+            model_version.modelid,
+            model_version.modelversion,
+            dataset_id,
         ):
             if verbose:
                 print(
-                    f"DB already contains result for model {model_version.modelid}, "
+                    f"DB already contains results for model {model_version.modelid}, "
                     f"version {model_version.modelversion} on dataset {dataset_id}. "
                     "Skipping."
                 )
             return
 
     if verbose:
-        print("Creating environment...")
-    env_cmd = create_env(
-        model_version.location,
-        model_version.modelid,
-        model_version.modelversion,
-        capture_output=capture_output,
-    )
-
-    if verbose:
-        print("Running metrics script...")
+        print("Running script...")
     # delete any pre-existing metrics file
-    metrics_path = get_metrics_path(model_version)
+    
+    if run_dir is None:
+        results_path = get_model_version_file(model_version, results_file)
+    else:
+        results_path = Path(run_dir, results_file)
     try:
-        os.remove(metrics_path)
+        os.remove(results_path)
     except FileNotFoundError:
         pass
 
-    run_cmd = build_run_cmd(model_version.command, start_date, end_date, database)
-    if env_cmd is not None:
-        run_cmd = f"{env_cmd} && {run_cmd}"
-
-    # run metrics script
+    # run command
     run_time = get_iso_time()
-    if verbose:
-        print("RUN_CMD", run_cmd)
-    subprocess.run(
-        run_cmd,
-        cwd=model_version.location,
-        shell=True,
-        check=True,
+
+    run_model_command(
+        model_version,
+        command_attr=command_attr,
+        start_date=start_date,
+        end_date=end_date,
+        database=database,
+        output_file=results_path,
+        verbose=verbose,
         capture_output=capture_output,
-        executable="/bin/bash",
+        run_dir=run_dir,
     )
 
-    if not reference:
+    if save_to_db:
         if verbose:
             print("Adding results to database...")
-        if not os.path.exists(metrics_path):
+        if not os.path.exists(results_path):
+            run_cmd = getattr(model_version, command_attr)
             raise FileNotFoundError(
-                f"{metrics_path} not found. This should be created by running {run_cmd}."
+                f"{results_path} not found. "
+                f"This should be created by running {run_cmd}."
             )
-
-        add_results_from_file(session, model_version, dataset_id, run_time)
+        else:
+            run_id = get_unique_id(session, results_table.runid)
+            file_to_db(
+                session, model_version, results_path, dataset_id, run_time, run_id
+            )
     session.commit()
 
     if close_session:
@@ -390,13 +429,32 @@ def run_model(
 
 
 def run_all_models(
-    start_date=None, end_date=None, database=None, force=False, run_inactive=False
+    command_attr,
+    results_file,
+    results_table,
+    file_to_db,
+    start_date=None,
+    end_date=None,
+    database=None,
+    force=False,
+    run_inactive=False,
+    save_to_db=True,
 ):
-    """Run all active model versions in the database to generate metrics values for a
-    new dataset.
+    """Run a command for all models in the database for the specified dataset and save
+    them to the database.
 
     Parameters
     ----------
+    command_attr : str
+        Attribute of model_version that contains the model command to run
+    results_file : str or Path
+        Path to file that will be created by running model command
+    results_table : class
+        Table to save results to from modmon.db.schema
+    file_to_db : function
+        Function to load results from results_file and add them to the results_table
+        table. Must take arguments session, model_version, results_path, dataset_id,
+        run_time, run_id. By default None.
     start_date : str or datetime.datetime , optional
         Dataset start date, by default None
     end_date : str or datetime.datetime , optional
@@ -412,24 +470,39 @@ def run_all_models(
     session = get_session()
 
     # get active model versions from db
-    print("Getting active model versions...", end=" ")
+    print("Getting model versions...", end=" ")
     model_versions = get_model_versions(session, get_inactive=run_inactive)
     print(f"found {len(model_versions)} model versions.")
 
     if len(model_versions) == 0:
-        print("No active model versions found. Returning.")
+        print("No model versions found. Returning.")
         return
 
     # run metrics script for all model versions
     for i, mv in enumerate(model_versions):
         print("=" * 30)
         print(
-            f"MODEL {i + 1} OUT OF {len(model_versions)}: ID {mv.modelid} VERSION {mv.modelversion}"
+            f"MODEL {i + 1} OUT OF {len(model_versions)}: "
+            f"ID {mv.modelid} VERSION {mv.modelversion}"
         )
         print("=" * 30)
 
         try:
-            run_model(mv, start_date, end_date, database, force=force, session=session)
+            run_model(
+                model_version=mv,
+                command_attr=command_attr,
+                results_file=results_file,
+                results_table=results_table,
+                file_to_db=file_to_db,
+                start_date=start_date,
+                end_date=end_date,
+                database=database,
+                force=force,
+                session=session,
+                save_to_db=save_to_db,
+                verbose=True,
+                capture_output=False,
+            )
         except subprocess.CalledProcessError as e:
             print(f"FAILED: subprocess error: {e}")
         except FileNotFoundError as e:
@@ -438,46 +511,3 @@ def run_all_models(
             print(f"FAILED: ValueError: {e}")
 
     session.close()
-
-
-def main():
-    """Run all active model versions in the datbase on a new model version.
-
-    Available from the command-line as modmon_run
-    """
-    parser = argparse.ArgumentParser(
-        description="Automatically run all active model versions in the monitoring database"
-    )
-    parser.add_argument("--start_date", help="Start date of dataset")
-    parser.add_argument("--end_date", help="End date of dataset")
-    parser.add_argument("--database", help="Name of the database to connect to")
-    parser.add_argument(
-        "--force",
-        help="If set, run models even if results already exist in the database",
-        action="store_true",
-    )
-    parser.add_argument(
-        "--run_inactive",
-        help="If set, also run models marked as inactive",
-        action="store_true",
-    )
-
-    args = parser.parse_args()
-    # TODO currently only deal with dates, not times
-    if args.start_date is not None:
-        start_date = dateparser.parse(args.start_date).date()
-    else:
-        start_date = None
-    if args.end_date is not None:
-        end_date = dateparser.parse(args.end_date).date()
-    else:
-        end_date = None
-
-    run_all_models(
-        start_date,
-        end_date,
-        args.database,
-        force=args.force,
-        run_inactive=args.run_inactive,
-    )
-    generate_report()
