@@ -12,7 +12,7 @@ build:
 	docker build --force-rm -f $(DOCKERFILE) -t $(CONTAINER):$(VERSION) .
 
 run:
-	docker run --rm -p $(HOSTPORT):$(DOCKERPORT) -d -v modmon:/modmon/ --name $(NAME) $(CONTAINER):$(VERSION)
+	docker run --rm -p 4567:4567 -p $(HOSTPORT):$(DOCKERPORT) -d -v modmon:/modmon/ --name $(NAME) $(CONTAINER):$(VERSION)
 
 stop:
 	docker stop $(NAME)

@@ -1,4 +1,7 @@
-# Byte-compiled / optimized / DLL files
+# Ignore the jar file ModelServer.jar which is required for creating the docker 
+ModelServer.jar
+
+# # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
