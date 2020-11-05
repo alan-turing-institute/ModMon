@@ -1,5 +1,6 @@
 # Ignore the jar file ModelServer.jar which is required for creating the docker 
 ModelServer.jar
+scripts/*.csv
 
 # # Byte-compiled / optimized / DLL files
 __pycache__/
