@@ -74,5 +74,5 @@ EXPOSE 8888
 # expose Spark Server on port
 EXPOSE 4567
 # run jupyterlab and ModelServer
-CMD /root/runModelServer
+CMD /modmon/runModelServer
 # CMD tail -f /dev/null
