@@ -1,0 +1,7 @@
+#!/bin/sh
+
+cd /root
+
+java -cp /root/ModelServer.jar uk.ac.ncl.ModelServer.MainApplication &
+
+jupyter lab --port=8888 --no-browser --ip=0.0.0.0 --allow-root
