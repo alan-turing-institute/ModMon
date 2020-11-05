@@ -61,18 +61,18 @@ RUN exec bash && conda init bash && exit && exec bash && conda activate ModMon &
 ## install jre
 RUN apt-get install -y openjdk-14-jre-headless
 ## install ModelServer
-COPY ModelServer.jar /root/
-RUN java -cp /root/ModelServer.jar uk.ac.ncl.ModelServer.MainApplication &
+COPY runModelServer /modmon
+COPY ModelServer.jar /modmon
 
 ENV PATH /opt/conda/bin:$PATH
 ENV CONDA_EXE /usr/local/conda/bin/conda
 WORKDIR /modmon/
 # external volume for data
-VOLUME juptyerlab
+
 # expose jupyterlab on port
 EXPOSE 8888
+# expose Spark Server on port
 EXPOSE 4567
-SHELL ["/usr/bin/bash", "-c", "jupyter lab --port=8888 --no-browser --ip=0.0.0.0 --allow-root"]
-# run jupyterlab
-ENTRYPOINT jupyter lab --port=8888 --no-browser --ip=0.0.0.0 --allow-root
+# run jupyterlab and ModelServer
+CMD /root/runModelServer
 # CMD tail -f /dev/null
