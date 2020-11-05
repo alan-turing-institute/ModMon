@@ -6,30 +6,31 @@ services:
     container_name: modmon
     networks:
       mvc_network:
-        ipv4_address: 172.16.1.2
+        # ipv4_address: 172.16.1.2
     ports:
       - "4567:4567"
       - "8889:8888"
     volumes:
-      - ~/DOCKERVOLUMES/modmon:/modmon
-      - ~/DOCKERVOLUMES/jupyterlab:/root
+      - modmon:/modmon
+      - jupyterlab:/root
+  
   postgres:
     image: "postgres"
     container_name: postgresql
     networks:
       mvc_network:
-        ipv4_address: 172.16.1.3
+        # ipv4_address: 172.16.1.3
     ports:
       - "5432:5432"
     volumes:
-      - ~/DOCKERVOLUMES/postgrestore:/var/lib/postgresql/data
+      - postgrestore:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=mysecretpassword
 
 volumes:
   modmon:
-  postgrestore:
   jupyterlab:
+  postgrestore:
 
 networks:
   mvc_network:

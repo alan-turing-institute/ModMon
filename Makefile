@@ -2,7 +2,7 @@ DOCKERPORT=8888
 HOSTPORT=8889
 VERSION=0.0.2
 CONTAINER=jannetta/modmon
-NAME=modmon
+NAME=modmon2
 DOCKERFILE=Dockerfile
 
 
@@ -12,7 +12,7 @@ build:
 	docker build --force-rm -f $(DOCKERFILE) -t $(CONTAINER):$(VERSION) .
 
 run:
-	docker run --rm -p 4567:4567 -p $(HOSTPORT):$(DOCKERPORT) -d -v modmon:/modmon/ --name $(NAME) $(CONTAINER):$(VERSION)
+	docker run --rm -p 4567:4567 -p $(HOSTPORT):$(DOCKERPORT) -v modmon:/modmon/ --name $(NAME) $(CONTAINER):$(VERSION)
 
 stop:
 	docker stop $(NAME)
