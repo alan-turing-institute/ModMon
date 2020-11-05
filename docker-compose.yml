@@ -12,7 +12,7 @@ services:
       - "8889:8888"
     volumes:
       - modmon:/modmon
-      - jupyterlab:/root
+      - jupyter:/root
   
   postgres:
     image: "postgres"
@@ -29,7 +29,7 @@ services:
 
 volumes:
   modmon:
-  jupyterlab:
+  jupyter:
   postgrestore:
 
 networks:
