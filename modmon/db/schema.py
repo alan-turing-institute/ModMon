@@ -137,7 +137,7 @@ class Prediction(Base):
         ForeignKey("dataset.datasetid"), primary_key=True, nullable=False
     )
     runid = Column(Integer, primary_key=True, nullable=False)
-    recordid = Column(Integer, primary_key=True, nullable=False)
+    recordid = Column(String(50), primary_key=True, nullable=False)
 
     runtime = Column(DateTime, nullable=False)
     values = Column(JSON, nullable=False)

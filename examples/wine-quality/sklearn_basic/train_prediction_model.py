@@ -21,3 +21,7 @@ pickle.dump(model, open(filename, "wb"))
 # Output metrics as csv
 metrics = pd.DataFrame([["training_time", training_time]], columns=["metric", "value"])
 metrics.to_csv("training_scores.csv", index=False)
+
+# Save model to disk
+filename = "model.sav"
+pickle.dump(model, open(filename, "wb"))
