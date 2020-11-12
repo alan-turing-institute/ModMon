@@ -20,5 +20,6 @@ CREATE TABLE seer1975 (
 	"Patient_ID" DECIMAL , 
 	"Total_number_of_in_situ/malignant_tumors_for_patient" DECIMAL , 
 	"Year_of_diagnosis" DECIMAL , 
-	"Survival_months" DECIMAL 
+	"Survival_months" DECIMAL , 
+	"Record_number_recode" DECIMAL 
 );

@@ -1,8 +1,8 @@
 DOCKERPORT=8888
 HOSTPORT=8889
-VERSION=0.0.2
+VERSION=0.0.3
 CONTAINER=jannetta/modmon
-NAME=modmon2
+NAME=modmon
 DOCKERFILE=Dockerfile
 
 

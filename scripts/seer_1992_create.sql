@@ -1,13 +1,13 @@
-CREATE TABLE seer1992 (
+CREATE TABLE seer1975 (
 	"Age_recode_with_<1_year_olds" VARCHAR , 
 	"COD_to_site_recode" VARCHAR , 
 	"SEER_cause-specific_death_classification" VARCHAR , 
 	"SEER_other_cause_of_death_classification" VARCHAR , 
-	"Tumor_marker_1_(1990-2003)" VARCHAR , 
-	"Tumor_marker_2_(1990-2003)" VARCHAR , 
+	"Tumor_marker_1_(1990-2003)" DECIMAL , 
+	"Tumor_marker_2_(1990-2003)" DECIMAL , 
 	"Tumor_marker_3_(1998-2003)" VARCHAR , 
-	"EOD_10_-_nodes_(1988-2003)" VARCHAR , 
-	"EOD_10_-_extent_(1988-2003)" VARCHAR , 
+	"EOD_10_-_nodes_(1988-2003)" DECIMAL , 
+	"EOD_10_-_extent_(1988-2003)" DECIMAL , 
 	"CS_lymph_nodes_(2004-2015)" VARCHAR , 
 	"Total_number_of_benign/borderline_tumors_for_patient" DECIMAL , 
 	"Sex" VARCHAR , 
@@ -20,5 +20,6 @@ CREATE TABLE seer1992 (
 	"Patient_ID" DECIMAL , 
 	"Total_number_of_in_situ/malignant_tumors_for_patient" DECIMAL , 
 	"Year_of_diagnosis" DECIMAL , 
-	"Survival_months" DECIMAL 
+	"Survival_months" DECIMAL , 
+	"Record_number_recode" DECIMAL 
 );
