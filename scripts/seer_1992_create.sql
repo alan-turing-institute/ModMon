@@ -1,25 +1,24 @@
-CREATE TABLE seer1975 (
+CREATE TABLE seer${fn} (
 	"Age_recode_with_<1_year_olds" VARCHAR , 
 	"COD_to_site_recode" VARCHAR , 
 	"SEER_cause-specific_death_classification" VARCHAR , 
 	"SEER_other_cause_of_death_classification" VARCHAR , 
 	"Tumor_marker_1_(1990-2003)" DECIMAL , 
 	"Tumor_marker_2_(1990-2003)" DECIMAL , 
-	"Tumor_marker_3_(1998-2003)" VARCHAR , 
+	"Tumor_marker_3_(1998-2003)" BOOLEAN, 
 	"EOD_10_-_nodes_(1988-2003)" DECIMAL , 
 	"EOD_10_-_extent_(1988-2003)" DECIMAL , 
-	"CS_lymph_nodes_(2004-2015)" VARCHAR , 
-	"Total_number_of_benign/borderline_tumors_for_patient" DECIMAL , 
+	"CS_lymph_nodes_(2004-2015)" BOOLEAN, 
+	"Total_number_of_benign/borderline_tumors_for_patient" BOOLEAN , 
 	"Sex" VARCHAR , 
 	"Laterality" VARCHAR , 
 	"Diagnostic_Confirmation" VARCHAR , 
 	"Site_recode_ICD-O-3/WHO_2008" VARCHAR , 
-	"Derived_AJCC_Stage_Group,_7th_ed_(2010-2015)" VARCHAR , 
-	"Derived_AJCC_Stage_Group,_6th_ed_(2004-2015)" VARCHAR , 
+	"Derived_AJCC_Stage_Group,_7th_ed_(2010-2015)" BOOLEAN, 
+	"Derived_AJCC_Stage_Group,_6th_ed_(2004-2015)" BOOLEAN, 
 	"Breast_-_Adjusted_AJCC_6th_Stage_(1988-2015)" VARCHAR , 
-	"Patient_ID" DECIMAL , 
 	"Total_number_of_in_situ/malignant_tumors_for_patient" DECIMAL , 
 	"Year_of_diagnosis" DECIMAL , 
 	"Survival_months" DECIMAL , 
-	"Record_number_recode" DECIMAL 
+	record_id VARCHAR 
 );
