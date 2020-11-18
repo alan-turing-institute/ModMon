@@ -66,6 +66,10 @@ COPY ModelServer.jar /modmon
 
 ENV PATH /opt/conda/bin:$PATH
 ENV CONDA_EXE /usr/local/conda/bin/conda
+ENV PGHOST postgres
+ENV PGDATABASE seer
+ENV PGUSER postgres
+ENV PGPASSWORD mysecretpassword
 WORKDIR /modmon/
 # external volume for data
 
