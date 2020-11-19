@@ -203,4 +203,4 @@ def main():
         force=args.force,
         run_inactive=args.run_inactive,
     )
-    generate_report()
+    #generate_report()

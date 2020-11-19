@@ -36,6 +36,7 @@ def setup_model(
     create_envs=True,
     repro_check=True,
     set_old_inactive=True,
+    session=None,
 ):
     """Add a model version to the ModMon monitoring system. Includes copying the
     directory model_path to the ModMon storage area and creating database entries.
@@ -92,7 +93,8 @@ def setup_model(
     print(f"Adding model {model_path}...")
 
     # Set up SQLAlchemy session
-    session = get_session()
+    if session is None:
+        session = get_session()
 
     #############
     # Files ###
@@ -138,7 +140,6 @@ def setup_model(
             description=metadata["team_description"],
         )
         session.add(newteam)
-        session.commit()
         print(f"Team: Created: \"{metadata['team']}\"")
     else:
         print(f"Team: Already exists: \"{metadata['team']}\"")
@@ -151,7 +152,6 @@ def setup_model(
             questionid=question_id, description=metadata["research_question"]
         )
         session.add(newquestion)
-        session.commit()
         print(
             f"Research Question: Created with ID {question_id}: "
             f"\"{metadata['research_question']}\""
@@ -175,7 +175,6 @@ def setup_model(
         if metric not in metrics_in_db:
             newmetric = Metric(metric=metric)
             session.add(newmetric)
-            session.commit()
 
     # Models:
     models = [model.name for model in session.query(Model).all()]
@@ -189,7 +188,6 @@ def setup_model(
             description=metadata["model_description"],
         )
         session.add(newmodel)
-        session.commit()
         print(f"Model: Created with ID {model_id}: \"{metadata['model_name']}\"")
     else:
         model = session.query(Model).filter_by(name=metadata["model_name"]).first()
@@ -217,8 +215,8 @@ def setup_model(
             start_date=metadata["data_window_start"],
             end_date=metadata["data_window_end"],
         )
+        
         session.add(training_dataset)
-        session.commit()
 
         # Test Dataset:
         test_dataset_id = get_unique_id(session, Dataset.datasetid)
@@ -230,7 +228,7 @@ def setup_model(
             end_date=metadata["data_window_end"],
         )
         session.add(test_dataset)
-        session.commit()
+        # session.commit()
 
         # Model Version
         model_version = ModelVersion(
@@ -246,7 +244,6 @@ def setup_model(
             active=True,
         )
         session.add(model_version)
-        session.commit()
         print(f"Model Version: Created: \"{metadata['model_version']}\"")
 
         if set_old_inactive:
@@ -259,7 +256,6 @@ def setup_model(
             )
             for old_model_version in old_versions_this_model:
                 old_model_version.active = False
-                session.commit()
 
         # Save analyst reference scores for this model version
         run_id = get_unique_id(session, Score.runid)
@@ -276,10 +272,11 @@ def setup_model(
                 value=value,
             )
             session.add(reference_result)
-            session.commit()
 
     else:
         print(f"Model Version: Already exists: \"{metadata['model_version']}\"")
+
+    session.commit()
 
 
 def main():

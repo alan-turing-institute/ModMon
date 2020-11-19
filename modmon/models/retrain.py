@@ -90,17 +90,18 @@ def retrain_model(
         )
 
         # score new model (without adding result to database at this stage
-        print("Scoring new model...")
-        score_model(
-            model_version,
-            start_date=start_date,
-            end_date=end_date,
-            database=database,
-            force=True,
-            session=session,
-            save_to_db=False,
-            run_dir=tmp_dir,
-        )
+        # NOTE: Removed - expect retrain command to save training scores
+        # print("Scoring new model...")
+        # score_model(
+        #    model_version,
+        #    start_date=start_date,
+        #    end_date=end_date,
+        #    database=database,
+        #    force=True,
+        #    session=session,
+        #    save_to_db=False,
+        #    run_dir=tmp_dir,
+        # )
 
         # create new metadata file
         print("Updating metadata...")
@@ -108,7 +109,7 @@ def retrain_model(
 
         # add new model version to database (+ set previous inactivce)
         print("Adding new model to database...")
-        setup_model(tmp_dir, check_first=False, set_old_inactive=True)
+        setup_model(tmp_dir, check_first=False, set_old_inactive=True, session=session)
 
 
 def retrain_all_models(
