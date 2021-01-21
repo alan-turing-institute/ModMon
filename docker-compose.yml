@@ -2,7 +2,7 @@ version: "3.3"
 services:
   modmon:
     build: .
-    image: "jannetta/modmon:0.0.3"
+    image: "jannetta/modmon:0.0.4"
     container_name: modmon
     networks:
       mvc_network:
