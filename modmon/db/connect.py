@@ -62,7 +62,7 @@ def get_database_config(db_config=config["database"]):
 
 
 DB_CONNECTION_STRING, DATABASE_NAME = get_database_config(config["database"])
-ENGINE = create_engine(DB_CONNECTION_STRING)
+ENGINE = create_engine(DB_CONNECTION_STRING, executemany_mode="values")
 Base.metadata.bind = ENGINE
 
 

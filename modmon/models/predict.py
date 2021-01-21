@@ -40,24 +40,31 @@ def add_predictions_from_file(
     FileNotFoundError
         If the file model_version.location/predictions.csv does not exist
     """
-
     if not os.path.exists(results_path):
         raise FileNotFoundError(f"{results_path} not found.")
 
     with open(results_path, "r") as f:
         results = json.load(f)
 
-    for idx, values in results.items():
-        prediction = Prediction(
-            modelid=model_version.modelid,
-            modelversion=model_version.modelversion,
-            datasetid=dataset_id,
-            runtime=run_time,
-            runid=run_id,
-            recordid=idx,
-            values=values,
-        )
-        session.add(prediction)
+    modelid = model_version.modelid
+    modelversion = model_version.modelversion
+
+    engine = session.bind
+    engine.execute(
+        Prediction.__table__.insert(),
+        [
+            {
+                "modelid": modelid,
+                "modelversion": modelversion,
+                "datasetid": dataset_id,
+                "runtime": run_time,
+                "runid": run_id,
+                "recordid": idx,
+                "values": values,
+            }
+            for idx, values in results.items()
+        ]
+    )
 
 
 def prediction_model(
