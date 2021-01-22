@@ -49,6 +49,11 @@ def add_predictions_from_file(
     modelid = model_version.modelid
     modelversion = model_version.modelversion
 
+    # session may have new objects added that are needed for insert to be valid (e.g.
+    # a new dataset may have been defined earlier in the run). So commit any changes
+    # here first before continuing.
+    session.commit()
+
     engine = session.bind
     engine.execute(
         Prediction.__table__.insert(),
