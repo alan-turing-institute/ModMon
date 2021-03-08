@@ -72,7 +72,7 @@ class TestModMon(unittest.TestCase):
 
     @plotting
     def test_fig_1_scores_performance(self):
-        """Performance of ModMon DB models on across OMOP database versions.
+        """Performance of ModMon DB models across datasets.
         Each sub-plot shows the peformance of models on a particular research question
         according to a given metric."""
         g = sns.FacetGrid(
@@ -83,16 +83,16 @@ class TestModMon(unittest.TestCase):
             aspect=3,
             hue="model",
         )
-        g.map(plt.scatter, "databasename", "value").fig.subplots_adjust(hspace=0.4)
-        g.set(xlabel="Database Version", ylabel="Metric Value")
+        g.map(plt.scatter, "datasetid", "value").fig.subplots_adjust(hspace=0.4)
+        g.set(xlabel="Dataset ID", ylabel="Metric Value")
         g.set_titles(col_template="{col_name}", row_template="{row_name}")
         for i, _ in enumerate(g.axes):
             g.axes[i][0].legend(title="Models")
 
     @plotting
     def test_fig_2_model_bars(self):
-        """Comparison between initial performance of each model and performance on
-        most recent OMOP dataset"""
+        """Comparison between the initial performance of each model and its performance
+        on the most recent dataset"""
         reduced_scores = self.scores.loc[
             self.scores["datasetid"].isin(
                 [max(self.scores["datasetid"]), min(self.scores["datasetid"])]
@@ -110,7 +110,7 @@ class TestModMon(unittest.TestCase):
             sharex=False,
             hue="metric",
         )
-        g1.map(plt.bar, "databasename", "value").fig.subplots_adjust(hspace=0.4)
-        g1.set(xlabel="Database Version", ylabel=None)
+        g1.map(plt.bar, "datasetid", "value").fig.subplots_adjust(hspace=0.4)
+        g1.set(xlabel="Dataset ID", ylabel=None)
         g1.set_titles(col_template="{col_name}")
         g1.add_legend(title="Metrics")
