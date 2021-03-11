@@ -10,12 +10,11 @@
   </head>
   <body>
     <div class="card">
-      <h1>DECOVID Model Appraisal Report</h1>
+      <h1>Model Appraisal Report</h1>
       <h2>{{ date }}</h2>
-      <p>This report shows the performance of predictive models applied to DECOVID research questions.
-        As Covid19 progresses, new data will be added to the OMOP patient database.
-      This model appraisal report tracks the performance of models on each new database iteration,
-      across all performance metrics associated with a given model and research question.</p>
+      <p>This model appraisal report tracks the performance of models in the ModMon database
+      across all performance metrics associated with a given model and research question, and
+      across all datasets the model has been run on.</p>
       <div class="figures">
         {% for fname, figure in figures.items() if figure.type ==
         "table" %}
