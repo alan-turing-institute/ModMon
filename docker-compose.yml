@@ -2,14 +2,14 @@ version: "3.3"
 services:
   modmon:
     build: .
-    image: "jannetta/modmon:0.0.4"
+    image: "jannetta/modmon:0.0.5"
     container_name: modmon
     networks:
       mvc_network:
         # ipv4_address: 172.16.1.2
     ports:
-      - "4567:4567"
-      - "8889:8888"
+      - "85:4567"
+      - "8080:8888"
     volumes:
       - modmon:/modmon
       - jupyter:/root

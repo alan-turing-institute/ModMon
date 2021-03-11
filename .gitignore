@@ -1,4 +1,8 @@
 # Ignore the jar file ModelServer.jar which is required for creating the docker 
+multiclass/
+regression/
+run_multiclass.sh  
+
 ModelServer.jar
 *.tar
 scripts/*.csv
