@@ -64,6 +64,9 @@ RUN apt-get install -y openjdk-14-jre-headless
 COPY runModelServer /modmon
 COPY ModelServer.jar /modmon
 
+# copy SEER models
+COPY modmon_models/* /modmon/
+
 ENV PATH /opt/conda/bin:$PATH
 ENV CONDA_EXE /usr/local/conda/bin/conda
 ENV PGHOST postgres
