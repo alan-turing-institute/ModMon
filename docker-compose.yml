@@ -6,7 +6,7 @@ services:
     container_name: modmon
     networks:
       mvc_network:
-        # ipv4_address: 172.16.1.2
+        ipv4_address: 172.16.1.2
     ports:
       - "85:4567"
       - "8080:8888"
@@ -19,7 +19,7 @@ services:
     container_name: postgresql
     networks:
       mvc_network:
-        # ipv4_address: 172.16.1.3
+        ipv4_address: 172.16.1.3
     ports:
       - "5432:5432"
     volumes:
