@@ -15,7 +15,7 @@ services:
       - jupyter:/root
   
   postgres:
-    image: "postgres"
+    image: "postgres:12.6"
     container_name: postgresql
     networks:
       mvc_network:
