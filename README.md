@@ -1,8 +1,8 @@
-# DECOVID-ModMon
+# ModMon
 
 _Work in progress_
 
-Model monitoring framework originally developed for DECOVID. A way for analysts to automate the calculation of performance metrics for pre-trained models on new data as it becomes available.
+Model monitoring framework originally developed for the DECOVID project. A way for analysts to automate the calculation of performance metrics for pre-trained models on new data as it becomes available.
 
 ### Documentation
 
