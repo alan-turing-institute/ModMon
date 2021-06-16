@@ -22,7 +22,7 @@ Then activate the environment with:
 
 ## Install ModMon
 
-Navigate to the `monitor` directory and then run:
+Navigate to the `ModMon` directory and then run:
 ```bash
 > pip install .
 ```
